@@ -234,11 +234,18 @@ function renderKPIs(kpi) {
     if (cbtLabel) cbtLabel.textContent = `Valor CBT (${kpi.periodo_actual})`;
 
     // kpi-cbt-val (Now a main value)
-    document.getElementById('kpi-cbt-val').textContent = formatCurrency(kpi.cbt_valor);
+    const cbtValEl = document.getElementById('kpi-cbt-val');
+    if (kpi.cbt_valor === null || kpi.cbt_valor === undefined || kpi.cbt_valor === 0) {
+        cbtValEl.textContent = 'Sin datos';
+        cbtValEl.className = 'kpi-value text-secondary';
+    } else {
+        cbtValEl.textContent = formatCurrency(kpi.cbt_valor);
+        cbtValEl.className = 'kpi-value'; // Reset class
+    }
 
     // kpi-cbt-ratio
     const cbtRatioEl = document.getElementById('kpi-cbt-ratio');
-    if (kpi.is_incomplete) {
+    if (kpi.is_incomplete || kpi.cbt_ratio === null || kpi.cbt_ratio === undefined || kpi.cbt_ratio === 0) {
         cbtRatioEl.textContent = 'Sin datos';
         cbtRatioEl.className = 'kpi-value text-secondary';
     } else {

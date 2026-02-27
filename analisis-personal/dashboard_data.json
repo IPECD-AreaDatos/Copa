@@ -88,8 +88,8 @@
         "anio": 2025,
         "periodo_actual": "Marzo 2025",
         "periodo_anterior": "Marzo 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 3.6842657256631477,
+        "cbt_valor": 296605.0,
+        "cbt_ratio": 4.550115683260206,
         "is_incomplete": false
       },
       "charts": {
@@ -176,8 +176,8 @@
         "anio": 2025,
         "periodo_actual": "Abril 2025",
         "periodo_anterior": "Abril 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 3.5204150317383207,
+        "cbt_valor": 299273.0,
+        "cbt_ratio": 4.308997974060794,
         "is_incomplete": false
       },
       "charts": {
@@ -264,8 +264,8 @@
         "anio": 2025,
         "periodo_actual": "Mayo 2025",
         "periodo_anterior": "Mayo 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 3.5490889529693765,
+        "cbt_valor": 299951.0,
+        "cbt_ratio": 4.3342756765310515,
         "is_incomplete": false
       },
       "charts": {
@@ -352,8 +352,8 @@
         "anio": 2025,
         "periodo_actual": "Junio 2025",
         "periodo_anterior": "Junio 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 3.5692892870121424,
+        "cbt_valor": 303693.0,
+        "cbt_ratio": 4.305235642621677,
         "is_incomplete": false
       },
       "charts": {
@@ -440,8 +440,8 @@
         "anio": 2025,
         "periodo_actual": "Julio 2025",
         "periodo_anterior": "Julio 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 3.8899756342758667,
+        "cbt_valor": 309506.0,
+        "cbt_ratio": 4.603920003383544,
         "is_incomplete": false
       },
       "charts": {
@@ -528,8 +528,8 @@
         "anio": 2025,
         "periodo_actual": "Agosto 2025",
         "periodo_anterior": "Agosto 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.398210801544212,
+        "cbt_valor": 312583.0,
+        "cbt_ratio": 5.154192636593998,
         "is_incomplete": false
       },
       "charts": {
@@ -616,8 +616,8 @@
         "anio": 2025,
         "periodo_actual": "Septiembre 2025",
         "periodo_anterior": "Septiembre 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.385634947330358,
+        "cbt_valor": 316911.0,
+        "cbt_ratio": 5.069266523382056,
         "is_incomplete": false
       },
       "charts": {
@@ -704,8 +704,8 @@
         "anio": 2025,
         "periodo_actual": "Octubre 2025",
         "periodo_anterior": "Octubre 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.384265307798712,
+        "cbt_valor": 326860.0,
+        "cbt_ratio": 4.913432690341595,
         "is_incomplete": false
       },
       "charts": {
@@ -792,8 +792,8 @@
         "anio": 2025,
         "periodo_actual": "Noviembre 2025",
         "periodo_anterior": "Noviembre 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.368046522070932,
+        "cbt_valor": 338583.0,
+        "cbt_ratio": 4.725764405024249,
         "is_incomplete": false
       },
       "charts": {
@@ -880,8 +880,8 @@
         "anio": 2025,
         "periodo_actual": "Diciembre 2025",
         "periodo_anterior": "Diciembre 2024",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.366465032688639,
+        "cbt_valor": 352420.0,
+        "cbt_ratio": 4.538573782955588,
         "is_incomplete": false
       },
       "charts": {
@@ -1056,8 +1056,8 @@
         "anio": 2026,
         "periodo_actual": "Febrero 2026",
         "periodo_anterior": "Febrero 2025",
-        "cbt_valor": 366311.0,
-        "cbt_ratio": 4.502965259872016,
+        "cbt_valor": null,
+        "cbt_ratio": null,
         "is_incomplete": false
       },
       "charts": {

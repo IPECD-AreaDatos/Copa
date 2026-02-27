@@ -245,7 +245,7 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
 
     // 1. Variación Real Coparticipación
     const copaData = mainData.data[currentPeriodId].kpi.recaudacion;
-    const kpiCopaReal = copaData.var_real;
+    const kpiCopaReal = copaData.ipc_missing ? null : copaData.var_real;
     updateKPI('kpi-copa-var-real', kpiCopaReal, true);
 
     // 2. Cobertura Salarial (Main)
