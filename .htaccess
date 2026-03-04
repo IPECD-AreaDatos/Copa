@@ -1,0 +1,6 @@
+<Files "*.json">
+    Require all denied
+</Files>
+<Files "_data_ipce_v1.json">
+    Require all granted
+</Files>

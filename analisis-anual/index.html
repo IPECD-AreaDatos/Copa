@@ -39,9 +39,9 @@
 
     <nav class="nav-vertical">
       <a href="../main/index.html" class="nav-link-vertical">Inicio</a>
-      <a href="../monitor-mensual/index.html" class="nav-link-vertical">Monitor Mensual</a>
-      <a href="../analisis-anual/index.html" class="nav-link-vertical active">Análisis Anual</a>
-      <a href="../analisis-personal/index.html" class="nav-link-vertical">Análisis Salarial</a>
+      <a href="../monitor-mensual/index.html" class="nav-link-vertical">Monitor Mensual Coparticipación</a>
+      <a href="../analisis-anual/index.html" class="nav-link-vertical active">Análisis Anual Coparticipación</a>
+      <a href="../analisis-personal/index.html" class="nav-link-vertical" style="display: none;">Análisis Salarial</a>
     </nav>
 
     <div class="sidebar-footer">
@@ -57,130 +57,228 @@
   <div class="main-content-wrapper">
 
     <main>
-      <div class="header-content" style="text-align: left; margin-bottom: 3rem;">
-        <h1 class="text-gradient dashboard-title">Análisis de Coparticipación Anual</h1>
+      <div class="header-content"
+        style="text-align: left; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <h1 class="text-gradient dashboard-title" style="margin-bottom: 0;">Coparticipación Federal - Monitor Anual</h1>
+
+        <!-- Year Selector -->
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label for="year-selector" style="color: var(--text-secondary); font-weight: 500;">Período:</label>
+          <select id="year-selector" class="period-select"
+            style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 1rem; cursor: pointer; outline: none;"
+            aria-label="Seleccionar periodo">
+            <option value="" disabled selected>Cargando...</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Annual KPI Grid -->
-      <section class="hero-grid" id="annual-kpi-grid">
-        <!-- Populated by JS -->
+      <!-- KPI Grid -->
+      <section class="hero-grid">
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Monto total, en billones de pesos corrientes, de los ingresos por coparticipación disponible para el año seleccionado.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+            ?</div>
+          <div class="kpi-label" id="label-recaudacion-current">Copa. Disponible Año --</div>
+          <div class="kpi-value" id="kpi-recaudacion-current">Loading...</div>
+          <div class="kpi-sub"
+            style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem;">
+            <span style="color: var(--text-secondary);">Copa. Neta: <strong id="kpi-neta-current">--</strong></span>
+            <span style="color: var(--text-secondary);">Copa. Bruta: <strong id="kpi-bruta-current">--</strong></span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Monto total, en billones de pesos corrientes, de los ingresos por coparticipación disponible para el año anterior al seleccionado. En caso de ser YTD, compara contra los mismos meses del año anterior.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+            ?</div>
+          <div class="kpi-label" id="label-recaudacion-prev">Copa. Disponible Año --</div>
+          <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-recaudacion-prev">Loading...</div>
+          <div class="kpi-sub"
+            style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem; color: var(--text-secondary);">
+            <span>Copa. Neta: <strong id="kpi-neta-prev">--</strong></span>
+            <span>Copa. Bruta: <strong id="kpi-bruta-prev">--</strong></span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual de la coparticipación disponible en términos nominales del año seleccionado respecto al año anterior.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+            ?</div>
+          <div class="kpi-label">Variación Nominal</div>
+          <div class="kpi-value text-success" id="kpi-recaudacion-var-nom-pct">--%</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; display: none;" id="kpi-recaudacion-var-nom-abs">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;" id="var-label-nom-inter">Interanual</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual de la coparticipación disponible en términos reales del año seleccionado respecto al año anterior. La coparticipación disponible se deflacta por el IPC del NEA mes a mes.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+            ?</div>
+          <div class="kpi-label">Variación Real</div>
+          <div class="kpi-value" id="real-var-val">--%</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; display: none;" id="real-var-abs">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;">* Ajustado por inflación</span>
+          </div>
+        </article>
+      </section>
+      <p
+        style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
+        Fuente: INDEC y Ministerio de Economía de la Nación</p>
+
+      <div class="header-content" style="text-align: left; margin-top: 4rem; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;" class="text-gradient dashboard-title">Masa
+          Salarial Empleo Provincial</h2>
+        <p id="masa-salarial-subtitle" style="color: var(--text-secondary); font-size: 1rem;">
+          Relación entre Coparticipación y Masa Salarial
+        </p>
+      </div>
+
+      <section class="hero-grid">
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la masa salarial total liquidada, en billones de pesos corrientes, correspondiente al año seleccionado.">
+            ?</div>
+          <div class="kpi-label" id="label-masa-current">Masa Salarial Año --</div>
+          <div class="kpi-value" id="kpi-masa-current">Loading...</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; color: var(--accent-primary);" id="kpi-masa-cob-current">Cobertura:
+              --%</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Masa salarial total liquidada, en billones de pesos corrientes, para el año anterior al seleccionado.">
+            ?</div>
+          <div class="kpi-label" id="label-masa-prev">Masa Salarial Año --</div>
+          <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-masa-prev">Loading...</div>
+          <div class="kpi-sub" style="color: var(--text-secondary);">
+            <span id="kpi-masa-cob-prev">Cobertura: --%</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual de la masa salarial total liquidada en términos nominales del año seleccionado respecto al año anterior.">
+            ?</div>
+          <div class="kpi-label">Variación Nominal</div>
+          <div class="kpi-value" id="kpi-masa-var-nom-pct">--%</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; display: none;" id="kpi-masa-var-nom-abs">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;" id="var-label-nom-masa">Interanual</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual de la masa salarial total liquidada en términos reales del año seleccionado respecto al año anterior, ajustada por IPC del NEA.">
+            ?</div>
+          <div class="kpi-label">Variación Real</div>
+          <div class="kpi-value" id="kpi-masa-var-real">--%</div>
+          <div class="kpi-sub">
+            <span id="masa-real-var-abs" style="font-weight: 700; display: none;">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;">* Ajustado por inflación</span>
+          </div>
+        </article>
+      </section>
+      <p
+        style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
+        Fuente: SISPER</p>
+
+
+      <!-- Copa vs Sueldos Chart Section -->
+      <section class="chart-container">
+        <div class="info-tooltip"
+          data-tooltip="Comparación de la recaudación acumulada mensual de coparticipación disponible frente al monto objetivo para el pago de salarios a lo largo del año.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+          ?</div>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="copaVsSalarioTitle">Coparticipación Disponible vs Sueldos</h2>
+            <p class="section-subtitle">Evolución acumulada mensual</p>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartCopaVsSalario"></canvas>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+          Fuente: Ministerio de Economía y Administración (Coparticipación) / SISPER (Salarios)
+        </p>
       </section>
 
-      <p id="base-period-text"
-        style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
-        Período base Enero 2022 - IPC NEA
-      </p>
+      <!-- Monthly Evolution Chart Section -->
+      <section class="chart-container" style="margin-top: 4rem; margin-bottom: 4rem;">
+        <div class="info-tooltip"
+          data-tooltip="Comparación de la evolución de los ingresos mensuales de la coparticipación disponible en billones de pesos en términos nominales para el año actual seleccionado y el año anterior.
 
-      <!-- Chart Section -->
-      <!-- Annual Dashboard Grid -->
-      <section class="chart-container" style="background: transparent; padding: 0; box-shadow: none;">
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
 
-        <!-- Header removed -->
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
 
-        <div class="annual-grid">
-
-          <!-- CARD 1: Mixed Chart -->
-          <article class="dashboard-card graph-card">
-            <div class="info-tooltip"
-              data-tooltip="Comparación de la evolución de los ingresos anuales totales por coparticipación, en términos reales y nominales. Los valores reales se obtienen deflactando por el IPC del NEA.">
-              ?</div>
-            <div class="card-header">
-              <h3 class="card-title">Comparativa: Valores Nominales vs. Reales</h3>
-              <p class="card-subtitle">Impacto inflacionario en la recaudación (2022-2025)</p>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="annualChart"></canvas>
-            </div>
-            <div class="card-source">
-              Fuente: Elaborado por IPECD en base a datos de INDEC, el Ministerio de Economía de la Nación y el
-              Ministerio de Hacienda y Finanzas de la Provincia de Corrientes
-            </div>
-          </article>
-
-          <!-- CARD 2: Table -->
-          <article class="dashboard-card table-card">
-            <div class="info-tooltip"
-              data-tooltip="Tabla comparativa de los ingresos anuales de la coparticipación en valores nominales con su respectiva variación porcentual interanual, y los valores reales con su respectiva variación porcentual interanual.">
-              ?</div>
-            <div class="card-header">
-              <h3 class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-                Tabla de Datos Fiscales
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="3" y1="9" x2="21" y2="9"></line>
-                  <line x1="9" y1="21" x2="9" y2="9"></line>
-                </svg>
-              </h3>
-              <p class="card-subtitle">Serie histórica 2022-2025</p>
-            </div>
-
-            <div class="table-responsive">
-              <table class="premium-table" id="annual-table">
-                <thead>
-                  <tr>
-                    <th>AÑO</th>
-                    <th>VALORES<br>NOMINALES</th>
-                    <th>VAR.<br>INTER.</th>
-                    <th>VALORES REALES<br>(BASE ENERO 2022)</th>
-                    <th>VAR.<br>INTER.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-footer-note">
-              Note: Los valores reales y nominales del año 2022 no coinciden debido a que el periodo base es enero 2022
-              y
-              no todo el año.
-            </div>
-            <div class="card-source">
-              Fuente: Elaborado por IPECD en base a datos de INDEC, el Ministerio de Economía de la Nación y el
-              Ministerio de Hacienda y Finanzas de la Provincia de Corrientes
-            </div>
-          </article>
-
-          <!-- CARD 3: Nominal Chart -->
-          <article class="dashboard-card graph-card">
-            <div class="info-tooltip"
-              data-tooltip="Evolución de los ingresos anuales totales de la coparticipación, en pesos, en términos nominales.">
-              ?</div>
-            <div class="card-header">
-              <h3 class="card-title">Evolución de Valores Nominales</h3>
-              <p class="card-subtitle">2022-2025 (PESOS ARGENTINOS)</p>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="nominalChart"></canvas>
-            </div>
-            <div class="card-source">
-              Fuente: Elaborado por IPECD en base a datos de INDEC, el Ministerio de Economía de la Nación y el
-              Ministerio de Hacienda y Finanzas de la Provincia de Corrientes
-            </div>
-          </article>
-
-          <!-- CARD 4: Real Chart -->
-          <article class="dashboard-card graph-card">
-            <div class="info-tooltip"
-              data-tooltip="Evolución de los ingresos anuales totales de la coparticipación, en pesos, en términos reales. Los valores reales se obtienen deflactando por el IPC del NEA.">
-              ?</div>
-            <div class="card-header">
-              <h3 class="card-title">Evolución de Valores Reales</h3>
-              <p class="card-subtitle">2022-2025 (BASE ENERO 2022)</p>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="realChart"></canvas>
-            </div>
-            <div class="card-source">
-              Fuente: Elaborado por IPECD en base a datos de INDEC, el Ministerio de Economía de la Nación y el
-              Ministerio de Hacienda y Finanzas de la Provincia de Corrientes
-            </div>
-          </article>
-
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+          ?</div>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="chart-title">Comportamiento de Coparticipación Disponible Mensual</h2>
+            <p class="section-subtitle">Comparativa de ingresos mensuales nominales (Billones de pesos)</p>
+          </div>
         </div>
+        <div class="chart-wrapper">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">Fuente:
+          INDEC y Ministerio de Economía de la Nación</p>
+      </section>
 
-        <!-- Footer removed -->
+      <!-- Gap Chart Section -->
+      <section class="chart-container" style="margin-top: 4rem; margin-bottom: 4rem; display: none;">
+        <div class="info-tooltip"
+          data-tooltip="Comparación acumulada entre los ingresos observados frente a la recaudación que debería haber ingresado (Esperada = 100%) a lo largo de los meses.">
+          ?</div>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Brecha Recaudación Acumulada Anual</h2>
+            <p class="section-subtitle">Efectiva vs Esperada</p>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartBrechaAcumulada"></canvas>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+          Fuente: Ministerio de Economía y Administración
+        </p>
       </section>
 
     </main>

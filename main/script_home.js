@@ -111,12 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show all dashboard links (desktop)
         if (navMonitor) navMonitor.style.display = 'block';
         if (navAnual) navAnual.style.display = 'block';
-        if (navPersonal) navPersonal.style.display = 'block';
+        if (navPersonal) navPersonal.style.display = 'none'; // Hidden as per user request
+
 
         // Show all dashboard links (mobile)
         if (navMonitorMobile) navMonitorMobile.style.display = 'block';
         if (navAnualMobile) navAnualMobile.style.display = 'block';
-        if (navPersonalMobile) navPersonalMobile.style.display = 'block';
+        if (navPersonalMobile) navPersonalMobile.style.display = 'none'; // Hidden as per user request
+
 
         // Setup logout handlers
         const btnLogout = document.getElementById('btnLogout');
@@ -146,10 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // They are already hidden by default in the HTML
     }
 
-    // Load dashboard data
+    // Load dashboard data (Fix 1-B & 3-C)
+    // Use an absolute-relative path based on the current domain to avoid nested folder 404s
+    const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
+
     Promise.all([
-        fetch('dashboard_data.json').then(res => res.json()),
-        fetch('../analisis-personal/dashboard_data.json').then(res => res.json())
+        fetch(basePath + 'main/_data_ipce_v1.json').then(res => res.json()),
+        fetch(basePath + 'analisis-personal/_data_ipce_v1.json').then(res => res.json())
     ])
         .then(([mainData, personalData]) => {
             let currentPeriodId = mainData.meta.default_period_id;

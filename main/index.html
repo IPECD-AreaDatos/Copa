@@ -35,9 +35,9 @@
         <nav class="nav-vertical">
             <a href="index.html" class="nav-link-vertical active">Inicio</a>
             <a href="../monitor-mensual/index.html" class="nav-link-vertical" id="navMonitor"
-                style="display: none;">Monitor Mensual</a>
+                style="display: none;">Monitor Mensual Coparticipación</a>
             <a href="../analisis-anual/index.html" class="nav-link-vertical" id="navAnual"
-                style="display: none;">Análisis Anual</a>
+                style="display: none;">Análisis Anual Coparticipación</a>
             <a href="../analisis-personal/index.html" class="nav-link-vertical" id="navPersonal"
                 style="display: none;">Análisis Salarial</a>
         </nav>
@@ -77,10 +77,10 @@
                 </div>
             </div>
 
-            <!-- KPI Grid -->
-            <section class="hero-grid">
+            <!-- KPI Grid (Centered) -->
+            <section class="hero-grid" style="display: flex; justify-content: center; flex-wrap: wrap;">
                 <!-- 1. Var Real Coparticipación -->
-                <article class="kpi-card">
+                <article class="kpi-card" style="flex: 1 1 300px; max-width: 350px;">
                     <div class="info-tooltip"
                         data-tooltip="Muestra la variación porcentual interanual de la coparticipación en términos reales del período seleccionado respecto al mismo período del año anterior. 
 
@@ -97,7 +97,7 @@ El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de
                 </article>
 
                 <!-- 2. Cobertura Salarial -->
-                <article class="kpi-card">
+                <article class="kpi-card" style="flex: 1 1 300px; max-width: 350px;">
                     <div class="info-tooltip"
                         data-tooltip="Muestra qué porcentaje de los ingresos de coparticipación se usan para pagar el total de la masa salarial.
 El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.">
@@ -110,7 +110,7 @@ El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de
                 </article>
 
                 <!-- 3. Variación Real Salario -->
-                <article class="kpi-card">
+                <article class="kpi-card" style="flex: 1 1 300px; max-width: 350px;">
                     <div class="info-tooltip"
                         data-tooltip="Muestra la variación porcentual interanual del salario promedio en términos reales del período seleccionado respecto al mismo período del año anterior.
 Para ello, el salario promedio se ajusta por inflación utilizando el IPC del NEA, con el objetivo de descontar el efecto del aumento general de precios. Luego se compara el valor del período seleccionado con el mismo período del año previo. De esta manera, el indicador refleja la evolución del salario en términos de poder adquisitivo.">
@@ -123,7 +123,7 @@ Para ello, el salario promedio se ajusta por inflación utilizando el IPC del NE
                 </article>
 
                 <!-- 4. Ratio CBT -->
-                <article class="kpi-card">
+                <article class="kpi-card" style="display: none;">
                     <div class="info-tooltip" data-tooltip="Mide la cantidad de Canastas Básicas Totales Digitales (CBT), correspondientes a un adulto equivalente, que pueden adquirirse con el salario promedio del período seleccionado.
 
 Este indicador permite evaluar el poder adquisitivo del salario en relación con el costo de cubrir las necesidades básicas totales, estableciendo cuántas canastas puede comprar, en promedio, un trabajador con su salario.
@@ -144,31 +144,30 @@ La CBT digital es calculada por el IPECD para la Ciudad de Corrientes.">
             </p>
 
 
-            <!-- Chart Section (Single Chart - Top) -->
-            <section class="chart-container">
-                <div class="info-tooltip"
-                    data-tooltip="Permite comparar la evolución mensual de la variación interanual de los ingresos provinciales por coparticipación y del IPC del NEA.
 
-El indicador muestra, para cada mes, cómo varía la coparticipación respecto al mismo mes del año anterior y cómo evoluciona, en ese mismo período, el nivel general de precios en la región NEA. De esta manera, se puede analizar si el crecimiento de los recursos provinciales acompaña, supera o queda por debajo de la inflación.">
-                    ?</div>
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Coparticipación vs Inflación</h2>
-                        <p class="section-subtitle">Relación de variaciones interanuales últimos 12 meses</p>
-                    </div>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="executiveChart"></canvas>
-                </div>
-                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                    Fuente: INDEC y Ministerio de Economía de la Nación
-                </p>
-            </section>
-
-            <!-- New Chart Grid (Purchasing Power & Coverage - Bottom) -->
+            <!-- New Chart Grid (Consolidated) -->
             <section class="charts-grid-half">
-                <!-- Purchasing Power Chart -->
+                <!-- Coparticipación vs Inflación (Moved here) -->
                 <div class="chart-container" style="margin-bottom: 0;">
+                    <div class="info-tooltip"
+                        data-tooltip="Permite comparar la evolución mensual de la variación interanual de los ingresos provinciales por coparticipación y del IPC del NEA.">
+                        ?</div>
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Coparticipación vs Inflación</h2>
+                            <p class="section-subtitle">Relación de variaciones interanuales últimos 12 meses</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="executiveChart"></canvas>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+                        Fuente: INDEC y Ministerio de Economía de la Nación
+                    </p>
+                </div>
+
+                <!-- Purchasing Power Chart -->
+                <div class="chart-container" style="margin-bottom: 0; display: none;">
                     <div class="info-tooltip" data-tooltip="Muestra la evolución en el tiempo de la cantidad de Canastas Básicas Totales (CBT), correspondientes a un adulto equivalente, que pueden adquirirse con el salario promedio.
 
 Este indicador permite analizar cómo varía el poder adquisitivo del salario en relación con el costo de cubrir las necesidades básicas totales, reflejando si el salario alcanza para comprar más o menos canastas a lo largo del tiempo.

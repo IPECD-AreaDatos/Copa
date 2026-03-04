@@ -38,9 +38,10 @@
 
         <nav class="nav-vertical">
             <a href="../main/index.html" class="nav-link-vertical">Inicio</a>
-            <a href="../monitor-mensual/index.html" class="nav-link-vertical active">Monitor Mensual</a>
-            <a href="../analisis-anual/index.html" class="nav-link-vertical">Análisis Anual</a>
-            <a href="../analisis-personal/index.html" class="nav-link-vertical">Análisis Salarial</a>
+            <a href="../monitor-mensual/index.html" class="nav-link-vertical active">Monitor Mensual Coparticipación</a>
+            <a href="../analisis-anual/index.html" class="nav-link-vertical">Análisis Anual Coparticipación</a>
+            <a href="../analisis-personal/index.html" class="nav-link-vertical" style="display: none;">Análisis
+                Salarial</a>
         </nav>
 
         <div class="sidebar-footer">
@@ -81,7 +82,13 @@
             <section class="hero-grid">
                 <article class="kpi-card">
                     <div class="info-tooltip"
-                        data-tooltip="Monto total, en millones de pesos corrientes, de los ingresos por coparticipación para el periodo actual seleccionado.">
+                        data-tooltip="Monto total, en millones de pesos corrientes, de los ingresos por coparticipación disponible para el periodo actual seleccionado.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
                     <div class="kpi-label" id="label-recaudacion-current">Copa. Disponible Enero 2026</div>
                     <div class="kpi-value" id="kpi-recaudacion-current">Loading...</div>
@@ -96,7 +103,13 @@
 
                 <article class="kpi-card">
                     <div class="info-tooltip"
-                        data-tooltip="Monto total, en millones de pesos corrientes, de los ingresos por coparticipación para el mismo periodo del año anterior al seleccionado.">
+                        data-tooltip="Monto total, en millones de pesos corrientes, de los ingresos por coparticipación disponible para el mismo periodo del año anterior al seleccionado.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
                     <div class="kpi-label" id="label-recaudacion-prev">Copa. Disponible Enero 2025</div>
                     <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-recaudacion-prev">Loading...
@@ -110,7 +123,13 @@
 
                 <article class="kpi-card">
                     <div class="info-tooltip"
-                        data-tooltip="Muestra la variación porcentual interanual de la coparticipación en términos nominales del periodo seleccionado respecto al mismo periodo del año anterior.">
+                        data-tooltip="Muestra la variación porcentual interanual de la coparticipación disponible en términos nominales del periodo seleccionado respecto al mismo periodo del año anterior.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
                     <div class="kpi-label">Variación Nominal</div>
                     <div class="kpi-value text-success" id="kpi-recaudacion-var-nom-pct">--%</div>
@@ -122,7 +141,13 @@
 
                 <article class="kpi-card">
                     <div class="info-tooltip"
-                        data-tooltip="Muestra la variación porcentual interanual de la coparticipación en términos reales del período seleccionado respecto al mismo período del año anterior.  La coparticipación se deflacta por el IPC del NEA.">
+                        data-tooltip="Muestra la variación porcentual interanual de la coparticipación disponible en términos reales del período seleccionado respecto al mismo período del año anterior. La coparticipación disponible se deflacta por el IPC del NEA.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
                     <div class="kpi-label">Variación Real</div>
                     <div class="kpi-value" id="real-var-val">--%</div>
@@ -205,14 +230,68 @@ Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC
                 Fuente: SISPER</p>
 
 
+            <!-- Real Evolution Charts Grid -->
+            <section class="charts-grid-half" style="margin-top: 4rem;">
+                <!-- Real Coparticipation Chart -->
+                <div class="chart-container" style="margin-bottom: 0;">
+                    <div class="info-tooltip"
+                        data-tooltip="Muestra los ingresos por coparticipación disponible de los últimos 6 meses comparados con el mismo mes del año anterior ajustado por inflación. Las barras grises representan la recaudación del año pasado expresada en pesos actuales (con el poder de compra de hoy).
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
+                        ?</div>
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Coparticipación Disponible Real</h2>
+                            <p class="section-subtitle">Evolución últimos 6 meses (Pesos constantes)</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartCopaRealEvol"></canvas>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+                        Fuente: Ministerio de Economía e INDEC (IPC NEA)
+                    </p>
+                </div>
+
+                <!-- Real Masa Salarial Chart -->
+                <div class="chart-container" style="margin-bottom: 0;">
+                    <div class="info-tooltip"
+                        data-tooltip="Muestra la masa salarial de los últimos 6 meses comparada con el mismo mes del año anterior ajustado por inflación. Las barras grises representan la masa salarial del año pasado expresada en pesos actuales.">
+                        ?</div>
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Masa Salarial Real</h2>
+                            <p class="section-subtitle">Evolución últimos 6 meses (Pesos constantes)</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartMasaRealEvol"></canvas>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+                        Fuente: SISPER e INDEC (IPC NEA)
+                    </p>
+                </div>
+            </section>
+
+
             <!-- Copa vs Sueldos Chart Section -->
             <section class="chart-container">
                 <div class="info-tooltip"
-                    data-tooltip="Comparación de la recaudación acumulada diaria de coparticipación frente al monto objetivo para el pago de salarios del mes (o mes anterior disponible).">
+                    data-tooltip="Comparación de la recaudación acumulada diaria de coparticipación disponible frente al monto objetivo para el pago de salarios del mes (o mes anterior disponible).
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                     ?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title" id="copaVsSalarioTitle">Coparticipación vs Sueldos</h2>
+                        <h2 class="section-title" id="copaVsSalarioTitle">Coparticipación Disponible vs Sueldos</h2>
                         <p class="section-subtitle">¿Cuántos días de recaudación cubren la masa salarial?</p>
                     </div>
                 </div>
@@ -227,11 +306,18 @@ Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC
             <!-- Daily Chart Section -->
             <section class="chart-container" style="margin-top: 4rem; margin-bottom: 4rem;">
                 <div class="info-tooltip"
-                    data-tooltip="Comparación de la evolución de los ingresos diarios de la coparticipación en millones de pesos en términos nominales para el periodo actual seleccionado y el mismo periodo del año anterior.">
+                    data-tooltip="Comparación de la evolución de los ingresos diarios de la coparticipación disponible en millones de pesos en términos nominales para el periodo actual seleccionado y el mismo periodo del año anterior.
+
+La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
+
+La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.
+
+La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                     ?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title" id="chart-title">Comportamiento de Coparticipación Diaria</h2>
+                        <h2 class="section-title" id="chart-title">Comportamiento de Coparticipación Disponible Diaria
+                        </h2>
                         <p class="section-subtitle">Comparativa de ingresos diarios nominales (Millones de pesos)</p>
                     </div>
                     <!-- Controls could go here -->
@@ -244,7 +330,7 @@ Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC
             </section>
 
             <!-- Gap Chart Section -->
-            <section class="chart-container" style="margin-top: 4rem; margin-bottom: 4rem;">
+            <section class="chart-container" style="margin-top: 4rem; margin-bottom: 4rem; display: none;">
                 <div class="info-tooltip"
                     data-tooltip="Comparación acumulada entre los ingresos observados frente a la recaudación que debería haber ingresado (Esperada = 100%).">
                     ?</div>

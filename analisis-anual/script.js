@@ -1,10 +1,5 @@
-
-let dashboardData = {};
-let annualChart = null;
-
-const formatterDecimal = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const formatterInteger = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
-const formatterOneDecimal = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+// Global state to hold fetched data
+let dashboardData = null;
 
 // Global Chart.js Legend Click Override - "Solo" Behavior
 const customLegendClick = function (e, legendItem, legend) {
@@ -97,222 +92,317 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch data from MAIN dashboard JSON which contains the 'annual' node
-    fetch('../main/dashboard_data.json')
-        .then(response => response.json())
-        .then(data => {
-            dashboardData = data;
-            renderAnnualDashboard();
-        })
-        .catch(error => console.error('Error loading data:', error));
-
-    // Nav Toggle Logic
-    const toggle = document.getElementById('mobileNavToggle');
+    // Mobile Nav Toggle
+    const mobileNavToggle = document.getElementById('mobileNavToggle');
     const sidebar = document.getElementById('sidebar');
 
-    if (toggle && sidebar) {
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('open');
+    if (mobileNavToggle && sidebar) {
+        mobileNavToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            mobileNavToggle.classList.toggle('active');
         });
 
+        // Close sidebar when clicking outside
         document.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggle) {
-                sidebar.classList.remove('open');
+            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && e.target !== mobileNavToggle) {
+                sidebar.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
             }
         });
 
-        const links = sidebar.querySelectorAll('.nav-link-vertical');
-        links.forEach(link => {
+        // Close sidebar when a link is clicked
+        const navLinks = sidebar.querySelectorAll('.nav-link-vertical');
+        navLinks.forEach(link => {
             link.addEventListener('click', () => {
-                sidebar.classList.remove('open');
+                sidebar.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
             });
         });
     }
+
+    // Load dashboard data (Fix 1-B & 3-C)
+    // Use an absolute-relative path based on the current domain to avoid nested folder 404s
+    const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
+
+    fetch(basePath + 'main/_data_ipce_v1.json')
+        .then(response => response.json())
+        .then(data => {
+            dashboardData = data.annual_monitor;
+            initYearSelector(dashboardData.meta.available_periods);
+        })
+        .catch(error => console.error('Error loading data:', error));
 });
 
-function renderAnnualDashboard() {
-    if (!dashboardData || !dashboardData.annual) return;
+function initYearSelector(periods) {
+    const selector = document.getElementById('year-selector');
 
-    const annualData = dashboardData.annual;
-    const periods = annualData.periods; // Array of {year, nominal, real}
+    // Clear loading option
+    selector.innerHTML = '';
 
-    // Sorting
-    periods.sort((a, b) => b.year - a.year);
+    const defaultId = dashboardData.meta.default_period_id;
+    const defaultIndex = periods.findIndex(p => p.id === defaultId);
 
-    const currentYear = periods[0];
-    const prevYear = periods[1];
+    // Populate options (newest first - already generally ordered from backend)
+    periods.forEach(period => {
+        const option = document.createElement('option');
+        option.value = period.id;
+        option.textContent = period.label;
 
-    const kpiGrid = document.getElementById('annual-kpi-grid');
-    if (!kpiGrid) return;
-
-    // Formatting helpers
-    const formatCurrency = (val) => {
-        if (Math.abs(val) >= 1_000_000_000_000) {
-            return `$${formatterDecimal.format(val / 1_000_000_000_000)} Billones`;
+        if (period.incomplete) {
+            option.style.color = '#ef4444';
+            option.dataset.incomplete = 'true';
+            option.textContent += ' (YTD)';
         }
-        if (Math.abs(val) >= 1_000_000_000) {
-            return `$${formatterInteger.format(val / 1_000_000_000)} Mil Millones`;
-        }
-        return `$${formatterInteger.format(val / 1_000_000)} M`;
-    };
 
-    const formatPct = (val) => {
-        if (val === null || val === undefined) return '-';
-        const sign = val >= 0 ? '+' : '';
-        return `${sign}${formatterDecimal.format(val)}%`;
-    };
-
-    // 1. Current Year Card
-    const cardCurrent = `
-        <article class="kpi-card">
-            <div class="info-tooltip" data-tooltip="Monto total, en pesos corrientes, de los ingresos provinciales por coparticipación para el periodo actual seleccionado.
-
-El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.">?</div>
-            <div class="kpi-label">Año ${currentYear.year}</div>
-            <div class="kpi-value text-xl">${formatCurrency(currentYear.nominal)}</div>
-            <div class="kpi-sub">
-                <span style="color: var(--accent-primary); font-weight:700;">Real: ${formatCurrency(currentYear.real)}</span>
-            </div>
-        </article>
-    `;
-
-    // 2. Prev Year Card
-    const cardPrev = `
-        <article class="kpi-card">
-            <div class="info-tooltip" data-tooltip="Monto total, en pesos corrientes, de los ingresos provinciales por coparticipación para el mismo periodo del año anterior al seleccionado.
-
-El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.">?</div>
-            <div class="kpi-label">Año ${prevYear.year}</div>
-            <div class="kpi-value text-xl" style="color: var(--text-secondary);">${formatCurrency(prevYear.nominal)}</div>
-            <div class="kpi-sub">
-                <span style="color: var(--text-secondary); font-weight:700;">Real: ${formatCurrency(prevYear.real)}</span>
-            </div>
-        </article>
-    `;
-
-    // 3. Var Nominal
-    const varNom = currentYear.var_nominal !== undefined ? currentYear.var_nominal : ((currentYear.nominal / prevYear.nominal) - 1) * 100;
-    const diffNom = currentYear.nominal - prevYear.nominal;
-
-    const cardVarNom = `
-        <article class="kpi-card">
-            <div class="info-tooltip" data-tooltip="Muestra la variación porcentual interanual de los ingresos provinciales por coparticipación en términos nominales del período seleccionado respecto al mismo período del año anterior.
-
-El indicador compara el monto percibido en el período elegido con el registrado en el mismo período del año previo, sin realizar ajustes por inflación. De esta manera, refleja el crecimiento o la disminución de los recursos en valores corrientes. 
-
-El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal..">?</div>
-            <div class="kpi-label">Variación Nominal</div>
-            <div class="kpi-value ${varNom >= 0 ? 'text-success' : 'text-danger'}">
-                ${varNom >= 0 ? '+' : ''}${formatCurrency(diffNom).replace('Billones', 'B').replace('Mil Millones', 'MM').replace('Mil M', 'MM')}
-            </div>
-            <div class="kpi-sub">
-                <span style="font-weight: 700;">${formatPct(varNom)}</span>
-                <span style="color: var(--text-secondary); margin-left: 5px;">Interanual</span>
-            </div>
-        </article>
-    `;
-
-    // 4. Var Real
-    const varReal = currentYear.var_real !== undefined ? currentYear.var_real : ((currentYear.real / prevYear.real) - 1) * 100;
-    const diffReal = currentYear.real - prevYear.real;
-
-    const cardVarReal = `
-        <article class="kpi-card">
-            <div class="info-tooltip" data-tooltip="Muestra la variación porcentual interanual de la coparticipación en términos reales del período seleccionado respecto al mismo período del año anterior. 
-
-Para ello, primero se ajustan (deflactan) los ingresos provenientes de la coparticipación utilizando el IPC del NEA, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
-
-El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.">?</div>
-            <div class="kpi-label">Variación Real</div>
-            <div class="kpi-value ${varReal >= 0 ? 'text-success' : 'text-danger'}">
-                ${varReal >= 0 ? '+' : ''}${formatCurrency(diffReal).replace('Billones', 'B').replace('Mil Millones', 'MM').replace('Mil M', 'MM')}
-            </div>
-            <div class="kpi-sub">
-                <span style="font-weight: 700;">${formatPct(varReal)}</span>
-                <span style="color: var(--text-secondary); margin-left: 5px;">Interanual</span>
-            </div>
-        </article>
-    `;
-
-    kpiGrid.innerHTML = cardCurrent + cardPrev + cardVarNom + cardVarReal;
-
-    // Render Table
-    renderTable(periods, formatCurrency, formatPct);
-
-    // Render Charts
-    const baseLabel = annualData.meta ? annualData.meta.base_ipc : 'Base Enero 2022';
-
-    renderMixedChart(periods, baseLabel);
-    renderNominalChart(periods);
-    renderRealChart(periods, baseLabel);
-}
-
-function renderTable(periods, fmtCurr, fmtPct) {
-    const tableBody = document.querySelector('#annual-table tbody');
-    if (!tableBody) return;
-
-    // Sort chronological: 2022, 2023, 2024, 2025
-    const chrono = [...periods].sort((a, b) => a.year - b.year);
-
-    let html = '';
-    chrono.forEach(p => {
-        const varNomClass = (p.var_nominal > 0) ? 'var-pos' : (p.var_nominal < 0 ? 'var-neg' : 'var-neu');
-        const varRealClass = (p.var_real > 0) ? 'var-pos' : (p.var_real < 0 ? 'var-neg' : 'var-neu');
-
-        html += `
-            <tr>
-                <td class="year-cell">${p.year}</td>
-                <td>${fmtCurr(p.nominal)}</td>
-                <td class="${varNomClass} var-tag">${fmtPct(p.var_nominal)}</td>
-                <td>${fmtCurr(p.real)}</td>
-                <td class="${varRealClass} var-tag">${fmtPct(p.var_real)}</td>
-            </tr>
-        `;
+        selector.appendChild(option);
     });
 
-    tableBody.innerHTML = html;
+    // Select default period
+    let chosenId = defaultId;
+    if (!chosenId && periods.length > 0) {
+        chosenId = periods[0].id;
+    }
+
+    selector.value = chosenId;
+
+    // Render initial data
+    renderDashboard(chosenId);
+
+    // Handle changes
+    selector.addEventListener('change', (e) => {
+        const selectedOption = e.target.selectedOptions[0];
+        if (selectedOption && selectedOption.dataset.incomplete === 'true') {
+            alert("Atención: El año seleccionado aún cuenta con datos incompletos. Las comparativas se realizan en modo YTD (Year-to-Date) contra los mismos meses del año anterior.");
+        }
+        renderDashboard(e.target.value);
+    });
 }
 
-let mixedChartInstance = null;
-let nominalChartInstance = null;
-let realChartInstance = null;
+function renderDashboard(periodId) {
+    if (!dashboardData || !dashboardData.data[periodId]) return;
 
-function renderMixedChart(periods, baseLabel) {
-    const ctx = document.getElementById('annualChart').getContext('2d');
-    const chronological = [...periods].sort((a, b) => a.year - b.year);
-    const labels = chronological.map(p => p.year);
+    const periodData = dashboardData.data[periodId];
+    const iterYear = parseInt(periodId);
+    const prevYear = iterYear - 1;
 
-    // Create Gradient for Nominal (Primary)
-    const gradientNom = ctx.createLinearGradient(0, 0, 0, 400);
-    gradientNom.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
-    gradientNom.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
+    // Update KPI Grid
+    renderKPIs(periodData.kpi);
 
-    // Real as Secondary (Gray) - OR Distinct?
-    // User requested same colors as Main (Green vs Gray). 
-    // We'll use Green for Nominal, Gray for Real in this comparison.
-    const colorReal = '#94a3b8';
+    // Dynamic Labels
+    const periodLabel = periodData.kpi.meta.periodo; // e.g. "Año 2026 (YTD)"
 
-    if (mixedChartInstance) mixedChartInstance.destroy();
+    // Update Recaudación Labels
+    const lblRecCurrent = document.getElementById('label-recaudacion-current');
+    if (lblRecCurrent) lblRecCurrent.textContent = `Copa. Disponible ${periodLabel}`;
 
-    mixedChartInstance = new Chart(ctx, {
+    const lblRecPrev = document.getElementById('label-recaudacion-prev');
+    if (lblRecPrev) lblRecPrev.textContent = `Copa. Disponible Año ${prevYear}`;
+
+    // Update Masa Salarial Labels
+    const lblMasaCurrent = document.getElementById('label-masa-current');
+    if (lblMasaCurrent) lblMasaCurrent.textContent = `Masa Salarial ${periodLabel}`;
+
+    const lblMasaPrev = document.getElementById('label-masa-prev');
+    if (lblMasaPrev) lblMasaPrev.textContent = `Masa Salarial Año ${prevYear}`;
+
+    // Update Chart Title
+    const chartTitle = document.getElementById('chart-title');
+    if (chartTitle) chartTitle.textContent = `Comportamiento de Coparticipación Disponible Mensual ${iterYear}`;
+
+    // Update Chart
+    renderMonthlyChart(periodData.charts.monthly, iterYear, prevYear);
+    renderCopaVsSalarioChart(periodData.charts.copa_vs_salario);
+    renderBrechaChart(periodData.charts.copa_vs_salario, iterYear);
+}
+
+// ... Format functions ...
+function formatCurrency(value) {
+    if (value === undefined || value === null) return 'N/A';
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value * 1000000);
+}
+function formatBillions(value) {
+    if (value === undefined || value === null || isNaN(value)) return 'N/A';
+    // 1 Billon = 1.000.000.000.000 (Long scale)
+    const valInBillions = value / 1000000000000;
+    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(valInBillions) + ' Billones';
+}
+
+function formatMillions(value) {
+    if (value === undefined || value === null || isNaN(value)) return 'N/A';
+    const valInMillions = value / 1000000;
+    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(valInMillions) + ' Millones';
+}
+
+function formatPercentage(value) {
+    if (value === undefined || value === null || isNaN(value)) return 'N/A';
+    const sign = value >= 0 ? '+' : '';
+    const formattedValue = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
+    return `${sign}${formattedValue}%`;
+}
+
+function renderKPIs(kpi) {
+    // Apply 19% reduction (multiply by 0.81) to Recaudación values
+    const factor = 0.81;
+    const currentNet = kpi.recaudacion.current * factor;
+    const prevNet = kpi.recaudacion.prev * factor;
+    const diffNomNet = kpi.recaudacion.diff_nom * factor;
+
+    // --- Recaudación ---
+    document.getElementById('kpi-recaudacion-current').textContent = formatBillions(currentNet);
+    document.getElementById('kpi-recaudacion-prev').textContent = formatBillions(prevNet);
+
+    // Neta and Bruta labels
+    document.getElementById('kpi-neta-current').textContent = formatBillions(kpi.recaudacion.neta_current);
+    document.getElementById('kpi-neta-prev').textContent = formatBillions(kpi.recaudacion.neta_prev);
+    document.getElementById('kpi-bruta-current').textContent = formatBillions(kpi.recaudacion.bruta_current);
+    document.getElementById('kpi-bruta-prev').textContent = formatBillions(kpi.recaudacion.bruta_prev);
+
+    // Var Nominal
+    const recVarNomEl = document.getElementById('kpi-recaudacion-var-nom-abs');
+    const diffSign = diffNomNet >= 0 ? '+' : '-';
+    if (recVarNomEl) recVarNomEl.textContent = diffSign + formatBillions(Math.abs(diffNomNet));
+
+    const recVarNomSub = document.getElementById('kpi-recaudacion-var-nom-pct');
+    const pctSign = kpi.recaudacion.var_nom >= 0 ? '+' : '-';
+    if (recVarNomSub) {
+        recVarNomSub.textContent = pctSign + formatPercentage(Math.abs(kpi.recaudacion.var_nom)).replace('+', '').replace('-', '');
+        recVarNomSub.className = `kpi-value ${kpi.recaudacion.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+    }
+
+    // Var Real (Check IPC Missing)
+    const recVarRealEl = document.getElementById('real-var-val');
+    const recVarRealAbsEl = document.getElementById('real-var-abs');
+
+    if (kpi.recaudacion.ipc_missing) {
+        if (recVarRealEl) {
+            recVarRealEl.textContent = 'Sin IPC completo';
+            recVarRealEl.className = 'kpi-value text-secondary';
+        }
+        if (recVarRealAbsEl) recVarRealAbsEl.textContent = '--';
+    } else {
+        if (recVarRealEl) {
+            recVarRealEl.textContent = formatPercentage(kpi.recaudacion.var_real);
+            recVarRealEl.className = `kpi-value ${kpi.recaudacion.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const inflacionPct = kpi.recaudacion.ipc_used_for_calc / 100;
+        const prevAjustado = prevNet * (1 + inflacionPct);
+        const diffReal = currentNet - prevAjustado;
+
+        if (recVarRealAbsEl) {
+            const diffRealSign = diffReal >= 0 ? '+' : '-';
+            recVarRealAbsEl.textContent = diffRealSign + formatBillions(Math.abs(diffReal));
+            recVarRealAbsEl.className = diffReal >= 0 ? 'text-success' : 'text-danger';
+        }
+    }
+
+    // --- Masa Salarial ---
+    const masaCurrentEl = document.getElementById('kpi-masa-current');
+
+    // Cobertura text
+    document.getElementById('kpi-masa-cob-current').textContent = `Cobertura: ${kpi.masa_salarial.cobertura_current.toFixed(1)}%`;
+    document.getElementById('kpi-masa-cob-prev').textContent = `Cobertura: ${kpi.masa_salarial.cobertura_prev.toFixed(1)}%`;
+
+    const isIncomplete = kpi.masa_salarial.is_incomplete;
+    const isIpcMissing = kpi.recaudacion.ipc_missing;
+
+    // Masa Current
+    if (isIncomplete) {
+        if (masaCurrentEl) masaCurrentEl.textContent = 'Sin datos';
+    } else {
+        if (masaCurrentEl) masaCurrentEl.textContent = formatBillions(kpi.masa_salarial.current);
+    }
+
+    document.getElementById('kpi-masa-prev').textContent = formatBillions(kpi.masa_salarial.prev);
+
+    // Var Nominal Masa
+    const masaVarNomPctEl = document.getElementById('kpi-masa-var-nom-pct');
+    const masaVarNomAbsEl = document.getElementById('kpi-masa-var-nom-abs');
+
+    if (isIncomplete) {
+        if (masaVarNomPctEl) {
+            masaVarNomPctEl.textContent = 'Sin datos';
+            masaVarNomPctEl.className = 'kpi-value text-secondary';
+        }
+        if (masaVarNomAbsEl) masaVarNomAbsEl.textContent = ' - ';
+    } else {
+        const masaDiffSign = kpi.masa_salarial.diff_nom >= 0 ? '+' : '-';
+        if (masaVarNomAbsEl) masaVarNomAbsEl.textContent = masaDiffSign + formatBillions(Math.abs(kpi.masa_salarial.diff_nom));
+
+        const masaPctSign = kpi.masa_salarial.var_nom >= 0 ? '+' : '-';
+        if (masaVarNomPctEl) {
+            masaVarNomPctEl.textContent = masaPctSign + formatPercentage(Math.abs(kpi.masa_salarial.var_nom)).replace('+', '').replace('-', '');
+            masaVarNomPctEl.className = `kpi-value ${kpi.masa_salarial.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+    }
+
+    // Var Real Masa
+    const masaVarRealEl = document.getElementById('kpi-masa-var-real');
+    const masaVarRealAbsEl = document.getElementById('masa-real-var-abs');
+
+    if (isIncomplete || isIpcMissing) {
+        if (masaVarRealEl) {
+            masaVarRealEl.textContent = 'Sin datos completos';
+            masaVarRealEl.className = 'kpi-value text-secondary';
+        }
+        if (masaVarRealAbsEl) masaVarRealAbsEl.textContent = '--';
+    } else {
+        if (masaVarRealEl) {
+            masaVarRealEl.textContent = formatPercentage(kpi.masa_salarial.var_real);
+            masaVarRealEl.className = `kpi-value ${kpi.masa_salarial.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const inflacionPct = kpi.recaudacion.ipc_used_for_calc / 100;
+        const prevAjustado = kpi.masa_salarial.prev * (1 + inflacionPct);
+        const diffReal = kpi.masa_salarial.current - prevAjustado;
+
+        if (masaVarRealAbsEl) {
+            const diffRealSign = diffReal >= 0 ? '+' : '-';
+            masaVarRealAbsEl.textContent = diffRealSign + formatBillions(Math.abs(diffReal));
+            masaVarRealAbsEl.className = diffReal >= 0 ? 'text-success' : 'text-danger';
+        }
+    }
+}
+
+let monthlyChartInstance = null;
+
+function renderMonthlyChart(monthlyData, currentYear, prevYear) {
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+
+    if (monthlyChartInstance) {
+        monthlyChartInstance.destroy();
+    }
+
+    // Gradient for current year
+    const gradientCurr = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientCurr.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
+    gradientCurr.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
+
+    // Apply 19% reduction to monthly data
+    const factor = 0.81;
+    const dataCurrNet = monthlyData.data_curr.map(val => val !== null ? val * factor : null);
+    const dataPrevNet = monthlyData.data_prev.map(val => val !== null ? val * factor : null);
+
+    monthlyChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: monthlyData.labels,
             datasets: [
                 {
-                    label: 'Nominal',
-                    data: chronological.map(p => p.nominal),
-                    backgroundColor: gradientNom,
+                    label: `Año ${currentYear}`,
+                    data: dataCurrNet,
+                    backgroundColor: gradientCurr,
                     borderRadius: 4,
-                    order: 2
+                    borderSkipped: false,
+                    order: 1
                 },
                 {
-                    label: `Real (${baseLabel.replace('Base ', '')})`,
-                    data: chronological.map(p => p.real),
-                    backgroundColor: colorReal,
+                    label: `Año ${prevYear}`,
+                    data: dataPrevNet,
+                    backgroundColor: '#94a3b8',
                     borderRadius: 4,
-                    order: 1
+                    borderSkipped: false,
+                    order: 2
                 }
             ]
         },
@@ -320,137 +410,302 @@ function renderMixedChart(periods, baseLabel) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'top', labels: { color: '#64748b', font: { weight: '600' } } },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#475569',
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (context.parsed.y !== null) {
+                                return `${label}: ${formatBillions(context.parsed.y)}`;
+                            }
+                        },
+                        afterBody: function (tooltipItems) {
+                            const valCurr = tooltipItems[0].raw || 0;
+                            const valPrev = tooltipItems[1] ? tooltipItems[1].raw : 0;
+
+                            if (valCurr > 0 && valPrev > 0) {
+                                const diff = valCurr - valPrev;
+                                const sign = diff > 0 ? '+' : '';
+                                return `\nVar. Nominal: ${sign}${formatBillions(diff)}`;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#64748b' }
+                },
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                    ticks: {
+                        color: '#64748b',
+                        callback: val => formatBillions(val)
+                    }
+                }
+            },
+            interaction: { mode: 'index', intersect: false },
+        }
+    });
+}
+
+let chartCopaInstance = null;
+
+function renderCopaVsSalarioChart(dataCopa) {
+    const ctx = document.getElementById('chartCopaVsSalario');
+    if (!ctx) return;
+
+    if (chartCopaInstance) {
+        chartCopaInstance.destroy();
+    }
+
+    if (!dataCopa) return;
+
+    const colorPrimary = '#10b981';
+    const colorAccent = '#af2f2f';
+
+    const factor = 0.81;
+    const cumulativeCopaNet = dataCopa.cumulative_copa.map(val => val !== null ? val * factor : null);
+
+    chartCopaInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: dataCopa.labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Masa Salarial Objetivo Acum.',
+                    data: dataCopa.salario_target,
+                    borderColor: colorAccent,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false,
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'bar',
+                    label: 'Coparticipación Disponible Acumulada',
+                    data: cumulativeCopaNet,
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: colorPrimary,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    yAxisID: 'y'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 12, weight: '600' }
+                    }
+                },
                 tooltip: {
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     titleColor: '#1e293b',
                     bodyColor: '#475569',
                     borderColor: 'rgba(0,0,0,0.1)',
                     borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    mode: 'index',
+                    intersect: false,
                     callbacks: {
-                        label: function (ctx) {
-                            let val = ctx.raw;
-                            let label = '';
-                            if (val >= 1_000_000_000_000) label = `$${formatterInteger.format(Math.round(val / 1e12))} Billones`;
-                            else label = `$${formatterInteger.format(Math.round(val / 1e9))} Mil M`;
-                            return `${ctx.dataset.label}: ${label}`;
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (context.parsed.y !== null) {
+                                return `${label}: ${formatBillions(context.parsed.y)}`;
+                            }
                         }
                     }
                 }
+            },
+            interaction: {
+                mode: 'index',
+                axis: 'x',
+                intersect: false
             },
             scales: {
                 y: {
-                    border: { display: false },
-                    grid: { color: 'rgba(0,0,0,0.05)' },
-                    ticks: { color: '#64748b', font: { weight: '500' }, callback: (val) => formatterInteger.format(Math.round(val / 1e12)) + 'B' },
+                    grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                    ticks: {
+                        font: { size: 11 },
+                        color: '#64748b',
+                        callback: (value) => formatBillions(value)
+                    }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#64748b', font: { weight: '500' } }
+                    ticks: { font: { size: 11 } }
                 }
             }
         }
     });
 }
 
-function renderNominalChart(periods) {
-    const ctx = document.getElementById('nominalChart').getContext('2d');
-    const chronological = [...periods].sort((a, b) => a.year - b.year);
-    const labels = chronological.map(p => p.year);
-    const data = chronological.map(p => p.nominal);
+let chartBrechaInstance = null;
 
-    // Gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
-    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
+function renderBrechaChart(dataCopa, currentYear) {
+    const ctx = document.getElementById('chartBrechaAcumulada');
+    if (!ctx) return;
 
-    if (nominalChartInstance) nominalChartInstance.destroy();
+    if (chartBrechaInstance) {
+        chartBrechaInstance.destroy();
+    }
 
-    nominalChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Variación Nominal',
-                data: data,
-                backgroundColor: gradient,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    titleColor: '#1e293b',
-                    bodyColor: '#475569',
-                    borderColor: 'rgba(0,0,0,0.1)',
-                    borderWidth: 1,
-                    callbacks: {
-                        label: function (ctx) {
-                            let val = ctx.raw;
-                            if (val >= 1_000_000_000_000) return `$${formatterInteger.format(Math.round(val / 1e12))} Billones`;
-                            return `$${formatterInteger.format(Math.round(val / 1e9))} Mil M`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: { display: false },
-                x: { grid: { display: false }, ticks: { color: '#64748b', font: { weight: '500' } } }
+    if (!dataCopa || !dataCopa.cumulative_esperada || !dataCopa.cumulative_copa) return;
+
+    const colorActual = '#10b981';
+    const colorFaltante = '#94a3b8';
+    const colorExcedente = '#047857';
+
+    const expectedData = dataCopa.cumulative_esperada;
+    // Apply 19% reduction to actuals for standard representation
+    const factor = 0.81;
+    const actualDataRaw = dataCopa.cumulative_copa.map(val => val !== null ? val * factor : null);
+
+    const baseData = [];
+    const faltanteData = [];
+    const excedenteData = [];
+
+    for (let i = 0; i < expectedData.length; i++) {
+        const exp = expectedData[i];
+        const act = actualDataRaw[i];
+
+        if (exp === null || act === null) {
+            baseData.push(null);
+            faltanteData.push(null);
+            excedenteData.push(null);
+        } else {
+            if (act <= exp) {
+                baseData.push(act);
+                faltanteData.push(exp - act);
+                excedenteData.push(0);
+            } else {
+                baseData.push(exp);
+                faltanteData.push(0);
+                excedenteData.push(act - exp);
             }
         }
-    });
-}
+    }
 
-function renderRealChart(periods, baseLabel) {
-    const ctx = document.getElementById('realChart').getContext('2d');
-    const chronological = [...periods].sort((a, b) => a.year - b.year);
-    const labels = chronological.map(p => p.year);
-    const data = chronological.map(p => p.real);
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(148, 163, 184, 0.9)');
-    gradient.addColorStop(1, 'rgba(148, 163, 184, 0.4)');
-
-    if (realChartInstance) realChartInstance.destroy();
-
-    realChartInstance = new Chart(ctx, {
+    chartBrechaInstance = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: labels,
-            datasets: [{
-                label: 'Variación Real',
-                data: data,
-                backgroundColor: gradient,
-                borderRadius: 4
-            }]
+            labels: dataCopa.labels,
+            datasets: [
+                {
+                    label: 'Recaudación Acumulada',
+                    data: baseData,
+                    backgroundColor: colorActual,
+                    borderColor: 'rgba(255,255,255,0.2)',
+                    borderWidth: 1,
+                    stack: 'Stack 0',
+                    barPercentage: 0.7
+                },
+                {
+                    label: 'Meta Pendiente (Faltante para Esperada)',
+                    data: faltanteData,
+                    backgroundColor: 'rgba(148, 163, 184, 0.4)',
+                    borderColor: colorFaltante,
+                    borderWidth: 1,
+                    borderDash: [4, 4],
+                    stack: 'Stack 0',
+                    barPercentage: 0.7
+                },
+                {
+                    label: 'Excedente (Por encima de la Esperada)',
+                    data: excedenteData,
+                    backgroundColor: colorExcedente,
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                    stack: 'Stack 0',
+                    barPercentage: 0.7
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
+                title: {
+                    display: false,
+                },
+                legend: {
+                    position: 'top',
+                    align: 'center',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 8,
+                        padding: 15,
+                        font: { size: 12 }
+                    }
+                },
                 tooltip: {
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     titleColor: '#1e293b',
                     bodyColor: '#475569',
                     borderColor: 'rgba(0,0,0,0.1)',
                     borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    mode: 'index',
+                    intersect: false,
                     callbacks: {
-                        label: function (ctx) {
-                            let val = ctx.raw;
-                            if (val >= 1_000_000_000_000) return `$${formatterInteger.format(Math.round(val / 1e12))} Billones`;
-                            return `$${formatterInteger.format(Math.round(val / 1e9))} Mil M`;
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (context.parsed.y !== null) {
+                                return `${label}: ${formatBillions(context.parsed.y)}`;
+                            }
+                        },
+                        afterBody: function (tooltipItems) {
+                            if (!tooltipItems || tooltipItems.length === 0) return '';
+                            let act = tooltipItems[0].raw || 0;
+                            let fal = tooltipItems[1] ? (tooltipItems[1].raw || 0) : 0;
+                            let exc = tooltipItems[2] ? (tooltipItems[2].raw || 0) : 0;
+
+                            let totalEsp = act + fal;
+                            let totalAct = act + exc;
+
+                            if (totalEsp > 0) {
+                                let pct = (totalAct / totalEsp) * 100;
+                                return `\n% del Esperado: ${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 }).format(pct)}%`;
+                            }
                         }
                     }
                 }
             },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             scales: {
-                y: { display: false },
-                x: { grid: { display: false }, ticks: { color: '#64748b', font: { weight: '500' } } }
+                x: {
+                    stacked: true,
+                    grid: { display: false }
+                },
+                y: {
+                    stacked: true,
+                    grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                    ticks: {
+                        callback: val => formatBillions(val)
+                    }
+                }
             }
         }
     });

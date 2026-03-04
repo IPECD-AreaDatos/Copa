@@ -13,15 +13,16 @@ const Auth = (function () {
     };
 
     // User credentials (in production, this should be handled by a backend)
+    // Fix 1-B Reverted: Restored hardcoded credentials for demo purposes.
     const USERS = {
         'admin': {
             password: 'admin2026',
-            name: 'Administrador',
+            name: 'Administrador Demo',
             role: 'admin'
         },
         'usuario': {
             password: 'usuario2026',
-            name: 'Usuario',
+            name: 'Usuario Demo',
             role: 'user'
         }
     };
@@ -117,7 +118,7 @@ const Auth = (function () {
             clearSession();
             // Redirect to main dashboard (public) instead of login
             // Use relative path to work on both localhost and GitHub Pages
-            const basePath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1) + 1);
+            const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
             window.location.href = basePath || '/';
         },
 
@@ -147,7 +148,7 @@ const Auth = (function () {
                 // Store the intended destination
                 sessionStorage.setItem('redirect_after_login', window.location.pathname);
                 // Use relative path to work on both localhost and GitHub Pages
-                const basePath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1) + 1);
+                const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
                 window.location.href = (basePath || '/') + 'login.html';
                 return false;
             }

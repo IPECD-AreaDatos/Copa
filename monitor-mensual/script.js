@@ -92,7 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    fetch('../main/dashboard_data.json')
+    const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
+
+    fetch(basePath + 'main/_data_ipce_v1.json')
         .then(response => response.json())
         .then(data => {
             dashboardData = data;
@@ -202,12 +204,13 @@ function renderDashboard(periodId) {
 
     // Update Chart Title
     const chartTitle = document.getElementById('chart-title');
-    if (chartTitle) chartTitle.textContent = `Comportamiento de Coparticipación Diaria ${monthName}`;
+    if (chartTitle) chartTitle.textContent = `Comportamiento de Coparticipación Disponible Diaria ${monthName}`;
 
     // Update Chart
     renderChart(periodData.charts.daily, monthName, currentYear, prevYear);
     renderBrechaChart(periodData.charts.copa_vs_salario, monthName, currentYear);
     renderCopaVsSalarioChart(periodData.charts.copa_vs_salario);
+    renderRealEvolutionCharts(periodId);
 }
 
 // ... Format functions ...
@@ -452,7 +455,7 @@ function renderCopaVsSalarioChart(dataCopa) {
     // Update Title dynamically
     const titleEl = document.getElementById('copaVsSalarioTitle');
     if (titleEl && dataCopa && dataCopa.copa_label && dataCopa.salario_label) {
-        titleEl.textContent = `Coparticipación ${dataCopa.copa_label} vs Sueldos ${dataCopa.salario_label}`;
+        titleEl.textContent = `Coparticipación Disponible ${dataCopa.copa_label} vs Sueldos ${dataCopa.salario_label}`;
     }
 
     if (chartCopaInstance) {
@@ -486,7 +489,7 @@ function renderCopaVsSalarioChart(dataCopa) {
                 },
                 {
                     type: 'bar',
-                    label: 'Coparticipación Acumulada',
+                    label: 'Coparticipación Disponible Acumulada',
                     data: cumulativeCopaNet,
                     backgroundColor: 'rgba(16, 185, 129, 0.8)',
                     borderColor: colorPrimary,
@@ -710,6 +713,124 @@ function renderBrechaChart(dataCopa, monthName, currentYear) {
             }
         }
     });
+}
+
+let chartCopaRealInstance = null;
+let chartMasaRealInstance = null;
+
+function renderRealEvolutionCharts(periodId) {
+    if (!dashboardData || !dashboardData.meta.available_periods) return;
+
+    const periods = dashboardData.meta.available_periods;
+    const selectedIdx = periods.findIndex(p => p.id === periodId);
+    if (selectedIdx === -1) return;
+
+    // Get last 6 months ending in selectedIdx
+    const startIndex = Math.max(0, selectedIdx - 5);
+    const chartPeriods = periods.slice(startIndex, selectedIdx + 1);
+
+    const labels = [];
+    const copaCurrent = [];
+    const copaPrevReal = [];
+    const masaCurrent = [];
+    const masaPrevReal = [];
+
+    const factor = 0.81;
+
+    chartPeriods.forEach(p => {
+        const periodData = dashboardData.data[p.id];
+        if (!periodData) return;
+
+        // Label: "Ene 26"
+        const shortLabel = p.label.substring(0, 3) + ' ' + p.year.toString().slice(-2);
+        labels.push(shortLabel);
+
+        // Coparticipation
+        const copaNom = periodData.kpi.recaudacion.current * factor;
+        const inflation = periodData.kpi.recaudacion.ipc_used_for_calc / 100;
+        const copaPrevNom = periodData.kpi.recaudacion.prev * factor;
+        const copaPrevR = copaPrevNom * (1 + inflation);
+
+        copaCurrent.push(copaNom);
+        copaPrevReal.push(copaPrevR);
+
+        // Masa Salarial
+        const masaNom = periodData.kpi.masa_salarial.current;
+        const masaPrevNom = periodData.kpi.masa_salarial.prev;
+        const masaPrevR = masaPrevNom * (1 + inflation);
+
+        masaCurrent.push(masaNom);
+        masaPrevReal.push(masaPrevR);
+    });
+
+    // Render Charts
+    renderBarComparisonChart('chartCopaRealEvol', labels, 'Copa. Actual', copaCurrent, 'Copa. Año Ant. (Real)', copaPrevReal, '#10b981');
+    renderBarComparisonChart('chartMasaRealEvol', labels, 'Masa Actual', masaCurrent, 'Masa Año Ant. (Real)', masaPrevReal, '#3b82f6');
+}
+
+function renderBarComparisonChart(canvasId, labels, label1, data1, label2, data2, color1) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // Destroy previous instance
+    if (canvasId === 'chartCopaRealEvol' && chartCopaRealInstance) chartCopaRealInstance.destroy();
+    if (canvasId === 'chartMasaRealEvol' && chartMasaRealInstance) chartMasaRealInstance.destroy();
+
+    const instance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: label1,
+                    data: data1,
+                    backgroundColor: color1,
+                    borderRadius: 4
+                },
+                {
+                    label: label2,
+                    data: data2,
+                    backgroundColor: '#94a3b8',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, padding: 15 }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.dataset.label}: $${new Intl.NumberFormat('es-AR').format(Math.round(context.raw))} M`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        callback: (value) => '$' + new Intl.NumberFormat('es-AR').format(Math.round(value)) + ' M'
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    if (canvasId === 'chartCopaRealEvol') chartCopaRealInstance = instance;
+    if (canvasId === 'chartMasaRealEvol') chartMasaRealInstance = instance;
 }
 
 // --- Navigation Toggle ---
