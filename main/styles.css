@@ -320,6 +320,11 @@ header {
     }
 }
 
+/* Always show user/logout section inside the sidebar (visible on mobile when sidebar is open) */
+.sidebar .nav-user-header {
+    display: flex;
+}
+
 .btn-logout-header {
     background: rgba(239, 68, 68, 0.15);
     color: #FCA5A5;
@@ -411,9 +416,15 @@ header {
         /* Show toggle button */
     }
 
-    .mobile-nav-toggle {
-        display: block;
-        /* Show toggle button */
+    /* Reposition sidebar footer so login/logout is not hidden by browser navigation bar */
+    .sidebar-footer {
+        margin-top: 1rem;
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);
+    }
+
+    /* Budget comparison cards: stack vertically on mobile */
+    .budget-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -499,7 +510,8 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 145px;
+    min-height: 145px;
+    height: auto;
 }
 
 

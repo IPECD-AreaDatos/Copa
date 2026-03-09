@@ -123,7 +123,6 @@ function initMonthSelector(periods) {
         // Highlight months beyond the default
         const pIndex = periods.findIndex(p => p.id === period.id);
         if (pIndex > defaultIndex) {
-            option.style.color = '#ef4444';
             option.dataset.incomplete = 'true';
             option.textContent += ' (Incompleto)';
         }
@@ -147,19 +146,13 @@ function initMonthSelector(periods) {
     selector.addEventListener('change', (e) => {
         const selectedOption = e.target.selectedOptions[0];
         if (selectedOption && selectedOption.dataset.incomplete === 'true') {
-            selector.style.color = '#ef4444'; // Red for incomplete
             alert("Atención: El periodo seleccionado aún cuenta con datos incompletos. Las variaciones y proyecciones pueden cambiar significativamente hasta el cierre definitivo.");
-        } else {
-            selector.style.color = ''; // Default
         }
         renderDashboard(e.target.value);
     });
 
-    // Set initial color
+    // Check if initial is incomplete to trigger alert if necessary
     const initialOption = selector.selectedOptions[0];
-    if (initialOption && initialOption.dataset.incomplete === 'true') {
-        selector.style.color = '#ef4444';
-    }
 }
 
 function renderDashboard(periodId) {
@@ -200,34 +193,83 @@ function renderDashboard(periodId) {
     // Update Recaudación Labels
     const isIncomplete = periodData.kpi.masa_salarial.is_incomplete;
     const statusSuffix = isIncomplete ? ' (incompleto)' : '';
-    const statusColor = isIncomplete ? '#ef4444' : '';
 
     const lblRecCurrent = document.getElementById('label-recaudacion-current');
     if (lblRecCurrent) {
         lblRecCurrent.textContent = `Copa. Disponible ${monthName} ${currentYear}${statusSuffix}`;
-        lblRecCurrent.style.color = statusColor;
     }
 
     const lblRecPrev = document.getElementById('label-recaudacion-prev');
     if (lblRecPrev) lblRecPrev.textContent = `Copa. Disponible ${monthName} ${prevYear}`;
 
+    const lblMuniCurrent = document.getElementById('label-muni-current');
+    if (lblMuniCurrent) {
+        lblMuniCurrent.textContent = `Distrib. Municipal ${monthName} ${currentYear}${statusSuffix}`;
+    }
+
+    const lblMuniPrev = document.getElementById('label-muni-prev');
+    if (lblMuniPrev) lblMuniPrev.textContent = `Distrib. Municipal ${monthName} ${prevYear}`;
+
     // Update Masa Salarial Subtitle
     const masaSubtitle = document.getElementById('masa-salarial-subtitle');
     if (masaSubtitle) {
         masaSubtitle.textContent = `Relación entre Coparticipación y Masa Salarial para ${monthName} ${prevYear} vs ${currentYear}${statusSuffix}`;
-        if (isIncomplete) masaSubtitle.style.color = '#ef4444';
-        else masaSubtitle.style.color = '';
     }
 
     // Update Masa Salarial Labels
     const lblMasaCurrent = document.getElementById('label-masa-current');
     if (lblMasaCurrent) {
         lblMasaCurrent.textContent = `Masa Salarial ${monthName} ${currentYear}${statusSuffix}`;
-        lblMasaCurrent.style.color = statusColor;
     }
 
     const lblMasaPrev = document.getElementById('label-masa-prev');
     if (lblMasaPrev) lblMasaPrev.textContent = `Masa Salarial ${monthName} ${prevYear}`;
+
+    // Conditional visibility for Incomplete Periods 
+    const cardCopaVarNom = document.getElementById('card-copa-var-nom');
+    const cardCopaVarReal = document.getElementById('card-copa-var-real');
+    const rowCopaCards = document.getElementById('row-copa-cards');
+
+    const cardMuniVarNom = document.getElementById('card-muni-var-nom');
+    const cardMuniVarReal = document.getElementById('card-muni-var-real');
+    const rowMuniCards = document.getElementById('row-muni-cards');
+
+    const cardMasaVarReal = document.getElementById('card-masa-var-real');
+    const rowMasaCards = document.getElementById('row-masa-cards');
+
+    // Mobile-aware grid column setter: on small screens let CSS media queries handle stacking
+    const isMobileLayout = window.innerWidth <= 640;
+
+    if (isIncomplete) {
+        if (cardCopaVarNom) cardCopaVarNom.style.display = 'none';
+        if (cardCopaVarReal) cardCopaVarReal.style.display = 'none';
+        if (rowCopaCards) rowCopaCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(2, 1fr)';
+
+        if (cardMuniVarNom) cardMuniVarNom.style.display = 'none';
+        if (cardMuniVarReal) cardMuniVarReal.style.display = 'none';
+        if (rowMuniCards) rowMuniCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(2, 1fr)';
+
+        if (cardMasaVarReal) cardMasaVarReal.style.display = 'none';
+        if (rowMasaCards) rowMasaCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(3, 1fr)';
+    }
+    // Reset states if complete
+    if (!isIncomplete) {
+        if (cardCopaVarNom) cardCopaVarNom.style.display = 'flex';
+        if (cardCopaVarReal) cardCopaVarReal.style.display = 'flex';
+        if (rowCopaCards) rowCopaCards.style.gridTemplateColumns = '';
+
+        if (cardMuniVarNom) cardMuniVarNom.style.display = 'flex';
+        if (cardMuniVarReal) cardMuniVarReal.style.display = 'flex';
+        if (rowMuniCards) rowMuniCards.style.gridTemplateColumns = '';
+
+        if (cardMasaVarReal) cardMasaVarReal.style.display = 'flex';
+        if (rowMasaCards) rowMasaCards.style.gridTemplateColumns = '';
+    }
+
+    // Get specific IPC missing flags for each metric (Nacion vs NEA)
+    const isIpcNacionMissing = periodData.kpi.recaudacion.ipc_missing;
+    const isIpcNeaMissingMuni = periodData.kpi.distribucion_municipal.ipc_missing;
+    const isIpcNeaMissingMasa = periodData.kpi.masa_salarial.ipc_missing;
 
     // Update Chart Title
     const chartTitle = document.getElementById('chart-title');
@@ -258,11 +300,62 @@ function formatPercentage(value) {
 }
 
 function renderKPIs(kpi, isPeriodComplete, periodId) {
-    // Apply 19% reduction (multiply by 0.81) to Recaudación values
-    const factor = 0.81;
-    const currentNet = kpi.recaudacion.current * factor;
-    const prevNet = kpi.recaudacion.prev * factor;
-    const diffNomNet = kpi.recaudacion.diff_nom * factor;
+    const currentNet = kpi.recaudacion.current;
+    const prevNet = kpi.recaudacion.prev;
+    const diffNomNet = kpi.recaudacion.diff_nom;
+
+    // Get specific IPC missing flags for each metric (Nacion vs NEA)
+    const isIpcNacionMissing = kpi.recaudacion.ipc_missing;
+    const isIpcNeaMissingMuni = kpi.distribucion_municipal.ipc_missing;
+    const isIpcNeaMissingMasa = kpi.masa_salarial.ipc_missing;
+
+    // --- Distribucion Municipal ---
+    if (kpi.distribucion_municipal) {
+        const muniCurrent = kpi.distribucion_municipal.current;
+        const muniPrev = kpi.distribucion_municipal.prev;
+
+        const elMuniCurr = document.getElementById('kpi-muni-current');
+        if (elMuniCurr) elMuniCurr.textContent = formatMillions(muniCurrent);
+
+        const elMuniPrev = document.getElementById('kpi-muni-prev');
+        if (elMuniPrev) elMuniPrev.textContent = formatMillions(muniPrev);
+
+        const muniVarNomEl = document.getElementById('kpi-muni-var-nom-abs');
+        const muniDiffNom = kpi.distribucion_municipal.diff_nom;
+        const muniDiffSign = muniDiffNom >= 0 ? '+' : '-';
+        if (muniVarNomEl) muniVarNomEl.textContent = muniDiffSign + formatMillions(Math.abs(muniDiffNom));
+
+        const muniVarNomSub = document.getElementById('kpi-muni-var-nom-pct');
+        const muniPctSign = kpi.distribucion_municipal.var_nom >= 0 ? '+' : '-';
+        if (muniVarNomSub) {
+            muniVarNomSub.textContent = muniPctSign + formatPercentage(Math.abs(kpi.distribucion_municipal.var_nom)).replace('+', '').replace('-', '');
+            muniVarNomSub.className = `kpi-value ${kpi.distribucion_municipal.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const muniVarRealEl = document.getElementById('real-var-muni-val');
+        const muniVarRealAbsEl = document.getElementById('real-var-muni-abs');
+
+        if (isIpcNeaMissingMuni) {
+            if (muniVarRealEl) {
+                muniVarRealEl.textContent = 'Sin IPC completo';
+                muniVarRealEl.className = 'kpi-value text-secondary text-missing';
+            }
+            if (muniVarRealAbsEl) muniVarRealAbsEl.textContent = '--';
+        } else {
+            if (muniVarRealEl) {
+                muniVarRealEl.textContent = formatPercentage(kpi.distribucion_municipal.var_real);
+                muniVarRealEl.className = `kpi-value ${kpi.distribucion_municipal.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+            }
+            if (muniVarRealAbsEl) {
+                const inflacionPct = kpi.recaudacion.ipc_used_for_calc / 100;
+                const muniPrevAjustado = muniPrev * (1 + inflacionPct);
+                const muniDiffReal = muniCurrent - muniPrevAjustado;
+                const muniDiffRealSign = muniDiffReal >= 0 ? '+' : '-';
+                muniVarRealAbsEl.textContent = muniDiffRealSign + formatMillions(Math.abs(muniDiffReal));
+                muniVarRealAbsEl.className = muniDiffReal >= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+    }
 
     // --- Recaudación ---
     document.getElementById('kpi-recaudacion-current').textContent = formatMillions(currentNet);
@@ -288,7 +381,7 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
     const recVarRealEl = document.getElementById('real-var-val');
     const recVarRealAbsEl = document.getElementById('real-var-abs');
 
-    if (kpi.recaudacion.ipc_missing) {
+    if (isIpcNacionMissing) {
         recVarRealEl.textContent = 'Sin IPC completo';
         recVarRealEl.className = 'kpi-value text-secondary text-missing';
         if (recVarRealAbsEl) recVarRealAbsEl.textContent = '--';
@@ -322,7 +415,6 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
 
     // Masse Salarial Logic - Check for incomplete data
     const isIncomplete = kpi.masa_salarial.is_incomplete;
-    const isIpcMissing = kpi.recaudacion.ipc_missing;
 
     // Masa Current
     if (isIncomplete) {
@@ -359,8 +451,8 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
     const masaVarRealEl = document.getElementById('kpi-masa-var-real');
     const masaVarRealAbsEl = document.getElementById('masa-real-var-abs');
 
-    if (isIncomplete || isIpcMissing) {
-        if (isIpcMissing) {
+    if (isIncomplete || isIpcNeaMissingMasa) {
+        if (isIpcNeaMissingMasa) {
             masaVarRealEl.textContent = 'Sin IPC completo';
         } else {
             masaVarRealEl.textContent = 'Sin datos';
@@ -389,9 +481,8 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
         if (periodId.startsWith('2026') && isPeriodComplete) {
             presupuestoSection.style.display = 'block';
 
-            // Multiply by 0.81 to get provincial "Neta / Disponible" portion
-            const neta = (kpi.recaudacion.neta_current || 0) * 0.81;
-            const esperada = (kpi.recaudacion.esperada || 0) * 0.81;
+            const neta = kpi.recaudacion.neta_current || 0;
+            const esperada = kpi.recaudacion.esperada || 0;
 
             const diffAbs = neta - esperada;
             const diffPct = esperada > 0 ? ((neta / esperada) - 1) * 100 : 0;
@@ -426,6 +517,22 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
 
 let dailyChartInstance = null;
 
+// Helper: group array values in chunks of N (summing), and produce range labels
+function groupByNDays(labels, dataArr, n) {
+    const groupedLabels = [];
+    const groupedData = [];
+    for (let i = 0; i < dataArr.length; i += n) {
+        const chunk = dataArr.slice(i, i + n).filter(v => v != null && v > 0);
+        const sum = chunk.reduce((a, b) => a + b, 0);
+        const startLabel = labels[i] || (i + 1).toString();
+        const endIdx = Math.min(i + n - 1, dataArr.length - 1);
+        const endLabel = labels[endIdx] || (endIdx + 1).toString();
+        groupedLabels.push(n > 1 ? `${startLabel}-${endLabel}` : startLabel);
+        groupedData.push(sum);
+    }
+    return { labels: groupedLabels, data: groupedData };
+}
+
 function renderChart(dailyData, monthName, currentYear, prevYear) {
     const ctx = document.getElementById('dailyChart').getContext('2d');
 
@@ -438,15 +545,25 @@ function renderChart(dailyData, monthName, currentYear, prevYear) {
     gradient2026.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
     gradient2026.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
 
-    // Apply 19% reduction to daily data
-    const factor = 0.81;
-    const dataCurrNet = dailyData.data_curr.map(val => val !== null ? val * factor : null);
-    const dataPrevNet = dailyData.data_prev_nom.map(val => val !== null ? val * factor : null);
+    let chartLabels = dailyData.labels;
+    let dataCurrNet = dailyData.data_curr;
+    let dataPrevNet = dailyData.data_prev_nom;
+
+    // Mobile: group by 3 days
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        const groupSize = 3;
+        const gCurr = groupByNDays(chartLabels, dataCurrNet, groupSize);
+        const gPrev = groupByNDays(chartLabels, dataPrevNet, groupSize);
+        chartLabels = gCurr.labels;
+        dataCurrNet = gCurr.data;
+        dataPrevNet = gPrev.data;
+    }
 
     dailyChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: dailyData.labels,
+            labels: chartLabels,
             datasets: [
                 {
                     label: `${monthName} ${currentYear}`,
@@ -538,19 +655,37 @@ function renderCopaVsSalarioChart(dataCopa) {
     const colorPrimary = '#10b981';
     const colorAccent = '#af2f2f';
 
-    // Apply 19% reduction to cumulative_copa
-    const factor = 0.81;
-    const cumulativeCopaNet = dataCopa.cumulative_copa.map(val => val !== null ? val * factor : null);
+    let chartLabels = dataCopa.labels;
+    let cumulativeCopaNet = dataCopa.cumulative_copa;
+    let salarioTarget = dataCopa.salario_target;
+
+    // Mobile: sample every 3rd data point (data is cumulative, so we take snapshots)
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        const step = 3;
+        const sampledLabels = [];
+        const sampledCopa = [];
+        const sampledSalario = [];
+        for (let i = 0; i < chartLabels.length; i += step) {
+            const idx = Math.min(i + step - 1, chartLabels.length - 1);
+            sampledLabels.push(chartLabels[idx]);
+            sampledCopa.push(cumulativeCopaNet[idx]);
+            sampledSalario.push(salarioTarget[idx]);
+        }
+        chartLabels = sampledLabels;
+        cumulativeCopaNet = sampledCopa;
+        salarioTarget = sampledSalario;
+    }
 
     chartCopaInstance = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: dataCopa.labels,
+            labels: chartLabels,
             datasets: [
                 {
                     type: 'line',
                     label: 'Masa Salarial Objetivo',
-                    data: dataCopa.salario_target,
+                    data: salarioTarget,
                     borderColor: colorAccent,
                     borderWidth: 2,
                     borderDash: [5, 5],
@@ -641,8 +776,9 @@ function renderBrechaChart(dataCopa, monthName, currentYear) {
     const colorFaltante = '#94a3b8'; // Slate Gray from existing platform (e.g. previous year)
     const colorExcedente = '#047857'; // Darker green for exceeding EXPECTED
 
-    const expectedData = dataCopa.cumulative_esperada;
-    const actualDataRaw = dataCopa.cumulative_copa;
+    // Use expected as is (compared against Neta)
+    const expectedData = dataCopa.cumulative_esperada || [];
+    const actualDataRaw = dataCopa.cumulative_neta || dataCopa.cumulative_copa;
 
     // Process data for stacked bars
     const baseData = [];

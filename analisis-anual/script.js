@@ -97,16 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
 
     if (mobileNavToggle && sidebar) {
-        mobileNavToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            mobileNavToggle.classList.toggle('active');
+        mobileNavToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
         });
 
         // Close sidebar when clicking outside
         document.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && e.target !== mobileNavToggle) {
-                sidebar.classList.remove('active');
-                mobileNavToggle.classList.remove('active');
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== mobileNavToggle) {
+                sidebar.classList.remove('open');
             }
         });
 
@@ -114,8 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const navLinks = sidebar.querySelectorAll('.nav-link-vertical');
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                mobileNavToggle.classList.remove('active');
+                sidebar.classList.remove('open');
             });
         });
     }
@@ -152,7 +150,6 @@ function initYearSelector(periods) {
         option.textContent = period.label;
 
         if (period.incomplete) {
-            option.style.color = '#ef4444';
             option.dataset.incomplete = 'true';
             // Replace YTD with (incompleto)
             option.textContent = period.label.replace(' (YTD)', '') + ' (incompleto)';
@@ -176,19 +173,13 @@ function initYearSelector(periods) {
     selector.addEventListener('change', (e) => {
         const selectedOption = e.target.selectedOptions[0];
         if (selectedOption && selectedOption.dataset.incomplete === 'true') {
-            selector.style.color = '#ef4444'; // Red for incomplete
             alert("Atención: El año seleccionado aún cuenta con datos incompletos. Las comparativas se realizan contra los mismos meses del año anterior.");
-        } else {
-            selector.style.color = ''; // Default
         }
         renderDashboard(e.target.value);
     });
 
-    // Set initial color
+    // Check if initial is incomplete to trigger alert if necessary
     const initialOption = selector.selectedOptions[0];
-    if (initialOption && initialOption.dataset.incomplete === 'true') {
-        selector.style.color = '#ef4444';
-    }
 }
 
 function renderDashboard(periodId) {
@@ -210,6 +201,13 @@ function renderDashboard(periodId) {
 
     const lblRecPrev = document.getElementById('label-recaudacion-prev');
     if (lblRecPrev) lblRecPrev.textContent = `Copa. Disponible Año ${prevYear}`;
+
+    // Update Distribucion Municipal Labels
+    const lblMuniCurrent = document.getElementById('label-muni-current');
+    if (lblMuniCurrent) lblMuniCurrent.textContent = `Distrib. Municipal ${periodLabel}`;
+
+    const lblMuniPrev = document.getElementById('label-muni-prev');
+    if (lblMuniPrev) lblMuniPrev.textContent = `Distrib. Municipal Año ${prevYear}`;
 
     // Update Masa Salarial Labels
     const lblMasaCurrent = document.getElementById('label-masa-current');
@@ -256,11 +254,59 @@ function formatPercentage(value) {
 }
 
 function renderKPIs(kpi) {
-    // Apply 19% reduction (multiply by 0.81) to Recaudación values
-    const factor = 0.81;
-    const currentNet = kpi.recaudacion.current * factor;
-    const prevNet = kpi.recaudacion.prev * factor;
-    const diffNomNet = kpi.recaudacion.diff_nom * factor;
+    const currentNet = kpi.recaudacion.current;
+    const prevNet = kpi.recaudacion.prev;
+    const diffNomNet = kpi.recaudacion.diff_nom;
+
+    // --- Distribucion Municipal ---
+    if (kpi.distribucion_municipal) {
+        const muniCurrent = kpi.distribucion_municipal.current;
+        const muniPrev = kpi.distribucion_municipal.prev;
+
+        const elMuniCurr = document.getElementById('kpi-muni-current');
+        if (elMuniCurr) elMuniCurr.textContent = formatBillions(muniCurrent);
+
+        const elMuniPrev = document.getElementById('kpi-muni-prev');
+        if (elMuniPrev) elMuniPrev.textContent = formatBillions(muniPrev);
+
+        const muniVarNomEl = document.getElementById('kpi-muni-var-nom-abs');
+        const muniDiffNom = kpi.distribucion_municipal.diff_nom;
+        const muniDiffSign = muniDiffNom >= 0 ? '+' : '-';
+        if (muniVarNomEl) muniVarNomEl.textContent = muniDiffSign + formatBillions(Math.abs(muniDiffNom));
+
+        const muniVarNomSub = document.getElementById('kpi-muni-var-nom-pct');
+        const muniPctSign = kpi.distribucion_municipal.var_nom >= 0 ? '+' : '-';
+        if (muniVarNomSub) {
+            muniVarNomSub.textContent = muniPctSign + formatPercentage(Math.abs(kpi.distribucion_municipal.var_nom)).replace('+', '').replace('-', '');
+            muniVarNomSub.className = `kpi-value ${kpi.distribucion_municipal.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const muniVarRealEl = document.getElementById('real-var-muni-val');
+        const muniVarRealAbsEl = document.getElementById('real-var-muni-abs');
+
+        const isIpcNeaMissingMuni = kpi.distribucion_municipal.ipc_missing;
+
+        if (isIpcNeaMissingMuni) {
+            if (muniVarRealEl) {
+                muniVarRealEl.textContent = 'Sin IPC completo';
+                muniVarRealEl.className = 'kpi-value text-secondary text-missing';
+            }
+            if (muniVarRealAbsEl) muniVarRealAbsEl.textContent = '--';
+        } else {
+            if (muniVarRealEl) {
+                muniVarRealEl.textContent = formatPercentage(kpi.distribucion_municipal.var_real);
+                muniVarRealEl.className = `kpi-value ${kpi.distribucion_municipal.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+            }
+            if (muniVarRealAbsEl) {
+                const inflacionPct = kpi.recaudacion.ipc_used_for_calc / 100;
+                const muniPrevAjustado = muniPrev * (1 + inflacionPct);
+                const muniDiffReal = muniCurrent - muniPrevAjustado;
+                const muniDiffRealSign = muniDiffReal >= 0 ? '+' : '-';
+                muniVarRealAbsEl.textContent = muniDiffRealSign + formatBillions(Math.abs(muniDiffReal));
+                muniVarRealAbsEl.className = muniDiffReal >= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+    }
 
     // --- Recaudación ---
     document.getElementById('kpi-recaudacion-current').textContent = formatBillions(currentNet);
@@ -288,7 +334,9 @@ function renderKPIs(kpi) {
     const recVarRealEl = document.getElementById('real-var-val');
     const recVarRealAbsEl = document.getElementById('real-var-abs');
 
-    if (kpi.recaudacion.ipc_missing) {
+    const isIpcNacionMissing = kpi.recaudacion.ipc_missing;
+
+    if (isIpcNacionMissing) {
         if (recVarRealEl) {
             recVarRealEl.textContent = 'Sin IPC completo';
             recVarRealEl.className = 'kpi-value text-secondary text-missing';
@@ -319,7 +367,7 @@ function renderKPIs(kpi) {
     document.getElementById('kpi-masa-cob-prev').textContent = `Cobertura: ${kpi.masa_salarial.cobertura_prev.toFixed(1)}%`;
 
     const isIncomplete = kpi.masa_salarial.is_incomplete;
-    const isIpcMissing = kpi.recaudacion.ipc_missing;
+    const isIpcNeaMissingMasa = kpi.masa_salarial.ipc_missing;
 
     // Masa Current
     if (isIncomplete) {
@@ -355,9 +403,9 @@ function renderKPIs(kpi) {
     const masaVarRealEl = document.getElementById('kpi-masa-var-real');
     const masaVarRealAbsEl = document.getElementById('masa-real-var-abs');
 
-    if (isIncomplete || isIpcMissing) {
+    if (isIncomplete || isIpcNeaMissingMasa) {
         if (masaVarRealEl) {
-            if (isIpcMissing) {
+            if (isIpcNeaMissingMasa) {
                 masaVarRealEl.textContent = 'Sin IPC completo';
             } else {
                 masaVarRealEl.textContent = 'Sin datos completos';
@@ -397,15 +445,32 @@ function renderMonthlyChart(monthlyData, currentYear, prevYear) {
     gradientCurr.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
     gradientCurr.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
 
-    // Apply 19% reduction to monthly data
-    const factor = 0.81;
-    const dataCurrNet = monthlyData.data_curr.map(val => val !== null ? val * factor : null);
-    const dataPrevNet = monthlyData.data_prev.map(val => val !== null ? val * factor : null);
+    let chartLabels = monthlyData.labels;
+    let dataCurrNet = monthlyData.data_curr;
+    let dataPrevNet = monthlyData.data_prev;
+
+    // Mobile: group quarterly
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        const quarterLabels = ['T1', 'T2', 'T3', 'T4'];
+        const qCurr = [0, 0, 0, 0];
+        const qPrev = [0, 0, 0, 0];
+        for (let i = 0; i < dataCurrNet.length; i++) {
+            const q = Math.floor(i / 3);
+            if (q < 4) {
+                qCurr[q] += (dataCurrNet[i] || 0);
+                qPrev[q] += (dataPrevNet[i] || 0);
+            }
+        }
+        chartLabels = quarterLabels;
+        dataCurrNet = qCurr;
+        dataPrevNet = qPrev;
+    }
 
     monthlyChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: monthlyData.labels,
+            labels: chartLabels,
             datasets: [
                 {
                     label: `Año ${currentYear}`,
@@ -491,18 +556,39 @@ function renderCopaVsSalarioChart(dataCopa) {
     const colorPrimary = '#10b981';
     const colorAccent = '#af2f2f';
 
-    const factor = 0.81;
-    const cumulativeCopaNet = dataCopa.cumulative_copa.map(val => val !== null ? val * factor : null);
+    let chartLabels = dataCopa.labels;
+    let cumulativeCopaNet = dataCopa.cumulative_copa;
+    let salarioTarget = dataCopa.salario_target;
+
+    // Mobile: sample quarter-end months (cumulative data)
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        const quarterEndIndices = [2, 5, 8, 11]; // Mar, Jun, Sep, Dec
+        const qLabels = ['T1', 'T2', 'T3', 'T4'];
+        const sampledLabels = [];
+        const sampledCopa = [];
+        const sampledSalario = [];
+        quarterEndIndices.forEach((idx, qi) => {
+            if (idx < chartLabels.length) {
+                sampledLabels.push(qLabels[qi]);
+                sampledCopa.push(cumulativeCopaNet[idx]);
+                sampledSalario.push(salarioTarget[idx]);
+            }
+        });
+        chartLabels = sampledLabels;
+        cumulativeCopaNet = sampledCopa;
+        salarioTarget = sampledSalario;
+    }
 
     chartCopaInstance = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: dataCopa.labels,
+            labels: chartLabels,
             datasets: [
                 {
                     type: 'line',
                     label: 'Masa Salarial Objetivo Acum.',
-                    data: dataCopa.salario_target,
+                    data: salarioTarget,
                     borderColor: colorAccent,
                     borderWidth: 2,
                     borderDash: [5, 5],
@@ -604,10 +690,9 @@ function renderBrechaChart(dataCopa, currentYear, maxMonth, isComplete) {
     const colorFaltante = '#94a3b8';
     const colorExcedente = '#047857';
 
-    // Apply 19% reduction (multiply by 0.81) to get provincial "Neta / Disponible" portion
-    const factor = 0.81;
-    const expectedData = dataCopa.cumulative_esperada.map(val => val !== null ? val * factor : null);
-    const actualDataRaw = dataCopa.cumulative_copa.map(val => val !== null ? val * factor : null);
+    // Use expected as is (compared against Neta)
+    const expectedData = dataCopa.cumulative_esperada || [];
+    const actualDataRaw = dataCopa.cumulative_neta || dataCopa.cumulative_copa;
 
     const baseData = [];
     const faltanteData = [];
@@ -678,14 +763,37 @@ function renderBrechaChart(dataCopa, currentYear, maxMonth, isComplete) {
         if (valEsperada) valEsperada.textContent = formatMillions(lastExpectedVal);
     }
 
+    // Mobile: sample quarter-end months for reduced data density
+    let brechaLabels = dataCopa.labels;
+    let brechaBase = baseData;
+    let brechaFaltante = faltanteData;
+    let brechaExcedente = excedenteData;
+    const isMobileBrecha = window.innerWidth <= 768;
+    if (isMobileBrecha) {
+        const quarterEndIndices = [2, 5, 8, 11]; // Mar, Jun, Sep, Dec
+        const qLabels = ['T1', 'T2', 'T3', 'T4'];
+        brechaLabels = [];
+        brechaBase = [];
+        brechaFaltante = [];
+        brechaExcedente = [];
+        quarterEndIndices.forEach((idx, qi) => {
+            if (idx < dataCopa.labels.length) {
+                brechaLabels.push(qLabels[qi]);
+                brechaBase.push(baseData[idx]);
+                brechaFaltante.push(faltanteData[idx]);
+                brechaExcedente.push(excedenteData[idx]);
+            }
+        });
+    }
+
     chartBrechaInstance = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: dataCopa.labels,
+            labels: brechaLabels,
             datasets: [
                 {
                     label: 'Recaudación Acumulada',
-                    data: baseData,
+                    data: brechaBase,
                     backgroundColor: colorActual,
                     borderColor: 'rgba(255,255,255,0.2)',
                     borderWidth: 1,
@@ -694,7 +802,7 @@ function renderBrechaChart(dataCopa, currentYear, maxMonth, isComplete) {
                 },
                 {
                     label: 'Meta Pendiente (Faltante para Esperada)',
-                    data: faltanteData,
+                    data: brechaFaltante,
                     backgroundColor: 'rgba(148, 163, 184, 0.4)',
                     borderColor: colorFaltante,
                     borderWidth: 1,
@@ -704,7 +812,7 @@ function renderBrechaChart(dataCopa, currentYear, maxMonth, isComplete) {
                 },
                 {
                     label: 'Excedente (Por encima de la Esperada)',
-                    data: excedenteData,
+                    data: brechaExcedente,
                     backgroundColor: colorExcedente,
                     borderColor: '#fff',
                     borderWidth: 1,

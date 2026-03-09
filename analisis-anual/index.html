@@ -132,7 +132,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
 
         <article class="kpi-card">
           <div class="info-tooltip"
-            data-tooltip="Muestra la variación porcentual de la coparticipación disponible en términos reales del año seleccionado respecto al año anterior. La coparticipación disponible se deflacta por el IPC del NEA mes a mes.
+            data-tooltip="Muestra la variación porcentual de la coparticipación disponible en términos reales del año seleccionado respecto al año anterior. La coparticipación disponible se deflacta por el IPC Nacional (Nivel General).
 
 La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios.
 
@@ -149,9 +149,58 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
         </article>
       </section>
       <p
-        style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
+        style="color: var(--text-secondary); font-size: 0.8rem; text-align: left; padding-left: 10px; margin-top: -3rem; margin-bottom: 4rem;">
         Fuente: INDEC y Ministerio de Economía de la Nación</p>
 
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">Distribución Municipal</h2>
+      </div>
+
+      <!-- KPI Grid Municipal -->
+      <section class="hero-grid">
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Monto total, en millones de pesos corrientes, de la Distribución Municipal para el año actual seleccionado.">
+            ?</div>
+          <div class="kpi-label" id="label-muni-current">Distrib. Municipal Año --</div>
+          <div class="kpi-value" id="kpi-muni-current">Loading...</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Monto total, en millones de pesos corrientes, de la Distribución Municipal para el año anterior al seleccionado.">
+            ?</div>
+          <div class="kpi-label" id="label-muni-prev">Distrib. Municipal Año --</div>
+          <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-muni-prev">Loading...</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual interanual de la Distribución Municipal en términos nominales del año seleccionado respecto al año anterior.">
+            ?</div>
+          <div class="kpi-label">Variación Nominal Distrib. Municipal</div>
+          <div class="kpi-value text-success" id="kpi-muni-var-nom-pct">--%</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; display: none;" id="kpi-muni-var-nom-abs">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;">Interanual</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="info-tooltip"
+            data-tooltip="Muestra la variación porcentual interanual de la Distribución Municipal en términos reales del año seleccionado respecto al año anterior. deflactada por el IPC del NEA.">
+            ?</div>
+          <div class="kpi-label">Variación Real Distrib. Municipal</div>
+          <div class="kpi-value" id="real-var-muni-val">--%</div>
+          <div class="kpi-sub">
+            <span style="font-weight: 700; display: none;" id="real-var-muni-abs">--</span>
+            <span style="color: var(--text-secondary); margin-left: 5px;">* Ajustado por inflación</span>
+          </div>
+        </article>
+      </section>
+      <p
+        style="color: var(--text-secondary); font-size: 0.8rem; text-align: left; padding-left: 10px; margin-top: -3rem; margin-bottom: 4rem;">
+        Fuente: INDEC y Ministerio de Economía de la Nación</p>
       <div class="header-content" style="text-align: left; margin-top: 4rem; margin-bottom: 2rem;">
         <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;" class="text-gradient dashboard-title">Masa
           Salarial Empleo Provincial</h2>
@@ -273,7 +322,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
           </p>
         </div>
 
-        <section class="hero-grid" style="grid-template-columns: repeat(2, 1fr) !important; margin-bottom: 2rem;">
+        <section class="hero-grid budget-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 2rem;">
           <article class="kpi-card" style="height: auto;">
             <div class="info-tooltip"
               data-tooltip="Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir (según el Presupuesto) de forma acumulada y lo que efectivamente percibió (Coparticipación Neta Acumulada).">

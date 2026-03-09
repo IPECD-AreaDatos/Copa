@@ -264,8 +264,9 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
 
     // 1. Variación Real Coparticipación
     const copaData = mainData.data[currentPeriodId].kpi.recaudacion;
-    const kpiCopaReal = copaData.ipc_missing ? null : copaData.var_real;
-    updateKPI('kpi-copa-var-real', kpiCopaReal, true, false, copaData.ipc_missing ? 'IPC' : null);
+    const isIpcNacionMissing = copaData.ipc_missing;
+    const kpiCopaReal = isIpcNacionMissing ? null : copaData.var_real;
+    updateKPI('kpi-copa-var-real', kpiCopaReal, true, false, isIpcNacionMissing ? 'IPC' : null);
 
     // Update Card Subtitles with period
     const copaSubEl = document.getElementById('kpi-copa-var-real-subtitle');
@@ -300,8 +301,8 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
     }
 
     // Check if IPC is missing (based on mainData IPC state)
-    const isIpcMissing = mainData.data[currentPeriodId].kpi.recaudacion.ipc_missing;
-    updateKPI('kpi-salario-var-real', kpiSalarioReal, true, false, isIpcMissing ? 'IPC' : null);
+    const isIpcNeaMissingMasa = mainData.data[currentPeriodId].kpi.masa_salarial.ipc_missing;
+    updateKPI('kpi-salario-var-real', kpiSalarioReal, true, false, isIpcNeaMissingMasa ? 'IPC' : null);
 
     // Update Salary Card Subtitle
     const salarioSubEl = document.getElementById('kpi-salario-var-real-subtitle');
@@ -319,7 +320,7 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
     const el = document.getElementById('kpi-cbt-ratio');
     if (el) {
         if (kpiCbtRatio === null || kpiCbtRatio === undefined) {
-            if (isIpcMissing) {
+            if (isIpcNeaMissingMasa) {
                 el.textContent = 'Sin IPC completo';
                 el.className = 'kpi-value text-secondary text-missing';
             } else {
@@ -447,6 +448,7 @@ function renderChart(mainData) {
             },
             scales: {
                 y: {
+                    beginAtZero: true,
                     grid: { color: 'rgba(0,0,0,0.05)' },
                     ticks: { callback: val => val.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + '%' }
                 },
@@ -548,13 +550,14 @@ function renderCoverageChart(mainData, periodId) {
         const shortLabel = p.label.substring(0, 3) + ' ' + p.year.toString().slice(-2);
         labels.push(shortLabel);
 
-        const recaudacionTotalM = pData.kpi.recaudacion.current;
+        const recaudacionTotalM = pData.kpi.recaudacion.neta_current || pData.kpi.recaudacion.current;
         const masaSalarialM = pData.kpi.masa_salarial.current;
+        const distMuniM = pData.kpi.distribucion_municipal?.current || pData.kpi.recaudacion.neta_current * 0.19;
         const isMasaIncomplete = pData.kpi.masa_salarial.is_incomplete;
 
         let masaSalarial = masaSalarialM * 1000000;
         let recaudacionTotal = recaudacionTotalM * 1000000;
-        let municipios = recaudacionTotal * 0.19;
+        let municipios = distMuniM * 1000000;
         let restoCopa = Math.max(0, recaudacionTotal - masaSalarial - municipios);
 
         if (isMasaIncomplete || masaSalarial === 0) {
@@ -562,7 +565,7 @@ function renderCoverageChart(mainData, periodId) {
             restoCopa = recaudacionTotal - municipios;
         }
 
-        const total = masaSalarial + municipios + restoCopa;
+        const total = recaudacionTotal;
         let masaPct = 0;
         let municipiosPct = 0;
         let restoPct = 0;
@@ -570,7 +573,7 @@ function renderCoverageChart(mainData, periodId) {
         if (total > 0) {
             masaPct = (masaSalarial / total) * 100;
             municipiosPct = (municipios / total) * 100;
-            restoPct = (restoCopa / total) * 100;
+            restoPct = Math.max(0, 100 - masaPct - municipiosPct);
         }
 
         masaSalarialPctData.push(masaPct);
