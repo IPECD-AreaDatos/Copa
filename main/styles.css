@@ -435,6 +435,21 @@ header {
         font-size: var(--text-sm);
         min-width: 120px;
     }
+
+    .header-content {
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+
+    .header-content h1, .header-content h2 {
+        text-align: center !important;
+    }
+
+    .header-content > div {
+        position: static !important;
+        justify-content: center !important;
+        width: 100%;
+    }
 }
 
 .brand {
