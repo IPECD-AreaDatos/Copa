@@ -1,8 +1,8 @@
-# Tablero de Control - Coparticipación y Empleo (IPECD)
+# Tablero de Control - Recursos de Origen Nacional (RON) y Empleo (IPECD)
 
 Este proyecto es un tablero de control ejecutivo, dinámico e interactivo diseñado para el Instituto de Estadística y Ciencia de Datos (IPECD) de la Provincia de Corrientes. 
 
-Permite visualizar la evolución de ingresos por coparticipación federal, el peso de la masa salarial del gobierno y la cobertura frente a los ingresos, tanto a nivel mensual como histórico (anual).
+Permite visualizar la evolución de ingresos por Recursos de Origen Nacional (RON), el peso de la masa salarial del gobierno y la cobertura frente a los ingresos, tanto a nivel mensual como histórico (anual).
 
 ## 📊 Arquitectura del Proyecto
 
@@ -18,7 +18,7 @@ Para un nivel más asiduo de detalles arquitectónicos sobre el pipeline de dato
 
 - `/auth` - Sistema de login mock/básico y su interfaz gráfica. Modificable para atarse a un backend JWT o SSO.
 - `/main` - **Monitor Mensual** e index principal del tablero tras loguearse.
-- `/monitor-mensual` - Páginas específicas del histórico de un año mes a mes.
+- `/monitor-mensual` - Páginas específicas del histórico de un año mes a mes de los RON.
 - `/analisis-anual` - **Monitor Anual**, vista macroeconómica comparativa año-a-año y Year-to-Date (YTD).
 - `/analisis-personal` - **Tablero Salarial**, enfoque en sueldos promedios, cobertura salarial, y pérdida/ganancia del poder adquisitivo frente a la inflación (IPC/CBT).
 - `/docs` - Documentación técnica y glosario financiero.

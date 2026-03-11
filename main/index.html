@@ -35,9 +35,9 @@
         <nav class="nav-vertical">
             <a href="index.html" class="nav-link-vertical active">Inicio</a>
             <a href="../monitor-mensual/index.html" class="nav-link-vertical" id="navMonitor"
-                style="display: none;">Análisis Mensual Coparticipación</a>
+                style="display: none;">Análisis Mensual RON</a>
             <a href="../analisis-anual/index.html" class="nav-link-vertical" id="navAnual"
-                style="display: none;">Análisis Anual Coparticipación</a>
+                style="display: none;">Análisis Anual RON</a>
             <a href="../analisis-personal/index.html" class="nav-link-vertical" id="navPersonal"
                 style="display: none;">Análisis Salarial</a>
         </nav>
@@ -63,11 +63,11 @@
 
         <main>
             <div class="header-content"
-                style="text-align: left; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                <h1 class="text-gradient dashboard-title" style="margin-bottom: 0;">Tablero Ejecutivo Provincial</h1>
+                style="margin-bottom: 3rem; position: relative; display: flex; align-items: center; justify-content: center; min-height: 4rem;">
+                <h1 class="text-gradient dashboard-title" style="margin-bottom: 0; text-align: center;">Tablero Ejecutivo Provincial</h1>
 
                 <!-- Month Selector -->
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="position: absolute; right: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <label for="monthSelector" style="color: var(--text-secondary); font-weight: 500;">Período:</label>
                     <select id="monthSelector" class="period-select"
                         style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 1rem; cursor: pointer; outline: none;"
@@ -88,7 +88,7 @@ Para ello, primero se ajustan (deflactan) los ingresos provenientes de la copart
 
 El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal.">
                         ?</div>
-                    <div class="kpi-label">VARIACIÓN REAL COPARTICIPACIÓN</div>
+                    <div class="kpi-label">VARIACIÓN REAL RON</div>
                     <div class="kpi-value" id="kpi-copa-var-real">Loading...</div>
                     <div class="kpi-sub">
                         <span style="color: var(--text-secondary);" id="kpi-copa-var-real-subtitle">Variación i.a.
@@ -109,17 +109,16 @@ El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de
                     </div>
                 </article>
 
-                <!-- 3. Variación Real Salario -->
+                <!-- 3. Variación Real Masa Salarial -->
                 <article class="kpi-card" style="flex: 1 1 300px; max-width: 350px;">
                     <div class="info-tooltip"
-                        data-tooltip="Muestra la variación porcentual interanual del salario promedio en términos reales del período seleccionado respecto al mismo período del año anterior.
-Para ello, el salario promedio se ajusta por inflación utilizando el IPC del NEA, con el objetivo de descontar el efecto del aumento general de precios. Luego se compara el valor del período seleccionado con el mismo período del año previo. De esta manera, el indicador refleja la evolución del salario en términos de poder adquisitivo.">
+                        data-tooltip="Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
+Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC del NEA, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.">
                         ?</div>
-                    <div class="kpi-label">VARIACIÓN SALARIAL REAL</div>
-                    <div class="kpi-value" id="kpi-salario-var-real">Loading...</div>
+                    <div class="kpi-label">VARIACIÓN REAL MASA SALARIAL</div>
+                    <div class="kpi-value" id="kpi-masa-var-real">Loading...</div>
                     <div class="kpi-sub">
-                        <span style="color: var(--text-secondary);" id="kpi-salario-var-real-subtitle">Variación i.a.
-                            Deflactada</span>
+                        <span style="color: var(--text-secondary);" id="kpi-masa-var-real-subtitle">* Ajustado por inflación</span>
                     </div>
                 </article>
 
@@ -141,7 +140,7 @@ La CBT digital es calculada por el IPECD para la Ciudad de Corrientes.">
 
             <p
                 style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
-                Fuente: INDEC, Ministerio de Economía de la Nación y SISPER
+                Fuente: INDEC, Ministerio de Economía de la Nación y Contaduría General de la Provincia de Corrientes
             </p>
 
 
@@ -155,7 +154,7 @@ La CBT digital es calculada por el IPECD para la Ciudad de Corrientes.">
                         ?</div>
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">Coparticipación vs Inflación</h2>
+                            <h2 class="section-title">RON vs Inflación</h2>
                             <p class="section-subtitle">Relación de variaciones interanuales últimos 12 meses</p>
                         </div>
                     </div>
@@ -185,7 +184,7 @@ La CBT es calculada por el IPECD para la provincia de Corrientes.">
                         <canvas id="purchasingPowerChart"></canvas>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                        Fuente: SISPER y CBT Digital elaborada por el IPECD
+                        Fuente: Contaduría General de la Provincia de Corrientes y CBT Digital elaborada por el IPECD
                     </p>
                 </div>
 
@@ -199,7 +198,7 @@ El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de
                         <div>
                             <h2 class="section-title">Cobertura de Gastos</h2>
                             <p class="section-subtitle" id="coverageSubtitle">Masa Salarial, Municipios vs Resto de
-                                Coparticipación
+                                RON
                                 (Evolución)
                             </p>
                         </div>
@@ -208,7 +207,7 @@ El valor de coparticipación incluye la suma de los conceptos de: C.F.I. Neta de
                         <canvas id="coverageChart"></canvas>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                        Fuente: SISPER y Ministerio de Economía de la Nación
+                        Fuente: Contaduría General de la Provincia de Corrientes y Ministerio de Economía de la Nación
                     </p>
                 </div>
             </section>

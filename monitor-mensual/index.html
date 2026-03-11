@@ -38,9 +38,8 @@
 
         <nav class="nav-vertical">
             <a href="../main/index.html" class="nav-link-vertical">Inicio</a>
-            <a href="../monitor-mensual/index.html" class="nav-link-vertical active">Análisis Mensual
-                Coparticipación</a>
-            <a href="../analisis-anual/index.html" class="nav-link-vertical">Análisis Anual Coparticipación</a>
+            <a href="../monitor-mensual/index.html" class="nav-link-vertical active">Análisis Mensual RON</a>
+            <a href="../analisis-anual/index.html" class="nav-link-vertical">Análisis Anual RON</a>
             <a href="../analisis-personal/index.html" class="nav-link-vertical" style="display: none;">Análisis
                 Salarial</a>
         </nav>
@@ -64,8 +63,7 @@
         <main>
             <div class="header-content"
                 style="text-align: left; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                <h1 class="text-gradient dashboard-title" style="margin-bottom: 0;">Coparticipación Federal - Análisis
-                    Interanual
+                <h1 class="text-gradient dashboard-title" style="margin-bottom: 0; font-size: 1.5rem;">Recursos de Origen Nacional (RON)
                 </h1>
 
                 <!-- Month Selector -->
@@ -91,13 +89,13 @@ La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley 
 
 La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
-                    <div class="kpi-label" id="label-recaudacion-current">Copa. Disponible Enero 2026</div>
+                    <div class="kpi-label" id="label-recaudacion-current">RON Disponible Enero 2026</div>
                     <div class="kpi-value" id="kpi-recaudacion-current">Loading...</div>
                     <div class="kpi-sub"
                         style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem;">
-                        <span style="color: var(--text-secondary);">Copa. Neta: <strong
+                        <span style="color: var(--text-secondary);">RON Neta: <strong
                                 id="kpi-neta-current">--</strong></span>
-                        <span style="color: var(--text-secondary);">Copa. Bruta: <strong
+                        <span style="color: var(--text-secondary);">RON Bruta: <strong
                                 id="kpi-bruta-current">--</strong></span>
                     </div>
                 </article>
@@ -112,13 +110,13 @@ La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley 
 
 La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
-                    <div class="kpi-label" id="label-recaudacion-prev">Copa. Disponible Enero 2025</div>
+                    <div class="kpi-label" id="label-recaudacion-prev">RON Disponible Enero 2025</div>
                     <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-recaudacion-prev">Loading...
                     </div>
                     <div class="kpi-sub"
                         style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem; color: var(--text-secondary);">
-                        <span>Copa. Neta: <strong id="kpi-neta-prev">--</strong></span>
-                        <span>Copa. Bruta: <strong id="kpi-bruta-prev">--</strong></span>
+                        <span>RON Neta: <strong id="kpi-neta-prev">--</strong></span>
+                        <span>RON Bruta: <strong id="kpi-bruta-prev">--</strong></span>
                     </div>
                 </article>
 
@@ -132,7 +130,7 @@ La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley 
 
 La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
-                    <div class="kpi-label">Variación Nominal Coparticipación</div>
+                    <div class="kpi-label">Variación Nominal RON</div>
                     <div class="kpi-value text-success" id="kpi-recaudacion-var-nom-pct">--%</div>
                     <div class="kpi-sub">
                         <span style="font-weight: 700;" id="kpi-recaudacion-var-nom-abs">--</span>
@@ -150,7 +148,7 @@ La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley 
 
 La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">
                         ?</div>
-                    <div class="kpi-label">Variación Real Coparticipación</div>
+                    <div class="kpi-label">Variación Real RON</div>
                     <div class="kpi-value" id="real-var-val">--%</div>
                     <div class="kpi-sub">
                         <span style="font-weight: 700;" id="real-var-abs">--</span>
@@ -161,6 +159,62 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
             <p
                 style="color: var(--text-secondary); font-size: 0.8rem; text-align: left; padding-left: 10px; margin-top: -3rem; margin-bottom: 4rem;">
                 Fuente: INDEC y Ministerio de Economía de la Nación</p>
+
+            <div id="container-reca-prov">
+                <div style="margin-bottom: 3rem; margin-top: 4rem;">
+                    <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">Recaudación
+                        Provincial</h2>
+                </div>
+
+                <!-- KPI Grid Recaudacion Provincial -->
+                <section class="hero-grid" id="row-reca-prov-cards">
+                    <article class="kpi-card">
+                        <div class="info-tooltip"
+                            data-tooltip="Monto total, en millones de pesos corrientes, de la recaudación provincial para el periodo actual seleccionado. Combina todos los impuestos recaudados (Inmobiliario Rural, Sellos, Ingresos Brutos, etc).">
+                            ?</div>
+                        <div class="kpi-label" id="label-reca-prov-current">Recaudación Prov. Enero 2026</div>
+                        <div class="kpi-value" id="kpi-reca-prov-current">Loading...</div>
+                    </article>
+
+                    <article class="kpi-card">
+                        <div class="info-tooltip"
+                            data-tooltip="Monto total, en millones de pesos corrientes, de la recaudación provincial para el mismo periodo del año anterior al seleccionado.">
+                            ?</div>
+                        <div class="kpi-label" id="label-reca-prov-prev">Recaudación Prov. Enero 2025</div>
+                        <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-reca-prov-prev">Loading...
+                        </div>
+                    </article>
+
+                    <article class="kpi-card" id="card-reca-prov-var-nom">
+                        <div class="info-tooltip"
+                            data-tooltip="Muestra la variación porcentual interanual de la recaudación provincial en términos nominales del periodo seleccionado respecto al mismo periodo del año anterior.">
+                            ?</div>
+                        <div class="kpi-label">Variación Nominal Recaudación Prov.</div>
+                        <div class="kpi-value text-success" id="kpi-reca-prov-var-nom-pct">--%</div>
+                        <div class="kpi-sub">
+                            <span style="font-weight: 700;" id="kpi-reca-prov-var-nom-abs">--</span>
+                            <span style="color: var(--text-secondary); margin-left: 5px;">Interanual</span>
+                        </div>
+                    </article>
+
+                    <article class="kpi-card" id="card-reca-prov-var-real">
+                        <div class="info-tooltip"
+                            data-tooltip="Muestra la variación porcentual interanual de la recaudación provincial en términos reales del período seleccionado respecto al mismo período del año anterior. Deflactada por el IPC del NEA.">
+                            ?</div>
+                        <div class="kpi-label">Variación Real Recaudación Prov.</div>
+                        <div class="kpi-value" id="real-var-reca-prov-val">--%</div>
+                        <div class="kpi-sub">
+                            <span style="font-weight: 700;" id="real-var-reca-prov-abs">--</span>
+                            <span style="color: var(--text-secondary); margin-left: 5px;">* Ajustado por
+                                inflación</span>
+                        </div>
+                    </article>
+                </section>
+                <p
+                    style="color: var(--text-secondary); font-size: 0.8rem; text-align: left; padding-left: 10px; margin-top: -3rem; margin-bottom: 4rem;">
+                    Fuente: Ministerio de Economía de la Provincia
+                </p>
+            </div>
 
             <div style="margin-bottom: 3rem;">
                 <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">Distribución Municipal
@@ -175,6 +229,10 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                         ?</div>
                     <div class="kpi-label" id="label-muni-current">Distrib. Municipal Enero 2026</div>
                     <div class="kpi-value" id="kpi-muni-current">Loading...</div>
+                    <div class="kpi-sub"
+                        style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem; color: var(--text-secondary);">
+                        <span id="kpi-muni-orig-nac-current">Orig. Nac.: $-- | Orig. Prov.: $--</span>
+                    </div>
                 </article>
 
                 <article class="kpi-card">
@@ -183,6 +241,10 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                         ?</div>
                     <div class="kpi-label" id="label-muni-prev">Distrib. Municipal Enero 2025</div>
                     <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-muni-prev">Loading...</div>
+                    <div class="kpi-sub"
+                        style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; font-size: 0.85rem; color: var(--text-secondary);">
+                        <span id="kpi-muni-orig-nac-prev">Orig. Nac.: $-- | Orig. Prov.: $--</span>
+                    </div>
                 </article>
 
                 <article class="kpi-card" id="card-muni-var-nom">
@@ -217,7 +279,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
             <!-- Presupuesto vs Real Section (Only 2026) -->
             <div id="presupuesto-section" style="display: none;">
                 <div class="header-content" style="text-align: left; margin-top: 2rem; margin-bottom: 2rem;">
-                    <h2 style="font-size: var(--text-2xl); margin-bottom: 0.5rem;"
+                    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;"
                         class="text-gradient dashboard-title">Desempeño Frente a Presupuesto</h2>
                     <p style="color: var(--text-secondary); font-size: var(--text-base);">
                         Análisis comparativo de la coparticipación neta efectiva frente a los fondos presupuestados para
@@ -226,12 +288,12 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                 </div>
 
                 <section class="hero-grid budget-grid"
-                    style="grid-template-columns: repeat(2, 1fr); margin-bottom: 2rem;">
+                    style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
                     <article class="kpi-card" style="height: auto;">
                         <div class="info-tooltip"
-                            data-tooltip="Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir (según el Presupuesto 2026) y lo que efectivamente percibió (Coparticipación Neta). Valores positivos indican excedente de ingresos, valores negativos representan faltantes.">
+                            data-tooltip="Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir (según el Presupuesto 2026) y lo que efectivamente percibió (RON Bruto). Valores positivos indican excedente de ingresos, valores negativos representan faltantes.">
                             ?</div>
-                        <div class="kpi-label">Diferencia Nominal (Neta vs Presupuestada)</div>
+                        <div class="kpi-label">RON: DIFERENCIA NOMINAL</div>
                         <div class="kpi-value" id="kpi-brecha-nom">--</div>
                         <div class="kpi-sub" style="display: flex; gap: 8px; font-size: 0.85rem; flex-wrap: wrap;">
                             <span style="color: var(--text-secondary);">Recaudado: <strong id="kpi-neta-presupuesto"
@@ -243,25 +305,52 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
 
                     <article class="kpi-card" style="height: auto;">
                         <div class="info-tooltip"
-                            data-tooltip="Refleja qué porcentaje del presupuesto esperado para el mes fue efectivamente cubierto por la recaudación neta real. Valores por debajo pueden comprometer la planificación financiera mensual.">
+                            data-tooltip="Refleja qué porcentaje del presupuesto esperado para el mes fue efectivamente cubierto por la recaudación bruta real. Valores por debajo pueden comprometer la planificación financiera mensual.">
                             ?</div>
-                        <div class="kpi-label">Diferencia Porcentual (Cumplimiento)</div>
+                        <div class="kpi-label">RON: DIFERENCIA PORCENTUAL</div>
                         <div class="kpi-value" id="kpi-brecha-pct">--%</div>
                         <div class="kpi-sub">
                             <span style="color: var(--text-secondary); margin-left: 5px;">Brecha Porcentual respecto al
                                 monto presupuestado</span>
                         </div>
                     </article>
+
+                    <!-- New cards for Provincial Revenue -->
+                    <article class="kpi-card" style="height: auto;">
+                        <div class="info-tooltip"
+                            data-tooltip="Muestra la diferencia nominal en millones de pesos corrientes entre la Recaudación Provincial efectivamente percibida y lo presupuestado para el mes seleccionado. Valores positivos indican excedente de ingresos, valores negativos representan faltantes.">
+                            ?</div>
+                        <div class="kpi-label">RECAUDACION PROVINCIAL: DIFERENCIA NOMINAL</div>
+                        <div class="kpi-value" id="kpi-brecha-nom-prov">--</div>
+                        <div class="kpi-sub" style="display: flex; gap: 8px; font-size: 0.85rem; flex-wrap: wrap;">
+                            <span style="color: var(--text-secondary);">Recaudado: <strong id="kpi-reca-prov-presupuesto"
+                                    style="color: #0f172a;">--</strong></span>
+                            <span style="color: var(--text-secondary);">Presupuestado: <strong id="kpi-esperada-prov"
+                                    style="color: #0f172a;">--</strong></span>
+                        </div>
+                    </article>
+
+                    <article class="kpi-card" style="height: auto;">
+                        <div class="info-tooltip"
+                            data-tooltip="Refleja qué porcentaje del presupuesto esperado de Recaudación Provincial para el mes fue efectivamente cubierto por la recaudación real.">
+                            ?</div>
+                        <div class="kpi-label">RECAUDACION PROVINCIAL: DIFERENCIA PORCENTUAL</div>
+                        <div class="kpi-value" id="kpi-brecha-pct-prov">--%</div>
+                        <div class="kpi-sub">
+                            <span style="color: var(--text-secondary); margin-left: 5px;">Brecha Porcentual respecto al
+                                monto presupuestado provincial</span>
+                        </div>
+                    </article>
                 </section>
                 <p
                     style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
-                    Fuente: Ministerio de Economía y Administración
+                    Fuente: Ministerio de Economía de la Provincia
                 </p>
             </div>
 
             <div class="header-content" style="text-align: left; margin-top: 4rem; margin-bottom: 2rem;">
-                <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;" class="text-gradient dashboard-title">Masa
-                    Salarial Empleo Provincial</h2>
+                <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;" class="text-gradient dashboard-title">Masa
+                    Salarial Total Empleo Provincial</h2>
                 <p id="masa-salarial-subtitle" style="color: var(--text-secondary); font-size: 1rem;">
                     Relación entre Coparticipación y Masa Salarial para Enero 2025 vs 2026
                 </p>
@@ -325,7 +414,7 @@ Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC
             </section>
             <p
                 style="color: var(--text-secondary); font-size: 0.8rem; margin-top: -3rem; margin-bottom: 4rem; text-align: left; padding-left: 10px;">
-                Fuente: SISPER</p>
+                Fuente: Contaduría General de la Provincia de Corrientes</p>
 
 
             <!-- Copa vs Sueldos Chart Section -->
@@ -341,7 +430,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                     ?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title" id="copaVsSalarioTitle">Coparticipación Disponible vs Sueldos</h2>
+                        <h2 class="section-title" id="copaVsSalarioTitle">RON Disponible vs Sueldos</h2>
                         <p class="section-subtitle">¿Cuántos días de recaudación cubren la masa salarial?</p>
                     </div>
                 </div>
@@ -349,7 +438,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                     <canvas id="chartCopaVsSalario"></canvas>
                 </div>
                 <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                    Fuente: Ministerio de Economía y Administración (Coparticipación) / SISPER (Salarios)
+                    Fuente: Ministerio de Economía de la Provincia (RON) / Contaduría General de la Provincia de Corrientes (Salarios)
                 </p>
             </section>
 
@@ -369,7 +458,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                         ?</div>
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">Coparticipación Disponible Real</h2>
+                            <h2 class="section-title">RON Disponible Real</h2>
                             <p class="section-subtitle">Evolución últimos 3 meses (Pesos constantes)</p>
                         </div>
                     </div>
@@ -396,7 +485,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                         <canvas id="chartMasaRealEvol"></canvas>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                        Fuente: SISPER e INDEC (IPC NEA)
+                        Fuente: Contaduría General de la Provincia de Corrientes e INDEC (IPC NEA)
                     </p>
                 </div>
             </section>
@@ -414,7 +503,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                     ?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title" id="chart-title">Comportamiento de Coparticipación Disponible Diaria
+                        <h2 class="section-title" id="chart-title">Comportamiento de RON Disponible Diario
                         </h2>
                         <p class="section-subtitle">Comparativa de ingresos diarios nominales (Millones de pesos)</p>
                     </div>
@@ -442,7 +531,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
                     <canvas id="chartBrechaAcumulada"></canvas>
                 </div>
                 <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-                    Fuente: Ministerio de Economía y Administración
+                    Fuente: Ministerio de Economía de la Provincia
                 </p>
             </section>
 

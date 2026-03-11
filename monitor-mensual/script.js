@@ -181,7 +181,7 @@ function renderDashboard(periodId) {
     // Update Header Text
     const headerTitle = document.querySelector('h1.text-gradient');
     if (headerTitle) {
-        headerTitle.textContent = `Coparticipación Federal - Análisis Interanual`;
+        headerTitle.textContent = `Recursos de Origen Nacional (RON)`;
     }
 
     // Update Main Subtitle
@@ -196,11 +196,11 @@ function renderDashboard(periodId) {
 
     const lblRecCurrent = document.getElementById('label-recaudacion-current');
     if (lblRecCurrent) {
-        lblRecCurrent.textContent = `Copa. Disponible ${monthName} ${currentYear}${statusSuffix}`;
+        lblRecCurrent.textContent = `RON Disponible ${monthName} ${currentYear}${statusSuffix}`;
     }
 
     const lblRecPrev = document.getElementById('label-recaudacion-prev');
-    if (lblRecPrev) lblRecPrev.textContent = `Copa. Disponible ${monthName} ${prevYear}`;
+    if (lblRecPrev) lblRecPrev.textContent = `RON Disponible ${monthName} ${prevYear}`;
 
     const lblMuniCurrent = document.getElementById('label-muni-current');
     if (lblMuniCurrent) {
@@ -210,10 +210,18 @@ function renderDashboard(periodId) {
     const lblMuniPrev = document.getElementById('label-muni-prev');
     if (lblMuniPrev) lblMuniPrev.textContent = `Distrib. Municipal ${monthName} ${prevYear}`;
 
+    const lblRecaProvCurrent = document.getElementById('label-reca-prov-current');
+    if (lblRecaProvCurrent) {
+        lblRecaProvCurrent.textContent = `Recaudación Prov. ${monthName} ${currentYear}${statusSuffix}`;
+    }
+
+    const lblRecaProvPrev = document.getElementById('label-reca-prov-prev');
+    if (lblRecaProvPrev) lblRecaProvPrev.textContent = `Recaudación Prov. ${monthName} ${prevYear}`;
+
     // Update Masa Salarial Subtitle
     const masaSubtitle = document.getElementById('masa-salarial-subtitle');
     if (masaSubtitle) {
-        masaSubtitle.textContent = `Relación entre Coparticipación y Masa Salarial para ${monthName} ${prevYear} vs ${currentYear}${statusSuffix}`;
+        masaSubtitle.textContent = `Relación entre RON y Masa Salarial para ${monthName} ${prevYear} vs ${currentYear}${statusSuffix}`;
     }
 
     // Update Masa Salarial Labels
@@ -234,6 +242,10 @@ function renderDashboard(periodId) {
     const cardMuniVarReal = document.getElementById('card-muni-var-real');
     const rowMuniCards = document.getElementById('row-muni-cards');
 
+    const cardRecaProvVarNom = document.getElementById('card-reca-prov-var-nom');
+    const cardRecaProvVarReal = document.getElementById('card-reca-prov-var-real');
+    const rowRecaProvCards = document.getElementById('row-reca-prov-cards');
+
     const cardMasaVarReal = document.getElementById('card-masa-var-real');
     const rowMasaCards = document.getElementById('row-masa-cards');
 
@@ -249,6 +261,10 @@ function renderDashboard(periodId) {
         if (cardMuniVarReal) cardMuniVarReal.style.display = 'none';
         if (rowMuniCards) rowMuniCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(2, 1fr)';
 
+        if (cardRecaProvVarNom) cardRecaProvVarNom.style.display = 'none';
+        if (cardRecaProvVarReal) cardRecaProvVarReal.style.display = 'none';
+        if (rowRecaProvCards) rowRecaProvCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(2, 1fr)';
+
         if (cardMasaVarReal) cardMasaVarReal.style.display = 'none';
         if (rowMasaCards) rowMasaCards.style.gridTemplateColumns = isMobileLayout ? '' : 'repeat(3, 1fr)';
     }
@@ -262,6 +278,10 @@ function renderDashboard(periodId) {
         if (cardMuniVarReal) cardMuniVarReal.style.display = 'flex';
         if (rowMuniCards) rowMuniCards.style.gridTemplateColumns = '';
 
+        if (cardRecaProvVarNom) cardRecaProvVarNom.style.display = 'flex';
+        if (cardRecaProvVarReal) cardRecaProvVarReal.style.display = 'flex';
+        if (rowRecaProvCards) rowRecaProvCards.style.gridTemplateColumns = '';
+
         if (cardMasaVarReal) cardMasaVarReal.style.display = 'flex';
         if (rowMasaCards) rowMasaCards.style.gridTemplateColumns = '';
     }
@@ -273,7 +293,7 @@ function renderDashboard(periodId) {
 
     // Update Chart Title
     const chartTitle = document.getElementById('chart-title');
-    if (chartTitle) chartTitle.textContent = `Comportamiento de Coparticipación Disponible Diaria ${monthName}`;
+    if (chartTitle) chartTitle.textContent = `Comportamiento de RON Disponible Diario ${monthName}`;
 
     // Update Chart
     renderChart(periodData.charts.daily, monthName, currentYear, prevYear);
@@ -316,9 +336,15 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
 
         const elMuniCurr = document.getElementById('kpi-muni-current');
         if (elMuniCurr) elMuniCurr.textContent = formatMillions(muniCurrent);
+        
+        const elMuniCurrBreakdown = document.getElementById('kpi-muni-orig-nac-current');
+        if (elMuniCurrBreakdown) elMuniCurrBreakdown.innerHTML = `Orig. Nac.: ${formatMillions(kpi.distribucion_municipal.nacion_current)}<br>Orig. Prov.: ${formatMillions(kpi.distribucion_municipal.provincia_current)}`;
 
         const elMuniPrev = document.getElementById('kpi-muni-prev');
         if (elMuniPrev) elMuniPrev.textContent = formatMillions(muniPrev);
+
+        const elMuniPrevBreakdown = document.getElementById('kpi-muni-orig-nac-prev');
+        if (elMuniPrevBreakdown) elMuniPrevBreakdown.innerHTML = `Orig. Nac.: ${formatMillions(kpi.distribucion_municipal.nacion_prev)}<br>Orig. Prov.: ${formatMillions(kpi.distribucion_municipal.provincia_prev)}`;
 
         const muniVarNomEl = document.getElementById('kpi-muni-var-nom-abs');
         const muniDiffNom = kpi.distribucion_municipal.diff_nom;
@@ -347,14 +373,71 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
                 muniVarRealEl.className = `kpi-value ${kpi.distribucion_municipal.var_real >= 0 ? 'text-success' : 'text-danger'}`;
             }
             if (muniVarRealAbsEl) {
-                const inflacionPct = kpi.recaudacion.ipc_used_for_calc / 100;
-                const muniPrevAjustado = muniPrev * (1 + inflacionPct);
-                const muniDiffReal = muniCurrent - muniPrevAjustado;
-                const muniDiffRealSign = muniDiffReal >= 0 ? '+' : '-';
-                muniVarRealAbsEl.textContent = muniDiffRealSign + formatMillions(Math.abs(muniDiffReal));
-                muniVarRealAbsEl.className = muniDiffReal >= 0 ? 'text-success' : 'text-danger';
+                const muniDiffReal = kpi.distribucion_municipal.diff_real;
+                if (muniDiffReal !== null && muniDiffReal !== undefined) {
+                    const muniDiffRealSign = muniDiffReal >= 0 ? '+' : '-';
+                    muniVarRealAbsEl.textContent = muniDiffRealSign + formatMillions(Math.abs(muniDiffReal));
+                    muniVarRealAbsEl.className = muniDiffReal >= 0 ? 'text-success' : 'text-danger';
+                    muniVarRealAbsEl.style.fontSize = '';
+                    muniVarRealAbsEl.style.fontWeight = '700';
+                } else {
+                    muniVarRealAbsEl.textContent = '--';
+                }
             }
         }
+    }
+
+    // --- Recaudación Provincial ---
+    const containerRecaProv = document.getElementById('container-reca-prov');
+    if (kpi.recaudacion_provincial && kpi.recaudacion_provincial.current > 0) {
+        if (containerRecaProv) containerRecaProv.style.display = 'block';
+        const isIpcNeaMissingProv = kpi.recaudacion_provincial.ipc_missing;
+        const provCurrent = kpi.recaudacion_provincial.current;
+        const provPrev = kpi.recaudacion_provincial.prev;
+
+        const elProvCurr = document.getElementById('kpi-reca-prov-current');
+        if (elProvCurr) elProvCurr.textContent = formatMillions(provCurrent);
+
+        const elProvPrev = document.getElementById('kpi-reca-prov-prev');
+        if (elProvPrev) elProvPrev.textContent = formatMillions(provPrev);
+
+        const provVarNomEl = document.getElementById('kpi-reca-prov-var-nom-abs');
+        const provDiffNom = kpi.recaudacion_provincial.diff_nom;
+        const provDiffSign = provDiffNom >= 0 ? '+' : '-';
+        if (provVarNomEl) provVarNomEl.textContent = provDiffSign + formatMillions(Math.abs(provDiffNom));
+
+        const provVarNomSub = document.getElementById('kpi-reca-prov-var-nom-pct');
+        const provPctSign = kpi.recaudacion_provincial.var_nom >= 0 ? '+' : '-';
+        if (provVarNomSub) {
+            provVarNomSub.textContent = provPctSign + formatPercentage(Math.abs(kpi.recaudacion_provincial.var_nom)).replace('+', '').replace('-', '');
+            provVarNomSub.className = `kpi-value ${kpi.recaudacion_provincial.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const provVarRealEl = document.getElementById('real-var-reca-prov-val');
+        const provVarRealAbsEl = document.getElementById('real-var-reca-prov-abs');
+
+        if (isIpcNeaMissingProv) {
+            if (provVarRealEl) {
+                provVarRealEl.textContent = 'Sin IPC completo';
+                provVarRealEl.className = 'kpi-value text-secondary text-missing';
+            }
+            if (provVarRealAbsEl) provVarRealAbsEl.textContent = '--';
+        } else {
+            if (provVarRealEl) {
+                provVarRealEl.textContent = formatPercentage(kpi.recaudacion_provincial.var_real);
+                provVarRealEl.className = `kpi-value ${kpi.recaudacion_provincial.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+            }
+            if (provVarRealAbsEl) {
+                const inflacionPct = kpi.recaudacion_provincial.ipc_used_for_calc / 100;
+                const provPrevAjustado = provPrev * (1 + inflacionPct);
+                const provDiffReal = provCurrent - provPrevAjustado;
+                const provDiffRealSign = provDiffReal >= 0 ? '+' : '-';
+                provVarRealAbsEl.textContent = provDiffRealSign + formatMillions(Math.abs(provDiffReal));
+                provVarRealAbsEl.className = provDiffReal >= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+    } else {
+        if (containerRecaProv) containerRecaProv.style.display = 'none';
     }
 
     // --- Recaudación ---
@@ -481,11 +564,11 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
         if (periodId.startsWith('2026') && isPeriodComplete) {
             presupuestoSection.style.display = 'block';
 
-            const neta = kpi.recaudacion.neta_current || 0;
+            const bruta = kpi.recaudacion.bruta_current || 0;
             const esperada = kpi.recaudacion.esperada || 0;
 
-            const diffAbs = neta - esperada;
-            const diffPct = esperada > 0 ? ((neta / esperada) - 1) * 100 : 0;
+            const diffAbs = bruta - esperada;
+            const diffPct = esperada > 0 ? ((bruta / esperada) - 1) * 100 : 0;
 
             const pctSign = diffPct > 0 ? '+' : '';
             const absSign = diffAbs > 0 ? '+' : '';
@@ -503,11 +586,41 @@ function renderKPIs(kpi, isPeriodComplete, periodId) {
                 kpiPct.className = `kpi-value ${diffPct >= 0 ? 'text-success' : 'text-danger'}`;
             }
 
-            const valNeta = document.getElementById('kpi-neta-presupuesto');
-            if (valNeta) valNeta.textContent = formatMillions(neta);
+            const valRecaudado = document.getElementById('kpi-neta-presupuesto');
+            if (valRecaudado) valRecaudado.textContent = formatMillions(bruta);
 
             const valEsperada = document.getElementById('kpi-esperada');
             if (valEsperada) valEsperada.textContent = formatMillions(esperada);
+
+            // Provincial Budget vs Real
+            if (kpi.recaudacion_provincial) {
+                const recaProvCurr = kpi.recaudacion_provincial.current || 0;
+                const esperadaProv = kpi.recaudacion_provincial.esperada_prov || 0;
+                
+                const diffAbsProv = kpi.recaudacion_provincial.brecha_abs_prov || 0;
+                const diffPctProv = kpi.recaudacion_provincial.brecha_pct_prov || 0;
+
+                const pctSignProv = diffPctProv > 0 ? '+' : '';
+                const absSignProv = diffAbsProv > 0 ? '+' : '';
+
+                const kpiNomProv = document.getElementById('kpi-brecha-nom-prov');
+                if (kpiNomProv) {
+                    kpiNomProv.textContent = absSignProv + formatMillions(Math.abs(diffAbsProv));
+                    kpiNomProv.className = `kpi-value ${diffAbsProv >= 0 ? 'text-success' : 'text-danger'}`;
+                }
+
+                const kpiPctProv = document.getElementById('kpi-brecha-pct-prov');
+                if (kpiPctProv) {
+                    kpiPctProv.textContent = pctSignProv + formatPercentage(diffPctProv).replace('+', '');
+                    kpiPctProv.className = `kpi-value ${diffPctProv >= 0 ? 'text-success' : 'text-danger'}`;
+                }
+
+                const valRecaProv = document.getElementById('kpi-reca-prov-presupuesto');
+                if (valRecaProv) valRecaProv.textContent = formatMillions(recaProvCurr);
+
+                const valEsperadaProv = document.getElementById('kpi-esperada-prov');
+                if (valEsperadaProv) valEsperadaProv.textContent = formatMillions(esperadaProv);
+            }
 
         } else {
             presupuestoSection.style.display = 'none';
@@ -643,7 +756,7 @@ function renderCopaVsSalarioChart(dataCopa) {
     // Update Title dynamically
     const titleEl = document.getElementById('copaVsSalarioTitle');
     if (titleEl && dataCopa && dataCopa.copa_label && dataCopa.salario_label) {
-        titleEl.textContent = `Coparticipación Disponible ${dataCopa.copa_label} vs Sueldos ${dataCopa.salario_label}`;
+        titleEl.textContent = `RON Disponible ${dataCopa.copa_label} vs Sueldos ${dataCopa.salario_label}`;
     }
 
     if (chartCopaInstance) {
@@ -984,7 +1097,7 @@ function renderRealEvolutionCharts(periodId) {
     const barPeriods = chartPeriods.map(p => ({ year: p.year, label: p.label }));
 
     // Render Charts - Use generic labels in legend, precise years in tooltips
-    renderBarComparisonChart('chartCopaRealEvol', labels, `Copa. Disponible Real`, copaCurrent, `Copa. Disponible Real`, copaPrevReal, '#10b981', barPeriods);
+    renderBarComparisonChart('chartCopaRealEvol', labels, `RON Disponible Real`, copaCurrent, `RON Disponible Real`, copaPrevReal, '#10b981', barPeriods);
     renderBarComparisonChart('chartMasaRealEvol', labels, `Masa Salarial Real`, masaCurrent, `Masa Salarial Real`, masaPrevReal, '#3b82f6', barPeriods);
 }
 

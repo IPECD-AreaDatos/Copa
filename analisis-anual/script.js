@@ -197,10 +197,10 @@ function renderDashboard(periodId) {
 
     // Update Recaudación Labels
     const lblRecCurrent = document.getElementById('label-recaudacion-current');
-    if (lblRecCurrent) lblRecCurrent.textContent = `Copa. Disponible ${periodLabel}`;
+    if (lblRecCurrent) lblRecCurrent.textContent = `RON Disponible ${periodLabel}`;
 
     const lblRecPrev = document.getElementById('label-recaudacion-prev');
-    if (lblRecPrev) lblRecPrev.textContent = `Copa. Disponible Año ${prevYear}`;
+    if (lblRecPrev) lblRecPrev.textContent = `RON Disponible Año ${prevYear}`;
 
     // Update Distribucion Municipal Labels
     const lblMuniCurrent = document.getElementById('label-muni-current');
@@ -208,6 +208,13 @@ function renderDashboard(periodId) {
 
     const lblMuniPrev = document.getElementById('label-muni-prev');
     if (lblMuniPrev) lblMuniPrev.textContent = `Distrib. Municipal Año ${prevYear}`;
+    
+    // Update Recaudacion Provincial Labels
+    const lblRecaProvCurrent = document.getElementById('label-reca-prov-current');
+    if (lblRecaProvCurrent) lblRecaProvCurrent.textContent = `Recaudación Prov. ${periodLabel}`;
+
+    const lblRecaProvPrev = document.getElementById('label-reca-prov-prev');
+    if (lblRecaProvPrev) lblRecaProvPrev.textContent = `Recaudación Prov. Año ${prevYear}`;
 
     // Update Masa Salarial Labels
     const lblMasaCurrent = document.getElementById('label-masa-current');
@@ -218,7 +225,7 @@ function renderDashboard(periodId) {
 
     // Update Chart Title
     const chartTitle = document.getElementById('chart-title');
-    if (chartTitle) chartTitle.textContent = `Comportamiento de Coparticipación Disponible Mensual ${iterYear}`;
+    if (chartTitle) chartTitle.textContent = `Comportamiento de RON Disponible Mensual ${iterYear}`;
 
     // Update Chart
     renderMonthlyChart(periodData.charts.monthly, iterYear, prevYear);
@@ -226,6 +233,37 @@ function renderDashboard(periodId) {
 
     // Call renderBrechaChart and trigger card rendering
     renderBrechaChart(periodData.charts.copa_vs_salario, iterYear, periodData.kpi.meta.max_month, periodData.kpi.meta.is_complete);
+
+    // Provincial Budget vs Real (Annual) binding at root level where KPI is available
+    if (periodData.kpi && periodData.kpi.recaudacion_provincial) {
+        const pKpi = periodData.kpi.recaudacion_provincial;
+        const recaProvCurr = pKpi.current || 0;
+        const esperadaProv = pKpi.esperada_prov || 0;
+        
+        const diffAbsProv = pKpi.brecha_abs_prov || 0;
+        const diffPctProv = pKpi.brecha_pct_prov || 0;
+
+        const pctSignProv = diffPctProv > 0 ? '+' : '';
+        const absSignProv = diffAbsProv > 0 ? '+' : '';
+
+        const kpiNomProv = document.getElementById('kpi-brecha-nom-prov-anual');
+        if (kpiNomProv) {
+            kpiNomProv.textContent = absSignProv + formatMillions(Math.abs(diffAbsProv));
+            kpiNomProv.className = `kpi-value ${diffAbsProv >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const kpiPctProv = document.getElementById('kpi-brecha-pct-prov-anual');
+        if (kpiPctProv) {
+            kpiPctProv.textContent = pctSignProv + formatPercentage(diffPctProv).replace('+', '');
+            kpiPctProv.className = `kpi-value ${diffPctProv >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        const valRecaProv = document.getElementById('kpi-reca-prov-presupuesto-anual');
+        if (valRecaProv) valRecaProv.textContent = formatMillions(recaProvCurr);
+
+        const valEsperadaProv = document.getElementById('kpi-esperada-prov-anual');
+        if (valEsperadaProv) valEsperadaProv.textContent = formatMillions(esperadaProv);
+    }
 }
 
 // ... Format functions ...
@@ -243,7 +281,7 @@ function formatBillions(value) {
 function formatMillions(value) {
     if (value === undefined || value === null || isNaN(value)) return 'N/A';
     const valInMillions = value / 1000000;
-    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(valInMillions) + ' Millones';
+    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(valInMillions) + ' M';
 }
 
 function formatPercentage(value) {
@@ -264,15 +302,29 @@ function renderKPIs(kpi) {
         const muniPrev = kpi.distribucion_municipal.prev;
 
         const elMuniCurr = document.getElementById('kpi-muni-current');
-        if (elMuniCurr) elMuniCurr.textContent = formatBillions(muniCurrent);
+        if (elMuniCurr) elMuniCurr.textContent = formatMillions(muniCurrent);
 
         const elMuniPrev = document.getElementById('kpi-muni-prev');
-        if (elMuniPrev) elMuniPrev.textContent = formatBillions(muniPrev);
+        if (elMuniPrev) elMuniPrev.textContent = formatMillions(muniPrev);
+
+        const origNacCurrEl = document.getElementById('kpi-muni-orig-nac-current');
+        if (origNacCurrEl) {
+            const nacCurrDesc = formatMillions(kpi.distribucion_municipal.nacion_current);
+            const provCurrDesc = formatMillions(kpi.distribucion_municipal.provincia_current);
+            origNacCurrEl.innerHTML = `Orig. Nac.: ${nacCurrDesc}<br>Orig. Prov.: ${provCurrDesc}`;
+        }
+        
+        const origNacPrevEl = document.getElementById('kpi-muni-orig-nac-prev');
+        if (origNacPrevEl) {
+            const nacPrevDesc = formatMillions(kpi.distribucion_municipal.nacion_prev);
+            const provPrevDesc = formatMillions(kpi.distribucion_municipal.provincia_prev);
+            origNacPrevEl.innerHTML = `Orig. Nac.: ${nacPrevDesc}<br>Orig. Prov.: ${provPrevDesc}`;
+        }
 
         const muniVarNomEl = document.getElementById('kpi-muni-var-nom-abs');
         const muniDiffNom = kpi.distribucion_municipal.diff_nom;
         const muniDiffSign = muniDiffNom >= 0 ? '+' : '-';
-        if (muniVarNomEl) muniVarNomEl.textContent = muniDiffSign + formatBillions(Math.abs(muniDiffNom));
+        if (muniVarNomEl) muniVarNomEl.textContent = muniDiffSign + formatMillions(Math.abs(muniDiffNom));
 
         const muniVarNomSub = document.getElementById('kpi-muni-var-nom-pct');
         const muniPctSign = kpi.distribucion_municipal.var_nom >= 0 ? '+' : '-';
@@ -302,10 +354,63 @@ function renderKPIs(kpi) {
                 const muniPrevAjustado = muniPrev * (1 + inflacionPct);
                 const muniDiffReal = muniCurrent - muniPrevAjustado;
                 const muniDiffRealSign = muniDiffReal >= 0 ? '+' : '-';
-                muniVarRealAbsEl.textContent = muniDiffRealSign + formatBillions(Math.abs(muniDiffReal));
+                muniVarRealAbsEl.textContent = muniDiffRealSign + formatMillions(Math.abs(muniDiffReal));
                 muniVarRealAbsEl.className = muniDiffReal >= 0 ? 'text-success' : 'text-danger';
             }
         }
+    }
+    // --- Recaudación Provincial (New Section) ---
+    const containerRecaProv = document.getElementById('container-reca-prov');
+    if (kpi.recaudacion_provincial && kpi.recaudacion_provincial.current > 0) {
+        if (containerRecaProv) containerRecaProv.style.display = 'block';
+
+        const recaProvCurrent = kpi.recaudacion_provincial.current;
+        const recaProvPrev = kpi.recaudacion_provincial.prev;
+
+        const elRecaProvCurr = document.getElementById('kpi-reca-prov-current');
+        if (elRecaProvCurr) elRecaProvCurr.textContent = formatMillions(recaProvCurrent);
+
+        const elRecaProvPrev = document.getElementById('kpi-reca-prov-prev');
+        if (elRecaProvPrev) elRecaProvPrev.textContent = formatMillions(recaProvPrev);
+
+        // Var Nominal
+        const recaProvVarNomEl = document.getElementById('kpi-reca-prov-var-nom-abs');
+        const recaProvDiffNom = kpi.recaudacion_provincial.diff_nom;
+        const recaProvDiffSign = recaProvDiffNom >= 0 ? '+' : '-';
+        if (recaProvVarNomEl) recaProvVarNomEl.textContent = recaProvDiffSign + formatMillions(Math.abs(recaProvDiffNom));
+
+        const recaProvVarNomSub = document.getElementById('kpi-reca-prov-var-nom-pct');
+        const recaProvPctSign = kpi.recaudacion_provincial.var_nom >= 0 ? '+' : '-';
+        if (recaProvVarNomSub) {
+            recaProvVarNomSub.textContent = recaProvPctSign + formatPercentage(Math.abs(kpi.recaudacion_provincial.var_nom)).replace('+', '').replace('-', '');
+            recaProvVarNomSub.className = `kpi-value ${kpi.recaudacion_provincial.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+        }
+
+        // Var Real
+        const recaProvVarRealEl = document.getElementById('real-var-reca-prov-val');
+        const recaProvVarRealAbsEl = document.getElementById('real-var-reca-prov-abs');
+        const isIpcNeaMissingRecaProv = kpi.recaudacion_provincial.ipc_missing;
+
+        if (isIpcNeaMissingRecaProv) {
+            if (recaProvVarRealEl) {
+                recaProvVarRealEl.textContent = 'Sin IPC completo';
+                recaProvVarRealEl.className = 'kpi-value text-secondary text-missing';
+            }
+            if (recaProvVarRealAbsEl) recaProvVarRealAbsEl.textContent = '--';
+        } else {
+            if (recaProvVarRealEl) {
+                recaProvVarRealEl.textContent = formatPercentage(kpi.recaudacion_provincial.var_real);
+                recaProvVarRealEl.className = `kpi-value ${kpi.recaudacion_provincial.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+            }
+            if (recaProvVarRealAbsEl) {
+                const recaProvDiffReal = kpi.recaudacion_provincial.diff_real;
+                const recaProvDiffRealSign = recaProvDiffReal >= 0 ? '+' : '-';
+                recaProvVarRealAbsEl.textContent = recaProvDiffRealSign + formatMillions(Math.abs(recaProvDiffReal));
+                recaProvVarRealAbsEl.className = recaProvDiffReal >= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+    } else {
+        if (containerRecaProv) containerRecaProv.style.display = 'none';
     }
 
     // --- Recaudación ---
@@ -598,7 +703,7 @@ function renderCopaVsSalarioChart(dataCopa) {
                 },
                 {
                     type: 'bar',
-                    label: 'Coparticipación Disponible Acumulada',
+                    label: 'RON Disponible Acumulada',
                     data: cumulativeCopaNet,
                     backgroundColor: 'rgba(16, 185, 129, 0.8)',
                     borderColor: colorPrimary,
@@ -690,9 +795,9 @@ function renderBrechaChart(dataCopa, currentYear, maxMonth, isComplete) {
     const colorFaltante = '#94a3b8';
     const colorExcedente = '#047857';
 
-    // Use expected as is (compared against Neta)
+    // Use expected as is (compared against Bruta)
     const expectedData = dataCopa.cumulative_esperada || [];
-    const actualDataRaw = dataCopa.cumulative_neta || dataCopa.cumulative_copa;
+    const actualDataRaw = dataCopa.cumulative_bruta || dataCopa.cumulative_copa;
 
     const baseData = [];
     const faltanteData = [];

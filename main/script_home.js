@@ -282,37 +282,29 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
 
     updateKPI('kpi-cobertura', kpiCobertura, false, true);
 
-    // 3. Variación Real Salario (Personal)
-    const personalMetrics = mainData.data[currentPeriodId].kpi.personal || {};
-
-    let kpiSalarioReal = null;
-    let kpiCbtRatio = null;
-
-    if (personalData && personalData.data && personalData.data[currentPeriodId] && personalData.data[currentPeriodId].kpi) {
-        kpiSalarioReal = personalData.data[currentPeriodId].kpi.var_real_ia;
-        kpiCbtRatio = personalData.data[currentPeriodId].kpi.cbt_ratio;
-    } else if (personalData && personalData.kpi) {
-        kpiSalarioReal = personalData.kpi.var_real_ia;
-        kpiCbtRatio = personalData.kpi.cbt_ratio;
-    }
-
-    if (personalMetrics.salario_var_real_ia !== null && personalMetrics.salario_var_real_ia !== undefined) {
-        kpiSalarioReal = personalMetrics.salario_var_real_ia;
-    }
-
-    // Check if IPC is missing (based on mainData IPC state)
+    // 3. Variación Real Masa Salarial
     const isIpcNeaMissingMasa = mainData.data[currentPeriodId].kpi.masa_salarial.ipc_missing;
-    updateKPI('kpi-salario-var-real', kpiSalarioReal, true, false, isIpcNeaMissingMasa ? 'IPC' : null);
+    const kpiMasaReal = (masaData.is_incomplete || isIpcNeaMissingMasa) ? null : masaData.var_real;
+    updateKPI('kpi-masa-var-real', kpiMasaReal, true, false, isIpcNeaMissingMasa ? 'IPC' : null);
 
-    // Update Salary Card Subtitle
-    const salarioSubEl = document.getElementById('kpi-salario-var-real-subtitle');
-    if (salarioSubEl) {
-        salarioSubEl.textContent = `Variación i.a. Deflactada | ${periodLabelFinal}`;
-        if (isPeriodIncomplete) salarioSubEl.style.color = '#ef4444';
-        else salarioSubEl.style.color = '';
+    // Update Masa Card Subtitle
+    const masaSubEl = document.getElementById('kpi-masa-var-real-subtitle');
+    if (masaSubEl) {
+        masaSubEl.textContent = `Variación i.a. Deflactada | ${periodLabelFinal}`;
+        if (isPeriodIncomplete) masaSubEl.style.color = '#ef4444';
+        else masaSubEl.style.color = '';
     }
 
     // 4. Ratio CBT (Personal)
+    const personalMetrics = mainData.data[currentPeriodId].kpi.personal || {};
+    let kpiCbtRatio = null;
+
+    if (personalData && personalData.data && personalData.data[currentPeriodId] && personalData.data[currentPeriodId].kpi) {
+        kpiCbtRatio = personalData.data[currentPeriodId].kpi.cbt_ratio;
+    } else if (personalData && personalData.kpi) {
+        kpiCbtRatio = personalData.kpi.cbt_ratio;
+    }
+
     if (personalMetrics.cbt_ratio !== null && personalMetrics.cbt_ratio !== undefined) {
         kpiCbtRatio = personalMetrics.cbt_ratio;
     }
@@ -386,7 +378,7 @@ function renderChart(mainData) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Var. Interanual Coparticipación (%)',
+                    label: 'Var. Interanual RON (%)',
                     data: copa_var_interanual,
                     borderColor: '#10b981', // Brand Green
                     backgroundColor: 'transparent',
@@ -622,7 +614,7 @@ function renderCoverageChart(mainData, periodId) {
                     barPercentage: 0.6
                 },
                 {
-                    label: 'Resto Coparticipación',
+                    label: 'Resto RON',
                     data: restoCopaPctData,
                     backgroundColor: '#94a3b8', // gray
                     borderWidth: 0,
