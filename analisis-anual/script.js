@@ -209,12 +209,12 @@ function renderDashboard(periodId) {
     const lblMuniPrev = document.getElementById('label-muni-prev');
     if (lblMuniPrev) lblMuniPrev.textContent = `Distrib. Municipal Año ${prevYear}`;
     
-    // Update Recaudacion Provincial Labels
+    // Update Recaudacion Provincial (ROP) Labels
     const lblRecaProvCurrent = document.getElementById('label-reca-prov-current');
-    if (lblRecaProvCurrent) lblRecaProvCurrent.textContent = `Recaudación Prov. ${periodLabel}`;
-
+    if (lblRecaProvCurrent) lblRecaProvCurrent.textContent = `ROP Disponible ${periodLabel}`;
+    
     const lblRecaProvPrev = document.getElementById('label-reca-prov-prev');
-    if (lblRecaProvPrev) lblRecaProvPrev.textContent = `Recaudación Prov. Año ${prevYear}`;
+    if (lblRecaProvPrev) lblRecaProvPrev.textContent = `ROP Disponible Año ${prevYear}`;
 
     // Update Masa Salarial Labels
     const lblMasaCurrent = document.getElementById('label-masa-current');
@@ -273,16 +273,18 @@ function formatCurrency(value) {
 }
 function formatBillions(value) {
     if (value === undefined || value === null || isNaN(value)) return 'N/A';
-    // 1 Billon = 1.000.000.000.000 (Long scale)
-    const valInBillions = value / 1000000000000;
+    // Data is already in Millions from backend.
+    // 1 Billon = 1.000.000 Millones.
+    const valInBillions = value / 1000000;
     return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(valInBillions) + ' Billones';
 }
 
 function formatMillions(value) {
     if (value === undefined || value === null || isNaN(value)) return 'N/A';
-    const valInMillions = value / 1000000;
-    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(valInMillions) + ' M';
+    // Data is already in Millions from backend.
+    return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value) + ' M';
 }
+
 
 function formatPercentage(value) {
     if (value === undefined || value === null || isNaN(value)) return 'N/A';
@@ -292,9 +294,10 @@ function formatPercentage(value) {
 }
 
 function renderKPIs(kpi) {
-    const currentNet = kpi.recaudacion.current;
-    const prevNet = kpi.recaudacion.prev;
+    const currentNet = kpi.recaudacion.disponible_current || kpi.recaudacion.current;
+    const prevNet = kpi.recaudacion.disponible_prev || kpi.recaudacion.prev;
     const diffNomNet = kpi.recaudacion.diff_nom;
+
 
     // --- Distribucion Municipal ---
     if (kpi.distribucion_municipal) {
@@ -361,35 +364,43 @@ function renderKPIs(kpi) {
     }
     // --- Recaudación Provincial (New Section) ---
     const containerRecaProv = document.getElementById('container-reca-prov');
-    if (kpi.recaudacion_provincial && kpi.recaudacion_provincial.current > 0) {
+    if (kpi.rop) {
         if (containerRecaProv) containerRecaProv.style.display = 'block';
 
-        const recaProvCurrent = kpi.recaudacion_provincial.current;
-        const recaProvPrev = kpi.recaudacion_provincial.prev;
+        const ropDispCurrent = kpi.rop.disponible_current || 0;
+        const ropDispPrev = kpi.rop.disponible_prev || 0;
+        const ropBrutaCurrent = kpi.rop.bruta_current || 0;
+        const ropBrutaPrev = kpi.rop.bruta_prev || 0;
 
         const elRecaProvCurr = document.getElementById('kpi-reca-prov-current');
-        if (elRecaProvCurr) elRecaProvCurr.textContent = formatMillions(recaProvCurrent);
+        if (elRecaProvCurr) elRecaProvCurr.textContent = formatMillions(ropDispCurrent);
+
+        const elRecaProvTotalCurr = document.getElementById('kpi-reca-prov-total-current');
+        if (elRecaProvTotalCurr) elRecaProvTotalCurr.textContent = formatMillions(ropBrutaCurrent);
 
         const elRecaProvPrev = document.getElementById('kpi-reca-prov-prev');
-        if (elRecaProvPrev) elRecaProvPrev.textContent = formatMillions(recaProvPrev);
+        if (elRecaProvPrev) elRecaProvPrev.textContent = formatMillions(ropDispPrev);
+
+        const elRecaProvTotalPrev = document.getElementById('kpi-reca-prov-total-prev');
+        if (elRecaProvTotalPrev) elRecaProvTotalPrev.textContent = formatMillions(ropBrutaPrev);
 
         // Var Nominal
         const recaProvVarNomEl = document.getElementById('kpi-reca-prov-var-nom-abs');
-        const recaProvDiffNom = kpi.recaudacion_provincial.diff_nom;
+        const recaProvDiffNom = kpi.rop.diff_nom || 0;
         const recaProvDiffSign = recaProvDiffNom >= 0 ? '+' : '-';
         if (recaProvVarNomEl) recaProvVarNomEl.textContent = recaProvDiffSign + formatMillions(Math.abs(recaProvDiffNom));
 
         const recaProvVarNomSub = document.getElementById('kpi-reca-prov-var-nom-pct');
-        const recaProvPctSign = kpi.recaudacion_provincial.var_nom >= 0 ? '+' : '-';
+        const recaProvPctSign = (kpi.rop.var_nom || 0) >= 0 ? '+' : '-';
         if (recaProvVarNomSub) {
-            recaProvVarNomSub.textContent = recaProvPctSign + formatPercentage(Math.abs(kpi.recaudacion_provincial.var_nom)).replace('+', '').replace('-', '');
-            recaProvVarNomSub.className = `kpi-value ${kpi.recaudacion_provincial.var_nom >= 0 ? 'text-success' : 'text-danger'}`;
+            recaProvVarNomSub.textContent = recaProvPctSign + formatPercentage(Math.abs(kpi.rop.var_nom || 0)).replace('+', '').replace('-', '');
+            recaProvVarNomSub.className = `kpi-value ${(kpi.rop.var_nom || 0) >= 0 ? 'text-success' : 'text-danger'}`;
         }
 
         // Var Real
         const recaProvVarRealEl = document.getElementById('real-var-reca-prov-val');
         const recaProvVarRealAbsEl = document.getElementById('real-var-reca-prov-abs');
-        const isIpcNeaMissingRecaProv = kpi.recaudacion_provincial.ipc_missing;
+        const isIpcNeaMissingRecaProv = kpi.rop.ipc_missing;
 
         if (isIpcNeaMissingRecaProv) {
             if (recaProvVarRealEl) {
@@ -399,11 +410,11 @@ function renderKPIs(kpi) {
             if (recaProvVarRealAbsEl) recaProvVarRealAbsEl.textContent = '--';
         } else {
             if (recaProvVarRealEl) {
-                recaProvVarRealEl.textContent = formatPercentage(kpi.recaudacion_provincial.var_real);
-                recaProvVarRealEl.className = `kpi-value ${kpi.recaudacion_provincial.var_real >= 0 ? 'text-success' : 'text-danger'}`;
+                recaProvVarRealEl.textContent = formatPercentage(kpi.rop.var_real || 0);
+                recaProvVarRealEl.className = `kpi-value ${(kpi.rop.var_real || 0) >= 0 ? 'text-success' : 'text-danger'}`;
             }
             if (recaProvVarRealAbsEl) {
-                const recaProvDiffReal = kpi.recaudacion_provincial.diff_real;
+                const recaProvDiffReal = kpi.rop.diff_real || 0;
                 const recaProvDiffRealSign = recaProvDiffReal >= 0 ? '+' : '-';
                 recaProvVarRealAbsEl.textContent = recaProvDiffRealSign + formatMillions(Math.abs(recaProvDiffReal));
                 recaProvVarRealAbsEl.className = recaProvDiffReal >= 0 ? 'text-success' : 'text-danger';

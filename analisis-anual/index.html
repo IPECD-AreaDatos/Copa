@@ -31,9 +31,11 @@
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <a href="../main/index.html">
-        <img src="../main/logo-blanco.png" alt="IPECD" class="logo-img">
+    <div class="sidebar-header"
+      style="flex-direction: row; align-items: center; gap: 12px; margin-bottom: 2rem; padding: 0.5rem 0;">
+      <a href="../main/index.html" style="display: flex; align-items: center; gap: 10px;">
+        <img src="../main/logo-blanco-gob.png" alt="Gobierno" style="height: 40px; width: auto;">
+        <img src="../main/logo-blanco-ipecd.png" alt="IPECD" style="height: 30px; width: auto;">
       </a>
     </div>
 
@@ -59,7 +61,8 @@
     <main>
       <div class="header-content"
         style="text-align: left; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <h1 class="text-gradient dashboard-title" style="margin-bottom: 0; font-size: 1.5rem;">Recursos de Origen Nacional (RON)</h1>
+        <h1 class="text-gradient dashboard-title" style="margin-bottom: 0; font-size: 1.5rem;">Recursos de Origen
+          Nacional (RON)</h1>
 
         <!-- Year Selector -->
         <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -154,7 +157,8 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
 
       <div id="container-reca-prov">
         <div style="margin-bottom: 3rem; margin-top: 4rem;">
-          <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">Recaudación Provincial</h2>
+          <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">Recaudación de Origen
+            Provincial (ROP)</h2>
         </div>
 
         <!-- KPI Grid Recaudacion Provincial -->
@@ -163,16 +167,22 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
             <div class="info-tooltip"
               data-tooltip="Monto total, en millones de pesos corrientes, de la recaudación provincial para el periodo actual seleccionado. Combina todos los impuestos recaudados (Inmobiliario Rural, Sellos, Ingresos Brutos, etc).">
               ?</div>
-            <div class="kpi-label" id="label-reca-prov-current">Recaudación Prov. Año --</div>
+            <div class="kpi-label" id="label-reca-prov-current">ROP Disponible Año --</div>
             <div class="kpi-value" id="kpi-reca-prov-current">Loading...</div>
+            <div class="kpi-sub" style="color: var(--text-secondary); font-size: 0.85rem;">
+              ROP Total: <strong id="kpi-reca-prov-total-current">--</strong>
+            </div>
           </article>
 
           <article class="kpi-card">
             <div class="info-tooltip"
               data-tooltip="Monto total, en millones de pesos corrientes, de la recaudación provincial para el mismo periodo del año anterior al seleccionado.">
               ?</div>
-            <div class="kpi-label" id="label-reca-prov-prev">Recaudación Prov. Año --</div>
+            <div class="kpi-label" id="label-reca-prov-prev">ROP Disponible Año --</div>
             <div class="kpi-value" style="color: var(--text-secondary);" id="kpi-reca-prov-prev">Loading...</div>
+            <div class="kpi-sub" style="color: var(--text-secondary); font-size: 0.85rem;">
+              ROP Total: <strong id="kpi-reca-prov-total-prev">--</strong>
+            </div>
           </article>
 
           <article class="kpi-card" id="card-reca-prov-var-nom">
@@ -345,7 +355,8 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
           <canvas id="chartCopaVsSalario"></canvas>
         </div>
         <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
-          Fuente: Ministerio de Economía de la Provincia (RON) / Contaduría General de la Provincia de Corrientes (Salarios)
+          Fuente: Ministerio de Economía de la Provincia (RON) / Contaduría General de la Provincia de Corrientes
+          (Salarios)
         </p>
       </section>
 
@@ -464,7 +475,7 @@ La coparticipación bruta incluye el total recibido en términos de coparticipac
     <footer>
       <div class="footer-content">
         <div class="footer-branding">
-          <img src="../main/logo-blanco.png" alt="IPECD" class="footer-logo">
+          <img src="../main/logo-blanco-ipecd.png" alt="IPECD" class="footer-logo">
           <div class="footer-text">
             <p class="copyright">©2025 INSTITUTO DE ESTADÍSTICA Y CIENCIA DE DATOS DE LA PROVINCIA DE CORRIENTES.</p>
             <p class="contact">estadistica@corrientes.gob.ar</p>

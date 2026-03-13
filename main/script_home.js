@@ -194,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     currentPeriodId = e.target.value;
                     renderKPIs(mainData, personalData, currentPeriodId);
+
+                    // Re-render ALL charts when period changes
+                    renderChart(mainData);
+                    renderPurchasingPowerChart(mainData);
                     renderCoverageChart(mainData, currentPeriodId);
                 });
 
@@ -262,11 +266,11 @@ function renderKPIs(mainData, personalData, currentPeriodId) {
     const periodStatus = isPeriodIncomplete ? ' (incompleto)' : '';
     const periodLabelFinal = `${periodLabel} ${year}${periodStatus}`;
 
-    // 1. Variación Real Coparticipación
-    const copaData = mainData.data[currentPeriodId].kpi.recaudacion;
-    const isIpcNacionMissing = copaData.ipc_missing;
-    const kpiCopaReal = isIpcNacionMissing ? null : copaData.var_real;
-    updateKPI('kpi-copa-var-real', kpiCopaReal, true, false, isIpcNacionMissing ? 'IPC' : null);
+    // 1. Variación Real Recursos Totales (RON + ROP)
+    const resumen = mainData.data[currentPeriodId].kpi.resumen;
+    const isIpcNacionMissing = mainData.data[currentPeriodId].kpi.recaudacion.ipc_missing;
+    const kpiTotalReal = isIpcNacionMissing ? null : resumen.total_recursos_brutos_var_real;
+    updateKPI('kpi-copa-var-real', kpiTotalReal, true, false, isIpcNacionMissing ? 'IPC' : null);
 
     // Update Card Subtitles with period
     const copaSubEl = document.getElementById('kpi-copa-var-real-subtitle');
@@ -369,7 +373,7 @@ function renderChart(mainData) {
     const maxPeriods = isMobile ? 6 : chartData.labels.length;
 
     const labels = chartData.labels.slice(-maxPeriods);
-    const copa_var_interanual = chartData.copa_var_interanual.slice(-maxPeriods);
+    const total_var_interanual = (chartData.total_var_interanual || chartData.copa_var_interanual).slice(-maxPeriods);
     const ipc_var_interanual = chartData.ipc_var_interanual.slice(-maxPeriods);
 
     new Chart(ctx, {
@@ -378,8 +382,8 @@ function renderChart(mainData) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Var. Interanual RON (%)',
-                    data: copa_var_interanual,
+                    label: 'Var. Interanual Rec. Totales (%)',
+                    data: total_var_interanual,
                     borderColor: '#10b981', // Brand Green
                     backgroundColor: 'transparent',
                     borderWidth: 3,
@@ -542,19 +546,22 @@ function renderCoverageChart(mainData, periodId) {
         const shortLabel = p.label.substring(0, 3) + ' ' + p.year.toString().slice(-2);
         labels.push(shortLabel);
 
-        const recaudacionTotalM = pData.kpi.recaudacion.neta_current || pData.kpi.recaudacion.current;
+        const ronBrutaM = pData.kpi.recaudacion.bruta_current || 0;
+        const ropBrutaM = pData.kpi.rop ? (pData.kpi.rop.bruta_current || 0) : 0;
         const masaSalarialM = pData.kpi.masa_salarial.current;
-        const distMuniM = pData.kpi.distribucion_municipal?.current || pData.kpi.recaudacion.neta_current * 0.19;
+        const distMuniM = pData.kpi.distribucion_municipal?.current || (ronBrutaM * 0.19);
         const isMasaIncomplete = pData.kpi.masa_salarial.is_incomplete;
 
         let masaSalarial = masaSalarialM * 1000000;
-        let recaudacionTotal = recaudacionTotalM * 1000000;
+        let recaudacionTotal = (ronBrutaM + ropBrutaM) * 1000000;
         let municipios = distMuniM * 1000000;
+
+        // El resto se calcula para que la suma sea el 100% (recaudacionTotal)
         let restoCopa = Math.max(0, recaudacionTotal - masaSalarial - municipios);
 
         if (isMasaIncomplete || masaSalarial === 0) {
             masaSalarial = 0;
-            restoCopa = recaudacionTotal - municipios;
+            restoCopa = Math.max(0, recaudacionTotal - municipios);
         }
 
         const total = recaudacionTotal;
@@ -565,7 +572,8 @@ function renderCoverageChart(mainData, periodId) {
         if (total > 0) {
             masaPct = (masaSalarial / total) * 100;
             municipiosPct = (municipios / total) * 100;
-            restoPct = Math.max(0, 100 - masaPct - municipiosPct);
+            // Forzamos que sumen 100%
+            restoPct = Math.max(0, 100 - (masaPct + municipiosPct));
         }
 
         masaSalarialPctData.push(masaPct);
@@ -576,6 +584,7 @@ function renderCoverageChart(mainData, periodId) {
         rawMunicipiosData.push(municipios);
         rawRestoData.push(restoCopa);
     });
+
 
     // Actualizar Subtítulo
     const subtitle = document.getElementById('coverageSubtitle');
@@ -614,7 +623,7 @@ function renderCoverageChart(mainData, periodId) {
                     barPercentage: 0.6
                 },
                 {
-                    label: 'Resto RON',
+                    label: 'Resto Recursos Totales',
                     data: restoCopaPctData,
                     backgroundColor: '#94a3b8', // gray
                     borderWidth: 0,
