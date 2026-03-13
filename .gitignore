@@ -8,7 +8,7 @@ venv/
 ENV/
 
 # ETL Scripts (backend, run locally only)
-*.py
+
 consolidado_copa.csv
 
 # Environment Variables
