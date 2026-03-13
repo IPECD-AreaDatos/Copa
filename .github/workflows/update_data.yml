@@ -10,17 +10,19 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     # Solución al aviso de Node.js 20: forzamos el uso de Node 24
-    env:
+env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      # PostgreSQL
       PG_HOST: ${{ secrets.PG_HOST }}
       PG_PORT: ${{ secrets.PG_PORT }}
       PG_USER: ${{ secrets.PG_USER }}
       PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
       PG_DATABASE: ${{ secrets.PG_DATABASE }}
+      # MySQL (Cambiados para coincidir con etl_main.py)
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_USER: ${{ secrets.DB_USER }}
-      DB_PASS: ${{ secrets.DB_PASS }}
-      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
       
     steps:
       - name: Checkout repository
