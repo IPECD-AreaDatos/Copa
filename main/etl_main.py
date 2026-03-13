@@ -152,7 +152,7 @@ def fetch_copa_esperada():
         return pd.DataFrame(columns=['fecha', 'esperada', 'esperada_prov', 'day', 'month', 'year'])
         
     # Read Excel
-    df_budget = pd.read_excel(excel_path)
+    df_budget = pd.read_excel(excel_path, engine='openpyxl')
     
     # Ensure columns exist, lowercase for safety if needed or map directly. 
     # Let's assume the user specified: mes, año, ron, rop
