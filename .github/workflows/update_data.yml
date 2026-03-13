@@ -37,7 +37,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run ETL Script
-        run: python etl_main.py
+        run: python main/etl_main.py
 
       - name: Commit and push changes
         run: |
