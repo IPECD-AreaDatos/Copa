@@ -2,13 +2,26 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    # 18:00 Argentina (UTC-3) is 21:00 UTC
-    - cron: '0 21 * * *'
-  workflow_dispatch: # Allow manual trigger
+    # 18:30 Argentina (UTC-3) es 21:30 UTC
+    - cron: '30 21 * * *'
+  workflow_dispatch: # Permite la ejecución manual para testeo
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    # Solución al aviso de Node.js 20: forzamos el uso de Node 24
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_DATABASE: ${{ secrets.PG_DATABASE }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASS: ${{ secrets.DB_PASS }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,17 +37,6 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run ETL Script
-        env:
-          PG_HOST: ${{ secrets.PG_HOST }}
-          PG_PORT: ${{ secrets.PG_PORT }}
-          PG_USER: ${{ secrets.PG_USER }}
-          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          PG_DATABASE: ${{ secrets.PG_DATABASE }}
-          # MySQL creds for IPC if still needed
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_NAME: ${{ secrets.DB_NAME }}
         run: python main/etl_main.py
 
       - name: Commit and push changes
