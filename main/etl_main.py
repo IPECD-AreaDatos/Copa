@@ -152,7 +152,7 @@ def fetch_copa_esperada():
         return pd.DataFrame(columns=['fecha', 'esperada', 'esperada_prov', 'day', 'month', 'year'])
         
     # Read Excel
-    df_budget = pd.read_csv(excel_path)
+    df_budget = pd.read_excel(excel_path, engine='openpyxl')
     
     # Ensure columns exist, lowercase for safety if needed or map directly. 
     # Let's assume the user specified: mes, año, ron, rop
@@ -210,7 +210,7 @@ def fetch_masa_salarial(target_years):
     if not os.path.exists(excel_path):
         return pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
         
-    df = pd.read_excel(excel_path)
+    df = pd.read_excel(excel_path, engine='openpyxl')
     
     # Rename columns to match expected downstream format
     df = df.rename(columns={'año': 'anio', 'masa salarial': 'masa_salarial'})
@@ -239,7 +239,7 @@ def fetch_recaudacion_provincial():
     if not os.path.exists(excel_path):
         return pd.DataFrame(columns=['año', 'mes', 'recaudacion_provincial', 'distribucion_municipal_prov'])
         
-    df = pd.read_excel(excel_path)
+    df = pd.read_excel(excel_path, engine='openpyxl')
     
     # Ensure numeric for all tax columns
     tax_cols = [col for col in df.columns if col not in ['año', 'mes']]

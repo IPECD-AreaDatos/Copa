@@ -35,10 +35,9 @@ jobs:
 
       - name: Reconstruir archivos Excel desde Secrets
         run: |
-          # Decodifica los strings Base64 de los Secrets y crea los archivos físicos .xlsx
-          echo "${{ secrets.EXCEL_PRESUPUESTO }}" | base64 -d > main/presupuesto.xlsx
-          echo "${{ secrets.EXCEL_MASA_SALARIAL }}" | base64 -d > main/masa_salarial.xlsx
-          echo "${{ secrets.EXCEL_RECA }}" | base64 -d > main/reca.xlsx
+          printf "%s" "${{ secrets.EXCEL_PRESUPUESTO }}" | base64 -d > main/presupuesto.xlsx
+          printf "%s" "${{ secrets.EXCEL_MASA_SALARIAL }}" | base64 -d > main/masa_salarial.xlsx
+          printf "%s" "${{ secrets.EXCEL_RECA }}" | base64 -d > main/reca.xlsx
 
       - name: Install dependencies
         run: |
