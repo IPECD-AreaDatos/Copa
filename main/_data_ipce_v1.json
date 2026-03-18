@@ -4348,22 +4348,22 @@
     "2026-03": {
       "kpi": {
         "recaudacion": {
-          "current": 61743.0323237756,
+          "current": 66398.53356855222,
           "prev": 117338.30108035571,
-          "neta_current": 67808.47857581,
+          "neta_current": 72962.31585923999,
           "neta_prev": 137954.53848993,
-          "bruta_current": 69721.18800259555,
+          "bruta_current": 74943.04164735675,
           "bruta_prev": 142060.21172306422,
-          "disponible_current": 61743.0323237756,
+          "disponible_current": 66398.53356855222,
           "disponible_prev": 117338.30108035571,
-          "var_nom": -47.38032530273922,
+          "var_nom": -43.412736542792516,
           "var_real": null,
-          "diff_nom": -55595.26875658011,
+          "diff_nom": -50939.7675118035,
           "ipc_missing": true,
           "ipc_used_for_calc": 0,
           "esperada": 177984.29503356694,
-          "brecha_abs": -110175.81645775696,
-          "brecha_pct": -61.90198772143258
+          "brecha_abs": -105021.97917432696,
+          "brecha_pct": -59.006318031891716
         },
         "rop": {
           "bruta_current": 0.0,
@@ -4381,25 +4381,25 @@
           "brecha_pct_prov": -100.0
         },
         "resumen": {
-          "total_disponible_current": 61743.0323237756,
+          "total_disponible_current": 66398.53356855222,
           "total_disponible_prev": 140455.12861773942,
           "total_recursos_brutos_var_real": null,
-          "ron_disponible": 61743.0323237756,
+          "ron_disponible": 66398.53356855222,
           "rop_disponible": 0.0,
-          "post_sueldos_current": -80212.97340714438,
+          "post_sueldos_current": -75557.47216236776,
           "post_sueldos_prev": 36019.320275069425,
           "using_fallback_salary": true
         },
         "distribucion_municipal": {
-          "current": 6065.446252034396,
+          "current": 6563.782290687783,
           "prev": 25913.948793580596,
-          "nacion_current": 6065.446252034396,
+          "nacion_current": 6563.782290687783,
           "nacion_prev": 20616.2374095743,
           "provincia_current": 0.0,
           "provincia_prev": 5297.7113840063,
-          "var_nom": -76.59389427543776,
+          "var_nom": -74.67085258610311,
           "var_real": null,
-          "diff_nom": -19848.5025415462,
+          "diff_nom": -19350.166502892815,
           "diff_real": null,
           "ipc_missing": true,
           "ipc_used_for_calc": 0
@@ -4415,8 +4415,8 @@
           "cobertura_current": 0.0,
           "cobertura_prev": 61.26174577048277,
           "is_incomplete": true,
-          "recurso_municipal_total": 6065.446252034396,
-          "recurso_municipal_disponible": 6065.446252034396
+          "recurso_municipal_total": 6563.782290687783,
+          "recurso_municipal_disponible": 6563.782290687783
         },
         "meta": {
           "periodo": "Marzo 2026",
@@ -4513,7 +4513,7 @@
             0.0,
             3183.082077313114,
             4762.608100580015,
-            0.0,
+            4655.501244776615,
             0.0,
             0.0,
             0.0,
@@ -4614,7 +4614,7 @@
             53797.342145882474,
             56980.42422319559,
             61743.0323237756,
-            null,
+            66398.53356855222,
             null,
             null,
             null,
@@ -4647,7 +4647,7 @@
             59069.034912940006,
             62514.24159953,
             67808.47857581,
-            null,
+            72962.31585924,
             null,
             null,
             null,
@@ -4680,7 +4680,7 @@
             86121.43308075827,
             91862.86195280882,
             97604.29082485937,
-            null,
+            103345.71969690993,
             null,
             null,
             null,
@@ -4779,28 +4779,28 @@
             "is_complete": false
           },
           "resumen": {
-            "total_disponible_current": 456911.9267844419,
+            "total_disponible_current": 461567.4280292185,
             "total_disponible_prev": 454390.06612476654,
-            "post_sueldos_current": 168083.3253002219,
+            "post_sueldos_current": 172738.82654499853,
             "post_sueldos_prev": 151511.75593640655,
-            "ron_disponible": 398304.42645135085,
+            "ron_disponible": 402959.92769612744,
             "rop_disponible": 58607.5003330911
           },
           "recaudacion": {
-            "current": 398304.42645135085,
+            "current": 402959.92769612744,
             "prev": 384235.1346319318,
-            "neta_current": 456895.72320470994,
+            "neta_current": 462049.56048814,
             "neta_prev": 456078.96589869005,
-            "bruta_current": 470303.13143315626,
+            "bruta_current": 475524.9850779174,
             "bruta_prev": 468880.32424616616,
-            "diff_nom": 14069.291819419068,
-            "var_nom": 3.661635949272673,
-            "var_real": -15.535315801789935,
+            "diff_nom": 18724.793064195677,
+            "var_nom": 4.873264149082206,
+            "var_real": -14.54806731467713,
             "ipc_missing": true,
             "avg_ipc_used": 21.821093527408173,
             "esperada": 2640294.032641824,
-            "brecha_abs": -2183398.309437114,
-            "brecha_pct": -82.69527114949582
+            "brecha_abs": -2178244.4721536837,
+            "brecha_pct": -82.50007178080001
           },
           "rop": {
             "bruta_current": 72181.0281835,
@@ -4817,16 +4817,16 @@
             "brecha_pct_prov": -81.7150552125017
           },
           "distribucion_municipal": {
-            "current": 72164.82460376807,
+            "current": 72663.16064242144,
             "prev": 88008.53035660944,
-            "nacion_current": 58591.29675335916,
+            "nacion_current": 59089.63279201255,
             "nacion_prev": 71843.83126675819,
             "provincia_current": 13573.527850408902,
             "provincia_prev": 16164.69908985124,
-            "diff_nom": -15843.70575284137,
-            "diff_real": -36008.54346921274,
-            "var_nom": -18.0024659980605,
-            "var_real": -33.287808367877595,
+            "diff_nom": -15345.369714187987,
+            "diff_real": -35510.207430559356,
+            "var_nom": -17.436229933631147,
+            "var_real": -32.82712562541443,
             "ipc_missing": true,
             "ipc_used_for_calc": 0
           },
@@ -4838,11 +4838,11 @@
             "var_real": -21.11686669257994,
             "ipc_missing": true,
             "avg_ipc_used": 20.889302252138112,
-            "cobertura_current": 53.24184980595918,
+            "cobertura_current": 52.734239626900624,
             "cobertura_prev": 54.553014198591974,
             "is_incomplete": false,
-            "recurso_municipal_total": 72164.82460376807,
-            "recurso_municipal_disponible": 58591.29675335916
+            "recurso_municipal_total": 72663.16064242144,
+            "recurso_municipal_disponible": 59089.63279201255
           }
         },
         "charts": {
@@ -4864,7 +4864,7 @@
             "data_curr": [
               173098695592.34573,
               163462698535.22946,
-              61743032323.775604,
+              66398533568.552216,
               null,
               null,
               null,
@@ -4908,7 +4908,7 @@
             "cumulative_copa": [
               173098695592.34573,
               336561394127.5752,
-              398304426451.3508,
+              402959927696.12744,
               null,
               null,
               null,
@@ -4922,7 +4922,7 @@
             "cumulative_bruta": [
               207145494621.2338,
               400581943430.56067,
-              470303131433.15625,
+              475524985077.9174,
               null,
               null,
               null,
@@ -4936,7 +4936,7 @@
             "cumulative_neta": [
               202226343045.28995,
               389087244628.89996,
-              456895723204.70996,
+              462049560488.13995,
               null,
               null,
               null,
