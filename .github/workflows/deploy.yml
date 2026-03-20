@@ -1,0 +1,43 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            
+            # 1. Sincronizar código
+            git fetch --all
+            git reset --hard origin/main
+            
+            # 2. Permisos (Ajustar si no usas root)
+            # sudo chown -R $USER:$USER .
+            # sudo chmod -R 755 .
+
+            # 3. Actualizar dependencias de Python (si aplica)
+            if [ -d "venv" ]; then
+              source venv/bin/activate
+            elif [ -d ".venv" ]; then
+              source .venv/bin/activate
+            fi
+            
+            if [ -f "requirements.txt" ]; then
+              pip install -r requirements.txt
+            fi
+
+            # 4. Reiniciar el servicio (si tienes Systemd u otro)
+            # sudo systemctl restart tu-servicio
+            
+            echo "🚀 Despliegue en servidor finalizado con éxito"
