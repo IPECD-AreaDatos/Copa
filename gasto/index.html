@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Gasto</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="../main/styles.css?v=20260330v1">
+    <style>
+        /* Custom styles for the Gasto dashboard */
+        .filters-container {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            background: var(--card-bg, #1f2937);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color, #374151);
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-group label {
+            color: var(--text-secondary, #9ca3af);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .filter-group select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .table-container {
+            background: var(--card-bg, #1f2937);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border-color, #374151);
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th {
+            color: var(--text-secondary, #9ca3af);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color, #374151);
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: var(--text-primary, #f3f4f6);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color, #374151);
+            font-size: 0.95rem;
+        }
+        
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .data-table td.numeric {
+            text-align: right;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        .data-table th.numeric {
+            text-align: right;
+        }
+        
+        /* Total Row Styling */
+        .data-table tfoot td {
+            font-weight: 700;
+            color: var(--text-primary, #f3f4f6);
+            padding: 1rem;
+            border-top: 2px solid var(--border-color, #374151);
+        }
+
+        /* Full width chart container override */
+        .full-width-chart {
+            width: 100%;
+            margin-bottom: 3rem;
+        }
+        
+        .full-width-chart .chart-wrapper {
+            height: 600px; /* Taller height since it's 35 bars */
+            width: 100%;
+            position: relative;
+        }
+    </style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <!-- Authentication -->
+    <script src="../auth/auth.js?v=20260305v3"></script>
+    <script>
+        Auth.requireAuth();
+    </script>
+</head>
+
+<body>
+
+    <!-- Mobile Nav Toggle -->
+    <button class="mobile-nav-toggle" id="mobileNavToggle">
+        ☰
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"
+            style="flex-direction: row; align-items: center; gap: 12px; margin-bottom: 2rem; padding: 0.5rem 0;">
+            <a href="../main/index.html" style="display: flex; align-items: center; gap: 10px;">
+                <img src="../main/logo-blanco-gob.png" alt="Gobierno" style="height: 40px; width: auto;">
+                <img src="../main/logo-blanco-ipecd.png" alt="IPECD" style="height: 30px; width: auto;">
+            </a>
+        </div>
+
+        <nav class="nav-vertical">
+            <a href="../main/index.html" class="nav-link-vertical">Inicio</a>
+            <a href="../monitor-mensual/index.html" class="nav-link-vertical">Análisis Mensual RON</a>
+            <a href="../analisis-anual/index.html" class="nav-link-vertical">Análisis Anual RON</a>
+            <a href="../analisis-personal/index.html" class="nav-link-vertical" style="display: none;">Análisis Salarial</a>
+            <a href="index.html" class="nav-link-vertical active">Gasto</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="nav-user-header" id="navUserHeader">
+                <span class="user-icon">👤</span>
+                <span class="user-name" id="userName">Usuario</span>
+                <button class="btn-logout-header" id="btnLogout" title="Cerrar sesión">Salir</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content-wrapper">
+
+        <main>
+            <div class="header-content" style="text-align: left; margin-bottom: 2rem;">
+                <h1 class="text-gradient dashboard-title" style="margin-bottom: 0.5rem; font-size: 1.8rem;">Análisis de Gasto Provincial</h1>
+                <p style="color: var(--text-secondary); font-size: 1rem;">
+                    Evolución y composición del gasto según tipo y partidas.
+                </p>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="periodo-selector">Período</label>
+                    <select id="periodo-selector">
+                        <option value="" disabled selected>Cargando...</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="estado-selector">Estado del Gasto</label>
+                    <select id="estado-selector">
+                        <option value="Comprometido" selected>Comprometido</option>
+                        <option value="Crédito Vigente">Crédito Vigente</option>
+                        <option value="Ordenado">Ordenado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="jurisdiccion-selector">Jurisdicción</label>
+                    <select id="jurisdiccion-selector">
+                        <option value="TODAS" selected>Todas las Jurisdicciones</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <section class="chart-container" style="margin-bottom: 3rem;">
+                <div class="info-tooltip" data-tooltip="Composición del Gasto por partida.">?</div>
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Composición del Gasto</h2>
+                        <p class="section-subtitle">Gastos totales y peso relativo por partida seleccionada</p>
+                    </div>
+                </div>
+                
+                <div class="table-container" style="margin-bottom: 0.5rem;">
+                    <table class="data-table" id="gasto-table">
+                        <thead>
+                            <tr>
+                                <th>Partida de Gasto</th>
+                                <th class="numeric">Monto Total ($)</th>
+                                <th class="numeric">Peso sobre Total (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data injected here -->
+                            <tr><td colspan="3" style="text-align:center;">Cargando datos...</td></tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>TOTAL</td>
+                                <td class="numeric" id="table-total-monto">$0.00</td>
+                                <td class="numeric">100.00%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0; text-align: left;">
+                    Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
+                </p>
+            </section>
+
+            <!-- 100% Stacked Bar Chart -->
+            <section class="chart-container full-width-chart">
+                <div class="info-tooltip" data-tooltip="Porcentaje del gasto en cada partida distribuido en cada una de las 35 jurisdicciones de la provincia. Las barras suman 100%. (Nota: El filtro de jurisdicción no aplica a este gráfico para permitir la comparación completa).">?</div>
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Estructura del Gasto por Jurisdicción</h2>
+                        <p class="section-subtitle">Participación porcentual de las Partidas (100% Apilado)</p>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="gastoChart"></canvas>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+                    Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
+                </p>
+            </section>
+
+            <!-- Avance de Ejecución Chart -->
+            <section class="chart-container full-width-chart">
+                <div class="info-tooltip" data-tooltip="Compara el monto 'Comprometido' vs 'Crédito Vigente' para medir el avance de ejecución de la jurisdicción seleccionada en el período indicado. La línea roja representa la ejecución teórica esperada (proporcional al mes seleccionado, p.ej. 2/12 en Febrero).">?</div>
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Avance de Ejecución por Partida</h2>
+                        <p class="section-subtitle">Comprometido respecto al Crédito Vigente (Línea indicadora de ejecución teórica)</p>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="height: 400px;"> <!-- Menos altura requerida que el gráfico de 35 barras -->
+                    <canvas id="ratioChart"></canvas>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem; text-align: left;">
+                    Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
+                </p>
+            </section>
+
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-branding">
+                    <img src="../main/logo-blanco-ipecd.png" alt="IPECD" class="footer-logo">
+                    <div class="footer-text">
+                        <p class="copyright">©2026 INSTITUTO DE ESTADÍSTICA Y CIENCIA DE DATOS DE LA PROVINCIA DE CORRIENTES.</p>
+                        <p class="contact">estadistica@corrientes.gob.ar</p>
+                        <p class="contact">Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Script for Gasto Dashboard -->
+    <script src="script_gasto.js?v=20260330v1"></script>
+    
+    <!-- Default Mobile Nav Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileToggle = document.getElementById('mobileNavToggle');
+            const sidebar = document.getElementById('sidebar');
+            if(mobileToggle && sidebar) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

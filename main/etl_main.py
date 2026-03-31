@@ -1578,5 +1578,28 @@ def main():
         
     print(f"Data saved to {output_path}")
 
+    # Temporary Gasto Dashboard update
+    print("Processing Gasto Data...")
+    gasto_excel_path = os.path.join(os.path.dirname(__file__), 'Gastos.xlsx')
+    if os.path.exists(gasto_excel_path):
+        try:
+            df_gasto = pd.read_excel(gasto_excel_path)
+            df_gasto["periodo"] = df_gasto["periodo"].dt.strftime("%Y-%m")
+            
+            name_map = {
+                "GASTO EN PERSONAL": "GASTOS EN PERSONAL",
+                "SERVICIOS DE LA DEUDA Y DISMINUCION DE OTROS PASIVOS": "SERVICIO DE LA DEUDA"
+            }
+            df_gasto["partida"] = df_gasto["partida"].apply(lambda x: name_map.get(x, x))
+            
+            gasto_data = df_gasto.to_dict(orient="records")
+            gasto_json_path = os.path.join(os.path.dirname(__file__), '..', 'gasto', 'gasto_data.json')
+            
+            with open(gasto_json_path, 'w', encoding='utf-8') as f:
+                json.dump(gasto_data, f, ensure_ascii=False, indent=2)
+            print(f"Gasto data saved to {gasto_json_path}")
+        except Exception as e:
+            print(f"Error processing Gasto data: {e}")
+
 if __name__ == "__main__":
     main()

@@ -1,0 +1,3986 @@
+[
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 397023200803.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 64002173286.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 64002173286.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 8816535736.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 858103758.77
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 777905232.9599999
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 6838520109.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 1994274490.76
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 1695138982.65
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 1808127073.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 38191153.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 90000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 276174622.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 67200000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 67200000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 24461652867.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 3573168925.98
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 3573168925.98
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 705060306.76
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 77234102.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 73519232.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 41743361770.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 14346129270.18
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 13725703232.23
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 167727183963.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 3149838450.88
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1660014127.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 563118632605.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 72814570213.54
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 72772401149.38
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Crédito Vigente",
+    "monto": 960000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIO DE LA DEUDA",
+    "estado": "Crédito Vigente",
+    "monto": 26426868382.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIO DE LA DEUDA",
+    "estado": "Comprometido",
+    "monto": 2146208134.88
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIO DE LA DEUDA",
+    "estado": "Ordenado",
+    "monto": 2146208134.88
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS FIGURATIVOS",
+    "estado": "Crédito Vigente",
+    "monto": 265471886026.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS FIGURATIVOS",
+    "estado": "Comprometido",
+    "monto": 12439341271.29
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE HACIENDA Y FINANZAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS FIGURATIVOS",
+    "estado": "Ordenado",
+    "monto": 11937351461.29
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 880661037945.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 135730077624.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 135730077624.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 2117943931.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 274981106.11
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 13243529.1
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 51242837372.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 19473041185.35
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 17492464143.03
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 20757000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 10643847445.43
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1776277727.0700002
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 7500000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 4880439701.86
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE EDUCACIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 4880439701.86
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 236987037596.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 37255401592.130005
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 37255401592.130005
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 38382401988.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 8485982497.059999
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 8485982497.059999
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 30592615383.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 13555880363.17
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 13425679367.509998
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 3035701842.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 579546312.2
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 579546312.2
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 7376000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 4532539253.31
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 4532539253.31
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Crédito Vigente",
+    "monto": 26179539618.120003
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Comprometido",
+    "monto": 2804315480.8599997
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE SALUD PÚBLICA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Ordenado",
+    "monto": 2804315480.8599997
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 4993298565.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 817000803.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 817000803.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 1344038053.8600001
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 64482774.96
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 55385093.97
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 3269039695.19
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 402149749.98
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 368881997.48
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 382742716.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 1850000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1850000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 1902313137.72
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 57010579.2
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 57010579.2
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Crédito Vigente",
+    "monto": 3070000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Comprometido",
+    "monto": 250000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE PRODUCCIÓN",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Ordenado",
+    "monto": 250000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 8824122116.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 1359621003.55
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 1359621003.55
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 616348874.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 31739301.86
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 24619301.86
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1117975536.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 241399238.64000002
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 187290066.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 14686504573.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 2278024154.34
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1147873891.12
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 14555048901.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 5479489400.59
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 5479489400.59
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 16238891287.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 2443964860.71
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 2443964860.71
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 828870000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 308630380.96
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 205472551.11
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 5615690000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 2542853923.61
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 626357090.51
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 878562192.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 505236899.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 57236899.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 1465500000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 688755357.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 405245357.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Crédito Vigente",
+    "monto": 3000000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Comprometido",
+    "monto": 1271341224.65
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO SECRETARIA GENERAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Ordenado",
+    "monto": 1271341224.65
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 8657993066.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 1378456818.61
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 1378456818.61
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 5360525.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 2492963.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 2492963.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 91803100.36
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 36828659.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 36828659.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 14700000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 11031320.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "TRIBUNAL DE CUENTAS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 11031320.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 167319106260.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 31402089395.47
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 31402089395.47
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 2685484060.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 744153335.97
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 157255955.62
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 7234174836.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 4087178786.8199997
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 917376899.82
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 16909697935.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 13199162212.51
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1520020328.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 14914152.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 12619108.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER JUDICIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 1135446.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 58149532361.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 10698844305.69
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 10698844305.69
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 679775281.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 104271210.49
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 74803186.02
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1852796634.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 768366596.74
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 384888002.33
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 608687460.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 63075377.23
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 52742882.23
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 788637500.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 419351684.36
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "PODER LEGISLATIVO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 245059476.36
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 3852511292.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 601500745.18
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 601500745.18
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 50993747.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 14853877.77
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 10624411.97
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 124909663.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 86347013.12
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 51419074.65
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 13622153.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 3268613.53
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 19000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "FISCALIA DE ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 570298801.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 88358550.58
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 88358550.58
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 36522013.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 4981999.99
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 4981999.99
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 55454775.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 8398655.93
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 8398655.93
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 15859001.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 1147650.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE CIENCIA Y TECNOLOGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 2769524516.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 441278793.17
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 441278793.17
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 129320725.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 4253797.92
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 3654297.92
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1135816650.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 173421286.95
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 107568438.75
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 4263882000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 7353500.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1494000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 561515000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 153163051.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE COORDINACION Y PLANIFICACION",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 151658051.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 17550546730.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 2786423737.26
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 2786423737.26
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 1000000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 83556529.49
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 83556529.49
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 2800000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 597170677.69
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 191686327.49
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 300000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 23212085.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 23212085.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 28543298289.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 8061186950.44
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 7597610982.34
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 12700834647.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 2084667550.8
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 2084667550.8
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 570361643.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 33362232.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 33242232.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 906220000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 226197961.66
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 177830312.08
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 451429442.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 31300318.02
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 31300318.02
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 4630000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 1118075199.29
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 901827982.29
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 1635280380.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 259885909.63
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 259885909.63
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 695649072.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 23210252.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 22136652.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 959464242.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 33678414.839999996
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 33678414.839999996
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 5471000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 361009922.76
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 360498033.45
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 6469865599.55
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 536335640.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "SECRETARIA DE ENERGIA",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 536335640.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 3846719453.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 584831038.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 584831038.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 270015904.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 36979827.760000005
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 36979827.760000005
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1538867154.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 201473734.46
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 194626115.42
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 3577557248.01
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 119065220.83
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 22002645.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 328330479.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 147305503.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 147305503.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Crédito Vigente",
+    "monto": 16000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 7911956597.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 1186605310.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 1186605310.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 1099051845.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 130803066.44
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 130803066.44
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1418644155.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 428821322.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 353821322.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 659299000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 1955900.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1955900.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 172735184.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 4465000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "MINISTERIO DE TURISMO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 2550000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 8400000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 983881649.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 983881649.05
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 122835362.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 37078243.75
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 11453692.92
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 12264758732.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 3284088966.83
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 2774874986.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 1011577344.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 24821020.9
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 16884288.9
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 14900000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 2415599880.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 1432387380.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Crédito Vigente",
+    "monto": 4500000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Comprometido",
+    "monto": 1663338288.14
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "ACTIVOS FINANCIEROS",
+    "estado": "Ordenado",
+    "monto": 1663338288.14
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Crédito Vigente",
+    "monto": 134249663395.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Comprometido",
+    "monto": 30483731717.57
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE LOTERIA Y CASINOS",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Ordenado",
+    "monto": 30483731717.57
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 22999876972.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 3584011516.12
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 3584011516.12
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 10206.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 7225841028.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 1307242979.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CARDIOLOGIA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 1307242979.32
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 1015345237.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 36045498.81
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 36045498.81
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 77230000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 735617.84
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 735617.84
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 82955000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 2120951.81
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 2120951.81
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 19450000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 10464425000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO PROVINCIAL DEL TABACO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 2306989785.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 332673970.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 332673970.64
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 103413265.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 13812570.55
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 13812570.55
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 780673812.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 41858936.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 41858936.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 86573000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 5385400.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 5385400.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 28760317.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 5156482.42
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 5156482.42
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 5691755150.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 917755806.52
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 917755806.52
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 13622353.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 217988.91
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 217988.91
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1558060000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 1302803976.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 1302803976.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 29100000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 130000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 29571117.66
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE CULTURA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 29571117.66
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 7561018000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 961251100.96
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 961251100.96
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 5722470000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 73150236.21
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 73150236.21
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 8702182000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 989135805.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 989135805.09
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 42105330000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 5247523784.77
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE VIVIENDA DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 5247523784.77
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 7554745408.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 1189436645.66
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 1189436645.66
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 495730000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 36068725.14
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 36068725.14
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1138200000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 80938714.31
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 80938714.31
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 32139125094.15
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 3397460126.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCION PROVINCIAL DE VIALIDAD",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 3397460126.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 2084756000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 231468794.74
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 231468794.74
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 512803000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 44193915.68
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 35688321.35
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1103000000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 83707034.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 83467034.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 541571000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 81620936.3
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 81620936.3
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 67503000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 4820292.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 4820292.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 787326217.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 110507637.88
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 110507637.88
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 111800000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 162060467.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 400000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 39320000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE DESARROLLO RURAL DE CORRIENTES",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 600624174.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 91205231.33
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 91205231.33
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1370182.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 170000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 170000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 1330979954.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 210790596.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 210790596.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 2229205559.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 106322166.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 1635467210.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 9473013330.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 68956748.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 400000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "ENTE PROVINCIAL REGULADOR ELECTRICO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 221535469.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 31361118.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 31361118.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 26401091.22
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 63526776.78
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 9040000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "AGENCIA CORRENTINA DE BIENES DEL ESTADO",
+    "tipo_ente": "NO AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 6909710397.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 796916980.82
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 796916980.82
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 246165113.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 29348202.15
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 29348202.15
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 4568057777.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 261802155.27
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 243575613.81
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 370934571.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 8799830.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 8799830.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 710960106574.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 115233541766.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE PREVISION SOCIAL",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 115233541766.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 4930713728.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 769021679.72
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 769021679.72
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 1444516062.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 125316678.75
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 120093626.4
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 4726451560.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 461054121.83
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 457420161.83
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 141590000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 6778107.1
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Crédito Vigente",
+    "monto": 206452080650.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Comprometido",
+    "monto": 23875372813.74
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "OTROS GASTOS",
+    "estado": "Ordenado",
+    "monto": 21424622870.3
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Crédito Vigente",
+    "monto": 77903010527.8
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Comprometido",
+    "monto": 9828672000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "GASTOS EN PERSONAL",
+    "estado": "Ordenado",
+    "monto": 9828672000.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Crédito Vigente",
+    "monto": 11266182122.16
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Comprometido",
+    "monto": 333083155.5
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE CONSUMO",
+    "estado": "Ordenado",
+    "monto": 333083155.5
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Crédito Vigente",
+    "monto": 284254335117.7
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Comprometido",
+    "monto": 37795098848.42
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "SERVICIOS NO PERSONALES",
+    "estado": "Ordenado",
+    "monto": 37795098848.42
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Crédito Vigente",
+    "monto": 18079103908.91
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Comprometido",
+    "monto": 1466370569.95
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "BIENES DE USO",
+    "estado": "Ordenado",
+    "monto": 1466370569.95
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Crédito Vigente",
+    "monto": 63388535445.39
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Comprometido",
+    "monto": 0.0
+  },
+  {
+    "periodo": "2026-02",
+    "jurisdiccion": "DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES",
+    "tipo_ente": "AUTOFINANCIADO",
+    "partida": "TRANSFERENCIAS",
+    "estado": "Ordenado",
+    "monto": 0.0
+  }
+]

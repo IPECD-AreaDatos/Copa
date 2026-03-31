@@ -82,11 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const navMonitor = document.getElementById('navMonitor');
     const navAnual = document.getElementById('navAnual');
     const navPersonal = document.getElementById('navPersonal');
+    const navGasto = document.getElementById('navGasto');
 
     // Dashboard links (mobile)
     const navMonitorMobile = document.getElementById('navMonitorMobile');
     const navAnualMobile = document.getElementById('navAnualMobile');
     const navPersonalMobile = document.getElementById('navPersonalMobile');
+    const navGastoMobile = document.getElementById('navGastoMobile');
 
     if (isAuthenticated && currentUser) {
         // User is logged in - show user info and all dashboard links
@@ -112,12 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navMonitor) navMonitor.style.display = 'block';
         if (navAnual) navAnual.style.display = 'block';
         if (navPersonal) navPersonal.style.display = 'none'; // Hidden as per user request
+        if (navGasto) navGasto.style.display = 'block';
 
 
         // Show all dashboard links (mobile)
         if (navMonitorMobile) navMonitorMobile.style.display = 'block';
         if (navAnualMobile) navAnualMobile.style.display = 'block';
         if (navPersonalMobile) navPersonalMobile.style.display = 'none'; // Hidden as per user request
+        if (navGastoMobile) navGastoMobile.style.display = 'block';
 
 
         // Setup logout handlers
