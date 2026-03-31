@@ -40,6 +40,7 @@ jobs:
           printf "%s" "${{ secrets.EXCEL_PRESUPUESTO }}" | base64 -d > main/presupuesto.xlsx
           printf "%s" "${{ secrets.EXCEL_MASA_SALARIAL }}" | base64 -d > main/masa_salarial.xlsx
           printf "%s" "${{ secrets.EXCEL_RECA }}" | base64 -d > main/reca.xlsx
+          printf "%s" "${{ secrets.EXCEL_GASTOS }}" | base64 -d > main/Gastos.xlsx
 
       - name: Install dependencies
         run: |
