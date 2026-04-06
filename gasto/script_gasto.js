@@ -84,7 +84,6 @@ const formaterARS = new Intl.NumberFormat('es-AR', {
     minimumFractionDigits: 0, maximumFractionDigits: 0
 });
 
-let heatmapHiddenJuris = new Set();
 const tsInstances = {};
 
 document.addEventListener('DOMContentLoaded', () => initDashboard());
@@ -346,9 +345,6 @@ function setupEventListeners() {
     // Heatmap estado (simple select)
     const hmEstado = document.getElementById('hm-estado');
     if (hmEstado) hmEstado.addEventListener('change', updateHeatmap);
-    // Heatmap reset
-    const hmReset = document.getElementById('heatmap-reset');
-    if (hmReset) hmReset.addEventListener('click', () => { heatmapHiddenJuris.clear(); updateHeatmap(); });
 
     // Table periodo
     const tblP = document.getElementById('tbl-periodo');
@@ -397,7 +393,7 @@ function updateHeatmap() {
         if (d.estado === 'Credito Vigente' && d.periodo === ultimoPeriodo) vigente[key] = (vigente[key] || 0) + d.monto;
     });
 
-    const visibleJuris = jurisdicciones.filter(j => !heatmapHiddenJuris.has(j));
+    const visibleJuris = jurisdicciones;
 
     let html = '<div class="heatmap-scroll-wrapper"><table class="heatmap-table">';
     html += '<thead><tr><th class="heatmap-corner"></th>';
@@ -423,13 +419,6 @@ function updateHeatmap() {
     });
     html += '</tbody></table></div>';
     container.innerHTML = html;
-
-    container.querySelectorAll('.heatmap-juris-header').forEach(th => {
-        th.addEventListener('click', () => {
-            heatmapHiddenJuris.add(th.getAttribute('data-juris'));
-            updateHeatmap();
-        });
-    });
 }
 
 function heatmapColor(ratio) {
@@ -496,9 +485,10 @@ function updateRatioChart() {
     const jurisSet = getMultiValues('av-jurisdiccion');
     const fuenteSet = getMultiValues('av-fuente');
 
-    const fC = rawData.filter(d => d.periodo === periodo && d.estado === 'Comprometido' && matchJurisMulti(d, jurisSet) && matchFuenteMulti(d, fuenteSet));
+    const currentYear = periodo.split('-')[0];
+    const fC = rawData.filter(d => d.periodo <= periodo && d.periodo.startsWith(currentYear) && d.estado === 'Comprometido' && matchJurisMulti(d, jurisSet) && matchFuenteMulti(d, fuenteSet));
     const fV = rawData.filter(d => d.periodo === periodo && d.estado === 'Credito Vigente' && matchJurisMulti(d, jurisSet) && matchFuenteMulti(d, fuenteSet));
-    const fO = rawData.filter(d => d.periodo === periodo && d.estado === 'Ordenado' && matchJurisMulti(d, jurisSet) && matchFuenteMulti(d, fuenteSet));
+    const fO = rawData.filter(d => d.periodo <= periodo && d.periodo.startsWith(currentYear) && d.estado === 'Ordenado' && matchJurisMulti(d, jurisSet) && matchFuenteMulti(d, fuenteSet));
 
     const gC = {}, gV = {}, gO = {};
     ORDEN_PARTIDAS.forEach(p => { gC[p] = 0; gV[p] = 0; gO[p] = 0; });

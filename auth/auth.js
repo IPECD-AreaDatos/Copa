@@ -24,6 +24,11 @@ const Auth = (function () {
             password: 'usuario2026',
             name: 'Usuario Demo',
             role: 'user'
+        },
+        'gobernador': {
+            password: 'gobernador26',
+            name: 'Gobernador',
+            role: 'user'
         }
     };
 

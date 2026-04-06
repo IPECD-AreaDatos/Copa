@@ -145,6 +145,11 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        /* Uppercase everything in filters */
+        select, option, .ts-multi-summary, .ts-dropdown .option {
+            text-transform: uppercase !important;
+        }
+
         /* Table */
         .table-container { border-radius: 12px; padding: 0; overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -183,9 +188,9 @@
         .heatmap-table { border-collapse: collapse; width: auto; min-width: 100%; }
         .heatmap-corner { width: 50px; min-width: 50px; background: transparent; }
         .heatmap-juris-header {
-            padding: 6px 2px; font-size: 0.6rem; font-weight: 700;
+            padding: 6px 2px; font-size: 0.70rem; font-weight: 700;
             text-align: center; color: var(--text-secondary);
-            cursor: pointer; user-select: none;
+            user-select: none;
             border-bottom: 2px solid var(--border-color);
             min-width: 62px; max-width: 80px;
             transition: all 0.15s ease; height: 130px;
@@ -194,9 +199,8 @@
         .heatmap-juris-header span {
             display: block; writing-mode: vertical-rl;
             transform: rotate(180deg); white-space: nowrap;
-            font-size: 0.6rem; line-height: 1.1;
+            font-size: 0.70rem; line-height: 1.1;
         }
-        .heatmap-juris-header:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
         .heatmap-partida-label {
             padding: 8px 12px; font-size: 0.85rem; font-weight: 700;
             color: var(--text-secondary); white-space: nowrap;
@@ -248,7 +252,7 @@
                 <div class="info-tooltip" data-tooltip="Mapa de calor del ratio acumulado / Crédito Vigente. Tocá una jurisdicción para ocultarla.">?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">Mapa de Calor de Compromiso por Jurisdicción</h2>
+                        <h2 class="section-title">Mapa de Calor de Compromiso por Jurisdicción (Acumulado hasta la fecha del último dato)</h2>
                         <p class="section-subtitle">Ratio acumulado / Crédito Vigente por partida y organismo</p>
                     </div>
                 </div>
@@ -271,10 +275,6 @@
                             <option value="14" selected>14 - PROVINCIAL CON AFECTACIÓN ESPECÍFICA</option>
                         </select>
                     </div>
-                </div>
-                <div class="heatmap-controls">
-                    <button class="heatmap-btn" id="heatmap-reset">🔄 Mostrar Todas</button>
-                    <span style="font-size:0.7rem;color:var(--text-secondary);">Click en jurisdicción para ocultarla</span>
                 </div>
                 <div id="heatmap-grid"><p style="text-align:center;color:var(--text-secondary);">Cargando...</p></div>
                 <p style="color:var(--text-secondary);font-size:0.75rem;margin-top:1rem;">Fuente: Ministerio de Hacienda y Finanzas de Corrientes.</p>
