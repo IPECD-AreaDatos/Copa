@@ -57,6 +57,11 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add main/_data_ipce_v1.json
-          # Usamos ${GITHUB_REF_NAME} para que el push vaya a la rama activa (desarrollo)
+          
+          # Agregamos tanto el archivo de IPC como el de Gastos
+          git add main/_data_ipce_v1.json gasto/gasto_data.json
+          
+          # Si prefieres que guarde CUALQUIER json que cambie, podrías usar:
+          # git add *.json
+          
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update dashboard data [skip ci]" && git push origin ${GITHUB_REF_NAME})
