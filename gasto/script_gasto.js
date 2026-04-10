@@ -342,9 +342,11 @@ function populateAllFilters() {
 // EVENT LISTENERS
 // ========================
 function setupEventListeners() {
-    // Heatmap estado (simple select)
+    // Heatmap estado & juris group
     const hmEstado = document.getElementById('hm-estado');
     if (hmEstado) hmEstado.addEventListener('change', updateHeatmap);
+    const hmJurisGroup = document.getElementById('hm-juris-group');
+    if (hmJurisGroup) hmJurisGroup.addEventListener('change', updateHeatmap);
 
     // Table periodo
     const tblP = document.getElementById('tbl-periodo');
@@ -376,10 +378,18 @@ function updateHeatmap() {
     if (!container) return;
 
     const estado = getSimpleVal('hm-estado') || 'Comprometido';
+    const jurisGroup = getSimpleVal('hm-juris-group') || 'MINISTERIOS';
     const fuenteSet = getMultiValues('hm-fuente');
 
     const periodos = [...new Set(rawData.map(d => d.periodo))].sort();
     const ultimoPeriodo = periodos[periodos.length - 1];
+    
+    // Update Title
+    const hmTitle = document.getElementById('heatmap-title');
+    if (hmTitle && ultimoPeriodo) {
+        hmTitle.textContent = `Mapa de Calor de Compromiso por Jurisdicción Acumulado hasta ${formatPeriodo(ultimoPeriodo)}`;
+    }
+
     const jurisVistasEnBD = new Set(rawData.map(d => (d.jurisdiccion || '').trim()));
     const jurisdicciones = ORDEN_JURISDICCIONES.filter(j => jurisVistasEnBD.has(j));
 
@@ -393,7 +403,13 @@ function updateHeatmap() {
         if (d.estado === 'Credito Vigente' && d.periodo === ultimoPeriodo) vigente[key] = (vigente[key] || 0) + d.monto;
     });
 
-    const visibleJuris = jurisdicciones;
+    const visibleJuris = jurisdicciones.filter(j => {
+        if (jurisGroup === 'TODAS') return true;
+        const isMin = j.includes('MINISTERIO');
+        if (jurisGroup === 'MINISTERIOS') return isMin;
+        if (jurisGroup === 'RESTO') return !isMin;
+        return true;
+    });
 
     let html = '<div class="heatmap-scroll-wrapper"><table class="heatmap-table">';
     html += '<thead><tr><th class="heatmap-corner"></th>';

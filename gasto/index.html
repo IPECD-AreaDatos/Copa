@@ -197,9 +197,10 @@
             letter-spacing: 0.2px; vertical-align: bottom; position: relative;
         }
         .heatmap-juris-header span {
-            display: block; writing-mode: vertical-rl;
+            display: inline-block; writing-mode: vertical-rl;
             transform: rotate(180deg); white-space: nowrap;
             font-size: 0.70rem; line-height: 1.1;
+            margin: 0 auto;
         }
         .heatmap-partida-label {
             padding: 8px 12px; font-size: 0.85rem; font-weight: 700;
@@ -252,7 +253,7 @@
                 <div class="info-tooltip" data-tooltip="Mapa de calor del ratio acumulado / Crédito Vigente. Tocá una jurisdicción para ocultarla.">?</div>
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">Mapa de Calor de Compromiso por Jurisdicción (Acumulado hasta la fecha del último dato)</h2>
+                        <h2 class="section-title" id="heatmap-title">Mapa de Calor de Compromiso por Jurisdicción (Acumulado hasta la fecha del último dato)</h2>
                         <p class="section-subtitle">Ratio acumulado / Crédito Vigente por partida y organismo</p>
                     </div>
                 </div>
@@ -262,6 +263,14 @@
                         <select id="hm-estado">
                             <option value="Comprometido" selected>Comprometido</option>
                             <option value="Ordenado">Ordenado</option>
+                        </select>
+                    </div>
+                    <div class="sf-group">
+                        <label>Jurisdicción</label>
+                        <select id="hm-juris-group">
+                            <option value="TODAS">TODAS LAS JURISDICCIONES</option>
+                            <option value="MINISTERIOS" selected>MINISTERIOS</option>
+                            <option value="RESTO">RESTO</option>
                         </select>
                     </div>
                     <div class="sf-group">
