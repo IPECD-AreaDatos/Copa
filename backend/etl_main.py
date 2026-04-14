@@ -8,7 +8,7 @@ import numpy as np
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # DB Configuration from Environment Variables (Fix 1-C: Remove hardcoded defaults)
 DB_CONFIG = {
@@ -154,7 +154,7 @@ def fetch_copa_esperada():
     Data Source: Local Excel 'presupuesto.xlsx'.
     Columns expected in Excel: 'mes', 'año', 'ron', 'rop'.
     """
-    excel_path = os.path.join(os.path.dirname(__file__), 'presupuesto.xlsx')
+    excel_path = os.path.join(os.path.dirname(__file__), 'inputs', 'presupuesto.xlsx')
     
     if not os.path.exists(excel_path):
         # Return empty structure if file is missing
@@ -214,7 +214,7 @@ def fetch_masa_salarial(target_years):
     Returns:
         pd.DataFrame: Aggregated monetary mass by year and month.
     """
-    excel_path = os.path.join(os.path.dirname(__file__), 'masa_salarial.xlsx')
+    excel_path = os.path.join(os.path.dirname(__file__), 'inputs', 'masa_salarial.xlsx')
     
     if not os.path.exists(excel_path):
         return pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
@@ -243,7 +243,7 @@ def fetch_recaudacion_provincial():
     Returns:
         pd.DataFrame: Aggregated provincial collection and municipal distribution by year and month.
     """
-    excel_path = os.path.join(os.path.dirname(__file__), 'reca.xlsx')
+    excel_path = os.path.join(os.path.dirname(__file__), 'inputs', 'reca.xlsx')
     
     if not os.path.exists(excel_path):
         return pd.DataFrame(columns=['año', 'mes', 'recaudacion_provincial', 'distribucion_municipal_prov'])
@@ -1545,7 +1545,7 @@ def main():
             p_data["kpi"]["personal"] = {"salario_var_real_ia": None, "cbt_ratio": None}
 
     # Obfuscated filename (Fix 1-B)
-    output_path = os.path.join(os.path.dirname(__file__), '_data_ipce_v1.json')
+    output_path = os.path.join(os.path.dirname(__file__), '..', 'data', '_data_ipce_v1.json')
     with open(output_path, 'w') as f:
         json.dump(json_data, f, indent=2)
         
@@ -1602,7 +1602,7 @@ def main():
         df_gasto["jurisdiccion"] = df_gasto["jurisdiccion"].str.strip().apply(lambda x: juris_map.get(x, x))
         
         gasto_data = df_gasto.to_dict(orient="records")
-        gasto_json_path = os.path.join(os.path.dirname(__file__), '..', 'gasto', 'gasto_data.json')
+        gasto_json_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'gasto_data.json')
         
         with open(gasto_json_path, 'w', encoding='utf-8') as f:
             json.dump(gasto_data, f, ensure_ascii=False, indent=2)

@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Use an absolute-relative path based on the current domain to avoid nested folder 404s
     const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
 
-    fetch(basePath + 'analisis-personal/_data_ipce_v1.json')
+    fetch('../../data/data_personal_v1.json')
         .then(response => response.json())
         .then(data => {
             dashboardData = data;

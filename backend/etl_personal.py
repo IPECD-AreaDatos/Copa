@@ -8,7 +8,7 @@ from mysql.connector import Error
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # DB Configuration from Environment Variables (Fix 1-C: Remove hardcoded defaults)
 DB_CONFIG = {
@@ -376,7 +376,7 @@ def generate_json(df):
     
     # Save to the script's directory with an obfuscated name (Fix 1-B)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_path = os.path.join(script_dir, '_data_ipce_v1.json')
+    output_path = os.path.join(script_dir, '..', 'data', 'data_personal_v1.json')
     
     with open(output_path, 'w') as f:
         json.dump(final_data, f, indent=2, ensure_ascii=False)

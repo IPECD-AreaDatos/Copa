@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => initDashboard());
 
 async function initDashboard() {
     try {
-        const response = await fetch('./gasto_data.json');
+        const response = await fetch('../../data/gasto_data.json');
         if (!response.ok) throw new Error('Error loading gasto data');
         rawData = await response.json();
         populateAllFilters();

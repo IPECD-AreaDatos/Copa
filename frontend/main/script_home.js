@@ -157,8 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
 
     Promise.all([
-        fetch(basePath + 'main/_data_ipce_v1.json').then(res => res.json()),
-        fetch(basePath + 'analisis-personal/_data_ipce_v1.json').then(res => res.json())
+        fetch('../../data/_data_ipce_v1.json').then(res => res.json()),
+        fetch('../../data/data_personal_v1.json').then(res => res.json())
     ])
         .then(([mainData, personalData]) => {
             let currentPeriodId = mainData.meta.default_period_id;

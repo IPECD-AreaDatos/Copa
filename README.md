@@ -16,11 +16,15 @@ Para un nivel más asiduo de detalles arquitectónicos sobre el pipeline de dato
 
 ## 📂 Organización del Repositorio
 
-- `/auth` - Sistema de login mock/básico y su interfaz gráfica. Modificable para atarse a un backend JWT o SSO.
-- `/main` - **Monitor Mensual** e index principal del tablero tras loguearse.
-- `/monitor-mensual` - Páginas específicas del histórico de un año mes a mes de los RON.
-- `/analisis-anual` - **Monitor Anual**, vista macroeconómica comparativa año-a-año y Year-to-Date (YTD).
-- `/analisis-personal` - **Tablero Salarial**, enfoque en sueldos promedios, cobertura salarial, y pérdida/ganancia del poder adquisitivo frente a la inflación (IPC/CBT).
+- `/assets` - Recursos estáticos centralizados (logos, imágenes).
+- `/backend` - Scripts de procesamiento de datos (ETL) y archivos de entrada (`inputs/`).
+- `/data` - Archivos JSON generados por los ETL que alimentan el dashboard.
+- `/frontend` - Interfaz de usuario organizada por módulos:
+    - `main/`: Dashboard principal.
+    - `monitor-mensual/`: Análisis histórico detallado mes a mes.
+    - `analisis-anual/`: Macroeconómico interanual y YTD.
+    - `analisis-personal/`: Estadísticas de empleo y masa salarial.
+    - `gasto/`: Análisis de ejecución presupuestaria.
 - `/docs` - Documentación técnica y glosario financiero.
 
 ---
@@ -28,37 +32,41 @@ Para un nivel más asiduo de detalles arquitectónicos sobre el pipeline de dato
 ## 🛠 Instalación y Desarrollo Local
 
 ### 1. Variables de Entorno (Credenciales Seguras)
-Copie el archivo `.env.example` en la raíz del proyecto y renómbrelo a `.env`. Complete los datos de conexión a la base de datos MySQL, de la cual de allí saldrá la data cruda.
+Copie el archivo `.env.example` en la raíz del proyecto y renómbrelo a `.env`. Complete los datos de conexión a la base de datos MySQL y PostgreSQL.
 
 ```bash
 cp .env.example .env
 ```
 
 ### 2. Dependencias del Motor de Datos (Python)
-Se asume tener Python 3 instalado. Instale los paquetes necesarios para procesar los datos de las bases conectadas al Sisper y Ministerio de Hacienda:
+Se recomienda usar un entorno virtual. Instale los paquetes necesarios:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 ### 3. Ejecución del Proceso ETL (Backend)
-Previo a inicializar el tablero, o para "actualizar" la base de datos visual JSON (`dashboard_data.json`), deberá ejecutar el script principal de ETL:
+Para actualizar los datos del tablero, ejecute los scripts desde la raíz:
 
 ```bash
-python main/etl_main.py
+# Procesamiento de recursos (RON)
+python backend/etl_main.py
+
+# Procesamiento de personal
+python backend/etl_personal.py
 ```
-*Si usted modifica los reportes inflacionarios u otras tablas relacionadas a RRHH en MySQL, deberá obligatoriamente ejecutar este archivo para que el frontend lo refleje.*
+Los archivos JSON resultantes se guardarán automáticamente en la carpeta `data/`.
 
 ### 4. Inicialización del Tablero (Frontend)
-Debido a políticas de acceso CORS origin, muchos navegadores hoy día (como Chrome/Safari) impiden a JavaScript hacer `fetch()` de archivos JSON en archivos locales de disco (i.e abrir el `index.html` con doble clic). Se debe inicializar en un servidor HTTP local básico. 
+Debido a políticas de seguridad CORS, se debe ejecutar un servidor HTTP local.
 
-Vía Python versión rápida:
+Vía Python:
 ```bash
-python3 -m http.server 8000
+python -m http.server 8000
 ```
-Y luego visitar: `http://localhost:8000/auth/login.html`
-
-*(Las credenciales dummy locales para saltarse el mock login son `admin` usualmente)*.
+Luego visite: `http://localhost:8000` (el cual redirigirá automáticamente al sistema de login).
 
 ---
 
