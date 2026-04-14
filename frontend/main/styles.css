@@ -306,12 +306,14 @@ header {
 /* User Info Header (Desktop) */
 .nav-user-header {
     display: none;
-    /* Hidden on mobile */
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.5rem 1rem;
+    padding: 1rem;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -325,17 +327,24 @@ header {
     display: flex;
 }
 
+.sidebar .user-name {
+    flex: 1;
+    word-break: break-word; /* Ensure long names like JP Valdes wrap if needed */
+}
+
 .btn-logout-header {
     background: rgba(239, 68, 68, 0.15);
     color: #FCA5A5;
     border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 0.4rem 1rem;
+    padding: 0.6rem 1rem;
     border-radius: 6px;
     font-size: var(--text-sm);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: var(--font-family);
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
 .btn-logout-header:hover {
