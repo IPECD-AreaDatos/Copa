@@ -169,10 +169,16 @@ const Auth = (function () {
         logout: function () {
             this.logActivity('Acceso', 'Logout');
             clearSession();
-            // Redirect to main dashboard (public) instead of login
-            // Use relative path to work on both localhost and GitHub Pages
-            const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
-            window.location.href = basePath || '/';
+            // Resolve login.html path regardless of current page depth
+            const path = window.location.pathname;
+            if (path.includes('/frontend/')) {
+                // Server runs from project root: /copa/frontend/main/ → /copa/frontend/login.html
+                const rootPath = path.substring(0, path.indexOf('/frontend/'));
+                window.location.href = `${rootPath}/frontend/login.html`;
+            } else {
+                // Server runs from frontend/ root
+                window.location.href = '/login.html';
+            }
         },
 
         /**
@@ -198,11 +204,15 @@ const Auth = (function () {
          */
         requireAuth: function () {
             if (!this.isAuthenticated()) {
-                // Store the intended destination
                 sessionStorage.setItem('redirect_after_login', window.location.pathname);
-                // Use relative path to work on both localhost and GitHub Pages
-                const basePath = new URL('.', window.location.href).pathname === '/' ? '/' : new URL('..', window.location.href).pathname;
-                window.location.href = (basePath || '/') + 'login.html';
+                // Resolve login.html path regardless of current page depth
+                const path = window.location.pathname;
+                if (path.includes('/frontend/')) {
+                    const rootPath = path.substring(0, path.indexOf('/frontend/'));
+                    window.location.href = `${rootPath}/frontend/login.html`;
+                } else {
+                    window.location.href = '/login.html';
+                }
                 return false;
             }
             return true;
