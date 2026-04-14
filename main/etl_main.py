@@ -246,7 +246,7 @@ def fetch_recaudacion_provincial():
     excel_path = os.path.join(os.path.dirname(__file__), 'reca.xlsx')
     
     if not os.path.exists(excel_path):
-        return pd.DataFrame(columns=['año', 'mes', 'recaudacion_provincial', 'distribucion_municipal_prov'])
+        return pd.DataFrame(columns=['year', 'month', 'recaudacion_provincial', 'distribucion_municipal_prov'])
         
     df = pd.read_excel(excel_path, engine='openpyxl')
     
@@ -362,7 +362,7 @@ def fetch_ipc():
                     'month': curr_m,
                     'ipc_valor': current_val
                 })
-                print(f"  IPC: Projected {curr_y}-{curr_m:02d} with REM {monthly_var*100:.1f}% → {current_val:.2f}")
+                print(f"  IPC: Projected {curr_y}-{curr_m:02d} with REM {monthly_var*100:.1f}% -> {current_val:.2f}")
             else:
                 break
                     
