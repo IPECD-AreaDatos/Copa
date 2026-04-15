@@ -26,19 +26,13 @@
   "jpvaldes": {
     "id": 3,
     "password": "gobernador",
-    "name": "Jpvaldes",
+    "name": "Gob. JP. Valdes",
     "role": "user"
   },
   "admin": {
     "id": 6,
     "password": "IPECD2026",
     "name": "Admin",
-    "role": "user"
-  },
-  "IPECD2026": {
-    "id": 6,
-    "password": "admin",
-    "name": "Ipecd2026",
     "role": "user"
   }
 }

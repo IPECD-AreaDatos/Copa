@@ -46,7 +46,7 @@ def update_users():
             db_username = u[1]
             db_password = u[2]
             
-            display_name = "Gob. JP. Valdes" if db_username == "gobernador" else db_username.capitalize()
+            display_name = "Gob. JP. Valdes" if db_username == "jpvaldes" else db_username.capitalize()
             
             users_dict[db_username] = {
                 'id': u[0], # Added ID for telemetry
@@ -54,14 +54,6 @@ def update_users():
                 'name': display_name,
                 'role': 'user'
             }
-            
-        # Manually add the IPECD2026 generic user
-        users_dict['IPECD2026'] = {
-            'id': 6,
-            'password': 'admin',
-            'name': 'Ipecd2026',
-            'role': 'user'
-        }
             
         # Target path for the users JSON
         output_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'users.json')
