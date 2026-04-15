@@ -1,38 +1,38 @@
 {
-  "gcorrales": {
+  "hacienda": {
     "id": 1,
-    "password": "hacienda",
-    "name": "Gcorrales",
+    "password": "gcorrales",
+    "name": "Hacienda",
     "role": "user"
   },
-  "hgrachot": {
+  "mineco": {
     "id": 2,
-    "password": "mineco",
-    "name": "Hgrachot",
+    "password": "hgrachot",
+    "name": "Mineco",
     "role": "user"
   },
-  "dinsaurralde": {
+  "hacienda2": {
     "id": 4,
-    "password": "hacienda2",
-    "name": "Dinsaurralde",
+    "password": "dinsaurralde",
+    "name": "Hacienda2",
     "role": "user"
   },
-  "fgonzalez": {
+  "hacienda3": {
     "id": 5,
-    "password": "hacienda3",
-    "name": "Fgonzalez",
+    "password": "fgonzalez",
+    "name": "Hacienda3",
     "role": "user"
   },
-  "jpvaldes": {
+  "gobernador": {
     "id": 3,
-    "password": "gobernador",
-    "name": "Gob. JP. Valdes",
+    "password": "jpvaldes",
+    "name": "Gobernador",
     "role": "user"
   },
-  "admin": {
+  "IPECD2026": {
     "id": 6,
-    "password": "IPECD2026",
-    "name": "Admin",
+    "password": "admin",
+    "name": "Ipecd2026",
     "role": "user"
   }
 }
