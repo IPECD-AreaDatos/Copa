@@ -43,10 +43,12 @@ def update_users():
         
         users_dict = {}
         for u in users_list:
-            users_dict[u[1]] = {
+            username = u[1]
+            display_name = "Gob. JP. Valdes" if username == "jpvaldes" else username.capitalize()
+            users_dict[username] = {
                 'id': u[0], # Added ID for telemetry
                 'password': u[2],
-                'name': u[1].capitalize(),
+                'name': display_name,
                 'role': 'user'
             }
             
