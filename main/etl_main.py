@@ -716,8 +716,7 @@ def process_data(df_daily, df_salary, df_ipc, df_esperada, df_reca_prov):
             if not salary_imm_prev_row.empty:
                 masa_salarial_target = salary_imm_prev_row['masa_salarial'].values[0]
                 # FIX: actualizar el label al mes de donde se toma la masa salarial
-                prev_date = datetime(prev_y_target, prev_m_target, 1)
-                salary_target_month = prev_date.strftime('%B').capitalize()
+                salary_target_month = MONTH_NAMES.get(prev_m_target, str(prev_m_target))
             else:
                 masa_salarial_target = total_salary_prev # Fallback to same month previous year if immediately previous is also missing
                 salary_target_month = month_label
