@@ -105,7 +105,7 @@ async function initDashboard() {
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
             const userNameEl = document.getElementById('userName');
-            if (userNameEl) userNameEl.textContent = currentUser.nombre;
+            if (userNameEl) userNameEl.textContent = currentUser.name;
         }
         const btnLogout = document.getElementById('btnLogout');
         if (btnLogout) {
