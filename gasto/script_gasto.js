@@ -293,13 +293,16 @@ function populateAllFilters() {
     const jurisVistasEnBD = new Set(rawData.map(d => (d.jurisdiccion || '').trim()));
     const jurisdicciones = ORDEN_JURISDICCIONES.filter(j => jurisVistasEnBD.has(j));
     const lastPeriodo = periodos.length > 0 ? periodos[periodos.length - 1] : '';
+    const currentYear = lastPeriodo ? lastPeriodo.split('-')[0] : '';
+    const periodosInversos = [...periodos].reverse();
+    const currentYearPeriods = periodos.filter(p => p.startsWith(currentYear));
 
     // Fill simple periodo selects (for Composición)
     function fillPeriodoOptions(selId) {
         const sel = document.getElementById(selId);
         if (!sel) return;
         sel.innerHTML = '';
-        periodos.forEach(p => {
+        periodosInversos.forEach(p => {
             const o = document.createElement('option');
             o.value = p; o.textContent = formatPeriodo(p);
             sel.appendChild(o);
@@ -335,18 +338,29 @@ function populateAllFilters() {
     createMultiSelect('hm-fuente', FUENTE_VALUES, 'Todas las Fuentes', updateHeatmap, ['10']);
 
     // Table — periodos multi-select (default: último periodo)
-    createMultiSelect('tbl-periodo', periodos, 'Todos los Periodos', updateTable, [lastPeriodo]);
+    createMultiSelect('tbl-periodo', periodosInversos, 'Todos los Periodos', updateTable, [lastPeriodo]);
     // Table fuente — default solo fuente 10
     createMultiSelect('tbl-fuente', FUENTE_VALUES, 'Todas las Fuentes', updateTable, ['10']);
     createMultiSelect('tbl-jurisdiccion', jurisdicciones, 'Todas las Jurisdicciones', updateTable);
 
-    // Avance — periodos multi-select (default: TODOS = acumulado total)
-    createMultiSelect('av-periodo', periodos, 'Todos los Periodos', updateRatioChart);
+    // Avance — periodos multi-select (default: periodos del año actual)
+    createMultiSelect('av-periodo', periodosInversos, 'Todos los Periodos', updateRatioChart, currentYearPeriods);
     // Avance fuente — default solo fuente 10
     createMultiSelect('av-fuente', FUENTE_VALUES, 'Todas las Fuentes', updateRatioChart, ['10']);
     createMultiSelect('av-jurisdiccion', jurisdicciones, 'Todas las Jurisdicciones', updateRatioChart);
 
     // Waterfall (simple selects, just populate options)
+    const wfAnio = document.getElementById('wf-anio');
+    if (wfAnio) {
+        const anios = [...new Set(periodos.map(p => p.split('-')[0]))].sort().reverse();
+        wfAnio.innerHTML = '';
+        anios.forEach(a => {
+            const o = document.createElement('option');
+            o.value = a; o.textContent = a;
+            wfAnio.appendChild(o);
+        });
+    }
+
     const wfJuris = document.getElementById('wf-jurisdiccion');
     if (wfJuris) {
         wfJuris.innerHTML = '<option value="TODAS">Todas</option>';
@@ -378,7 +392,7 @@ function setupEventListeners() {
     if (hmJurisGroup) hmJurisGroup.addEventListener('change', updateHeatmap);
 
     // Waterfall (all simple selects)
-    ['wf-estado', 'wf-jurisdiccion', 'wf-partida', 'wf-fuente'].forEach(id => {
+    ['wf-anio', 'wf-estado', 'wf-jurisdiccion', 'wf-partida', 'wf-fuente'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateWaterfallChart);
     });
@@ -413,11 +427,13 @@ function updateHeatmap() {
 
     const jurisVistasEnBD = new Set(rawData.map(d => (d.jurisdiccion || '').trim()));
     const jurisdicciones = ORDEN_JURISDICCIONES.filter(j => jurisVistasEnBD.has(j));
+    const anioActual = ultimoPeriodo ? ultimoPeriodo.split('-')[0] : '';
 
     const estadoAcum = {};
     const vigente = {};
     rawData.forEach(d => {
         if (!matchFuenteMulti(d, fuenteSet)) return;
+        if (d.periodo.split('-')[0] !== anioActual) return;
         const j = (d.jurisdiccion || '').trim();
         const key = `${d.partida}|${j}`;
         if (d.estado === estado) estadoAcum[key] = (estadoAcum[key] || 0) + d.monto;
@@ -650,8 +666,13 @@ function updateWaterfallChart() {
 
     const periodos = [...new Set(rawData.map(d => d.periodo))].sort();
     if (periodos.length === 0) return;
-    const year = periodos[periodos.length - 1].split('-')[0];
-    const lastPeriod = periodos[periodos.length - 1];
+    
+    let year = getSimpleVal('wf-anio');
+    if (!year) year = periodos[periodos.length - 1].split('-')[0];
+    
+    const periodosDelAnio = periodos.filter(p => p.startsWith(year));
+    if (periodosDelAnio.length === 0) return;
+    const lastPeriod = periodosDelAnio[periodosDelAnio.length - 1];
 
     const vigData = rawData.filter(d => d.periodo === lastPeriod && d.estado === 'Credito Vigente' && mj(d) && mp(d) && matchFuenteSingle(d, fuente));
     const creditoVigente = vigData.reduce((s, d) => s + d.monto, 0);
