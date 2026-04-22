@@ -23,12 +23,6 @@
     "name": "Fgonzalez",
     "role": "user"
   },
-  "admin": {
-    "id": 6,
-    "password": "IPECD2026",
-    "name": "Admin",
-    "role": "user"
-  },
   "jgazzo": {
     "id": 7,
     "password": "tesoro",
@@ -39,6 +33,12 @@
     "id": 3,
     "password": "gobernador",
     "name": "Gob. JP. Valdes",
+    "role": "user"
+  },
+  "admin": {
+    "id": 6,
+    "password": "$2b$10$YxMGrstECJzdsmGnMc1eleh8/2MMNYZSKmvzu7ujjw1EOEFvyVMw2",
+    "name": "Admin",
     "role": "user"
   }
 }
