@@ -452,185 +452,139 @@ export default function HomeDashboard() {
   }, [mainData, currentPeriodId]);
 
   return (
-    <main>
-          {loadError && (
-            <p style={{ color: "#b91c1c", marginBottom: "1rem", textAlign: "center" }} role="alert">
-              {loadError}
-            </p>
-          )}
-
-          <div
-            className="header-content"
-            style={{
-              marginBottom: "3rem",
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "4rem",
-            }}
+    <>
+      <header className="dashboard-header">
+        <div className="title-block">
+          <h1 className="text-gradient dashboard-title">Tablero Ejecutivo Provincial</h1>
+        </div>
+        <div className="period-select-wrapper">
+          <label htmlFor="monthSelector" className="period-label">
+            Período:
+          </label>
+          <select
+            id="monthSelector"
+            className="period-select"
+            value={currentPeriodId}
+            onChange={onPeriodChange}
+            disabled={!mainData}
           >
-            <h1 className="text-gradient dashboard-title" style={{ marginBottom: 0, textAlign: "center" }}>
-              Tablero Ejecutivo Provincial
-            </h1>
+            {!mainData ? (
+              <option value="">Cargando…</option>
+            ) : (
+              periodOptions.map(({ period, label, incomplete }) => (
+                <option key={period.id} value={period.id}>
+                  {label}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+      </header>
 
-            <div
-              style={{
-                position: "absolute",
-                right: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <label htmlFor="monthSelector" style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
-                Período:
-              </label>
-              <select
-                id="monthSelector"
-                className="period-select"
-                aria-label="Seleccionar periodo"
-                value={currentPeriodId}
-                onChange={onPeriodChange}
-                disabled={!mainData}
-              >
-                {!mainData ? (
-                  <option value="">Cargando…</option>
-                ) : (
-                  periodOptions.map(({ period, label, incomplete }) => (
-                    <option
-                      key={period.id}
-                      value={period.id}
-                      data-incomplete={incomplete ? "true" : undefined}
-                      style={incomplete ? { color: "#ef4444" } : undefined}
-                    >
-                      {label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          </div>
-
-          <section
-            className="hero-grid"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              gap: "1.5rem",
-              marginBottom: "4rem",
-            }}
-          >
-            <KpiCard
-              tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales totales provenientes tanto de los Recursos de Origen Nacional disponibles (RON) como de los Recursos de Origen Provincial (ROP) en términos reales del período seleccionado respecto al mismo período del año anterior. 
+      <section className="section-group">
+        <div className="hero-grid-flex">
+          <KpiCard
+            tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales totales provenientes tanto de los Recursos de Origen Nacional disponibles (RON) como de los Recursos de Origen Provincial (ROP) en términos reales del período seleccionado respecto al mismo período del año anterior. 
 Para ello, primero se ajustan (deflactan) los ingresos provenientes de los Recursos de Origen Nacional y Recursos de Origen Provincial utilizando el IPC nivel general del total País, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.`}
-              label="VARIACIÓN REAL RECURSOS TOTALES"
-              value={kpis?.copa.text ?? "Loading..."}
-              valueClassName={kpis?.copa.className ?? ""}
-              subtitle={
-                kpis ? (
-                  <span style={{ color: kpis.copa.subtitleColor }}>
-                    Variación i.a. Deflactada | {kpis.copa.periodLabelFinal}
-                  </span>
-                ) : (
-                  <span style={{ color: "var(--text-secondary)" }}>Variación i.a. Deflactada</span>
-                )
-              }
-            />
-            <KpiCard
-              tooltip={`Muestra que proporción de los recursos de origen nacional disponibles se utilizan para pagar el total de la masa salarial liquidada. Masa salarial total/Recursos totales
+            label="VARIACIÓN REAL RECURSOS TOTALES"
+            value={kpis?.copa.text ?? "Loading..."}
+            valueClassName={kpis?.copa.className ?? ""}
+            subtitle={
+              kpis ? (
+                <span style={{ color: kpis.copa.subtitleColor }}>
+                  Variación i.a. Deflactada | {kpis.copa.periodLabelFinal}
+                </span>
+              ) : (
+                <span style={{ color: "var(--text-secondary)" }}>Variación i.a. Deflactada</span>
+              )
+            }
+          />
+          <KpiCard
+            tooltip={`Muestra que proporción de los recursos de origen nacional disponibles se utilizan para pagar el total de la masa salarial liquidada. Masa salarial total/Recursos totales
 
 La masa salarial incluye los conceptos de salarios,  plus y bonos para los 3 poderes del estado.
 
 El valor de Recursos totales incluye todos los ingresos provenientes de Recursos de Origen Nacional (RON) y los Recursos de Origen Provincial (ROP).`}
-              label="Cobertura Salarial"
-              value={kpis?.cobertura.text ?? "Loading..."}
-              valueClassName={kpis?.cobertura.className ?? ""}
-            />
-            <KpiCard
-              tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
+            label="Cobertura Salarial"
+            value={kpis?.cobertura.text ?? "Loading..."}
+            valueClassName={kpis?.cobertura.className ?? ""}
+          />
+          <KpiCard
+            tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
 Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del NEA, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
 La masa salarial total incluye los conceptos de salarios,  plus y bonos para los 3 poderes del estado.`}
-              label="VARIACIÓN REAL MASA SALARIAL"
-              value={kpis?.masa.text ?? "Loading..."}
-              valueClassName={kpis?.masa.className ?? ""}
-              subtitle={
-                kpis ? (
-                  <span style={{ color: kpis.masa.subtitleColor }}>
-                    Variación i.a. Deflactada | {kpis.masa.periodLabelFinal}
-                  </span>
-                ) : (
-                  <span style={{ color: "var(--text-secondary)" }}>* Ajustado por inflación</span>
-                )
-              }
-            />
-          </section>
+            label="VARIACIÓN REAL MASA SALARIAL"
+            value={kpis?.masa.text ?? "Loading..."}
+            valueClassName={kpis?.masa.className ?? ""}
+            subtitle={
+              kpis ? (
+                <span style={{ color: kpis.masa.subtitleColor }}>
+                  Variación i.a. Deflactada | {kpis.masa.periodLabelFinal}
+                </span>
+              ) : (
+                <span style={{ color: "var(--text-secondary)" }}>* Ajustado por inflación</span>
+              )
+            }
+          />
+        </div>
+        <p className="source-text">
+          Fuente: INDEC, Ministerio de Economía de la Nación y Contaduría General de la Provincia de Corrientes
+        </p>
+      </section>
 
-          <p
-            style={{
-              color: "var(--text-secondary)",
-              fontSize: "0.8rem",
-              marginTop: "-3rem",
-              marginBottom: "4rem",
-              textAlign: "left",
-              paddingLeft: "10px",
-            }}
-          >
-            Fuente: INDEC, Ministerio de Economía de la Nación y Contaduría General de la Provincia de Corrientes
-          </p>
-
-          <section className="charts-grid-half">
-            <div className="chart-container" style={{ marginBottom: 0 }}>
-              <div
-                className="info-tooltip"
-                data-tooltip="Permite comparar la evolución de la variación interanual de los ingresos provinciales tanto los provenientes de los Recursos de Origen Nacional como los de Recursos de Origen Provincial.  y el IPC nivel general del total país."
-              >
-                ?
-              </div>
-              <div className="section-header">
-                <div>
-                  <h2 className="section-title">Recursos Totales vs Inflación</h2>
-                  <p className="section-subtitle">Relación de variaciones interanuales últimos 12 meses</p>
-                </div>
-              </div>
-              <div className="chart-wrapper">
-                {executiveData ? (
-                  <Line data={executiveData} options={lineChartOptions} />
-                ) : (
-                  <div className="chart-placeholder">Cargando gráfico…</div>
-                )}
-              </div>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "1rem", textAlign: "left" }}>
-                Fuente: INDEC y Ministerio de Economía de la Nación
-              </p>
+      <section className="section-group">
+        <div className="charts-grid-half">
+          <div className="chart-container" style={{ marginBottom: 0 }}>
+            <div
+              className="info-tooltip"
+              data-tooltip="Permite comparar la evolución de la variación interanual de los ingresos provinciales tanto los provenientes de los Recursos de Origen Nacional como los de Recursos de Origen Provincial.  y el IPC nivel general del total país."
+            >
+              ?
             </div>
-
-            <div className="chart-container" style={{ marginBottom: 0 }}>
-              <div
-                className="info-tooltip"
-                data-tooltip="Muestra la evolución a lo largo del tiempo del porcentaje de los ingresos provinciales provenientes de los recursos tanto de RON como de ROP, que se utilizan para pagar el total de la masa salarial y la distribución a municipios."
-              >
-                ?
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">Recursos Totales vs Inflación</h2>
+                <p className="section-subtitle">Relación de variaciones interanuales últimos 12 meses</p>
               </div>
-              <div className="section-header">
-                <div>
-                  <h2 className="section-title">Cobertura de Gastos</h2>
-                  <p className="section-subtitle">{coverage?.subtitle ?? "Masa Salarial, Municipios vs Resto de RON (Evolución)"}</p>
-                </div>
-              </div>
-              <div className="chart-wrapper">
-                {coverage?.data ? (
-                  <Bar data={coverage.data} options={barCoverageOptions} />
-                ) : (
-                  <div className="chart-placeholder">Cargando gráfico…</div>
-                )}
-              </div>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "1rem", textAlign: "left" }}>
-                Fuente: Contaduría General de la Provincia de Corrientes y Ministerio de Economía de la Nación
-              </p>
             </div>
-          </section>
-        </main>
+            <div className="chart-wrapper">
+              {executiveData ? (
+                <Line data={executiveData} options={lineChartOptions} />
+              ) : (
+                <div className="chart-placeholder">Cargando gráfico…</div>
+              )}
+            </div>
+            <p className="source-text">
+              Fuente: INDEC y Ministerio de Economía de la Nación
+            </p>
+          </div>
+
+          <div className="chart-container" style={{ marginBottom: 0 }}>
+            <div
+              className="info-tooltip"
+              data-tooltip="Muestra la evolución a lo largo del tiempo del porcentaje de los ingresos provinciales provenientes de los recursos tanto de RON como de ROP, que se utilizan para pagar el total de la masa salarial y la distribución a municipios."
+            >
+              ?
+            </div>
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">Cobertura de Gastos</h2>
+                <p className="section-subtitle">{coverage?.subtitle ?? "Masa Salarial, Municipios vs Resto de RON (Evolución)"}</p>
+              </div>
+            </div>
+            <div className="chart-wrapper">
+              {coverage?.data ? (
+                <Bar data={coverage.data} options={barCoverageOptions} />
+              ) : (
+                <div className="chart-placeholder">Cargando gráfico…</div>
+              )}
+            </div>
+            <p className="source-text">
+              Fuente: Contaduría General de la Provincia de Corrientes y Ministerio de Economía de la Nación
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

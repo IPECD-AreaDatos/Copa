@@ -10,12 +10,13 @@
   --text-3xl: 1.875rem;
   --text-4xl: 2.25rem;
 
-  --bg-color: #f8fafc;
-  --card-bg: rgba(255, 255, 255, 0.98);
-  --text-primary: #0f172a;
+  --bg-color: #f1f5f9;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --text-primary: #1e293b;
   --text-secondary: #64748b;
 
   --brand-dark: #1b2839;
+  --brand-light: #f8fafc;
   --brand-green: #10b981;
 
   --accent-primary: var(--brand-green);
@@ -28,12 +29,13 @@
   --accent-success: var(--brand-green);
   --accent-danger: #af2f2f;
 
-  --border-color: rgba(0, 0, 0, 0.08);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  --border-color: rgba(0, 0, 0, 0.05);
+  --glass-border: rgba(0, 0, 0, 0.05);
   --font-family: var(--font-inter, "Inter"), -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, sans-serif;
 
   --header-bg: var(--brand-dark);
+  --sidebar-width: 280px;
 }
 
 * {
@@ -47,10 +49,8 @@ body {
   color: var(--text-primary);
   font-family: var(--font-family);
   min-height: 100vh;
-  display: flex;
-  flex-direction: row;
   overflow-x: hidden;
-  background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
 h1,
@@ -61,7 +61,7 @@ h3 {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -69,8 +69,10 @@ h3 {
 
 .dashboard-title {
   font-size: var(--text-3xl);
+  font-weight: 800;
   margin-bottom: 1rem;
   text-align: left;
+  letter-spacing: -0.03em;
 }
 
 @media (max-width: 768px) {
@@ -101,46 +103,56 @@ h3 {
 }
 
 .sidebar {
-  width: 260px;
+  width: var(--sidebar-width);
   height: 100vh;
   background-color: var(--brand-dark);
+  backdrop-filter: blur(10px);
   color: white;
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   z-index: 1000;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  border-right: 1px solid var(--border-color);
   overflow-y: auto;
-  transition: transform 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-content-wrapper {
   flex: 1;
-  margin-left: 260px;
+  margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: calc(100% - 260px);
-  transition:
-    margin-left 0.3s ease-in-out,
-    width 0.3s ease-in-out;
+  width: calc(100% - var(--sidebar-width));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.08), transparent 40%);
 }
 
 .mobile-nav-toggle {
   display: none;
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: 1.25rem;
+  right: 1.25rem;
   z-index: 1100;
-  background: var(--brand-dark);
-  color: white;
+  background: var(--brand-green);
+  color: var(--brand-dark);
   border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   cursor: pointer;
+  box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+  font-size: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-toggle:hover {
+  transform: scale(1.05);
+  background: #059669;
 }
 
 .nav-vertical {
@@ -170,10 +182,10 @@ h3 {
 }
 
 .nav-link-vertical.active {
-  background: var(--accent-primary);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #059669 100%);
   color: white;
   font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
 }
 
 .sidebar-header {
@@ -182,6 +194,54 @@ h3 {
   align-items: center;
   margin-bottom: 2rem;
   text-align: center;
+}
+
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 3.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  gap: 1.5rem;
+  position: relative;
+}
+
+.dashboard-header .period-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-group {
+  margin-bottom: 5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-header-block {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.section-header-block h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-header-block p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .sidebar-footer {
@@ -324,7 +384,13 @@ main {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  padding: 3rem 1.5rem;
+  padding: 4rem 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .hero-grid {
@@ -334,7 +400,15 @@ main {
   margin-bottom: 4rem;
 }
 
-@media (max-width: 1024px) {
+.hero-grid-flex {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 1200px) {
   .hero-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -344,34 +418,44 @@ main {
   .hero-grid {
     grid-template-columns: 1fr;
   }
+  .hero-grid-flex {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .kpi-card {
-  background-color: var(--card-bg);
-  background-image: linear-gradient(90deg, var(--accent-primary), transparent);
-  background-size: 100% 4px;
-  background-repeat: no-repeat;
-  background-position: top left;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px var(--glass-border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 145px;
-  height: auto;
+  min-height: 160px;
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), #3b82f6);
+  opacity: 0.8;
 }
 
 .kpi-card:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  z-index: 50;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border-color: rgba(16, 185, 129, 0.3);
+  z-index: 10;
 }
 
 .chart-container:hover {
@@ -393,24 +477,47 @@ main {
 }
 
 .kpi-sub {
-  font-size: var(--text-sm);
-  color: var(--accent-success);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.source-text {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+  opacity: 0.8;
+  text-align: center;
+  width: 100%;
+}
+
+.heatmap-scroll-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  padding-bottom: 1rem;
 }
 
 .chart-container {
   background: var(--card-bg);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 30px var(--glass-border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
   position: relative;
-  overflow: visible;
-  min-height: 350px;
-  height: auto;
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .chart-wrapper {

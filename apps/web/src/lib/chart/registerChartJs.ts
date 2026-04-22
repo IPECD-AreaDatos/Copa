@@ -82,7 +82,7 @@ ChartJS.defaults.plugins.legend.labels.generateLabels = function generateLabels(
       l.strokeStyle = "#cbd5e1";
       l.fontColor = "#64748b";
     } else if (isFiltering) {
-      l.fontColor = "#0f172a";
+      l.fontColor = "#1e293b";
     } else {
       l.fontColor = "#64748b";
     }

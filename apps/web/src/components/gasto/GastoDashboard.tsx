@@ -1,51 +1,57 @@
 "use client";
 
 import "@/lib/chart/registerChartJs";
-
 import type { ChartData } from "chart.js";
-import { Chart } from "react-chartjs-2";
-import { useEffect, useMemo, useState } from "react";
+import { Bar, Chart } from "react-chartjs-2";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
-import { FUENTE_VALUES, ORDEN_JURISDICCIONES, ORDEN_PARTIDAS } from "@/lib/gasto/constants";
-import type { GastoRow } from "@/lib/gasto/logic";
 import {
   computeCompositionTable,
   computeHeatmap,
   computeRatioChartData,
   computeWaterfall,
   format1M,
-  formatPeriodo,
 } from "@/lib/gasto/logic";
 
+import {
+  FUENTE_VALUES,
+  ORDEN_JURISDICCIONES,
+  ORDEN_PARTIDAS,
+} from "@/lib/gasto/constants";
+
 const FUENTE_OPTS = [
-  { v: "10", l: "10 - TESORO DE LA PROVINCIA" },
-  { v: "11", l: "11 - RECURSOS PROPIOS" },
-  { v: "12", l: "12 - FINANCIAMIENTO INTERNO" },
-  { v: "13", l: "13 - NACIONAL CON AFECTACIÓN ESPECÍFICA" },
-  { v: "14", l: "14 - PROVINCIAL CON AFECTACIÓN ESPECÍFICA" },
+  { label: "Todas", value: "TODAS" },
+  { label: "10 — Rentas Generales (Prov)", value: "10" },
+  { label: "11 — Tesoro Nacional", value: "11" },
+  { label: "12 — Rec. Propios", value: "12" },
+  { label: "13 — Transf. Internas", value: "13" },
+  { label: "14 — Otros", value: "14" },
 ];
 
-function MultiFuente({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (v: string[]) => void;
-}) {
+type GastoRow = {
+  jurisdiccion: string;
+  fuente: string;
+  partida: string;
+  periodo: string;
+  importe_vigente: number;
+  importe_comprometido: number;
+  importe_ordenado: number;
+};
+
+function MultiFuente({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   return (
     <select
       multiple
-      size={4}
-      className="gasto-multi"
+      className="period-select multi"
       value={value}
       onChange={(e) => {
         const sel = Array.from(e.target.selectedOptions).map((o) => o.value);
         onChange(sel);
       }}
     >
-      {FUENTE_OPTS.map((o) => (
-        <option key={o.v} value={o.v}>
-          {o.l}
+      {FUENTE_OPTS.map((f) => (
+        <option key={f.v} value={f.v}>
+          {f.l}
         </option>
       ))}
     </select>
@@ -64,8 +70,7 @@ function MultiPeriodo({
   return (
     <select
       multiple
-      size={6}
-      className="gasto-multi"
+      className="period-select multi"
       value={value}
       onChange={(e) => {
         const sel = Array.from(e.target.selectedOptions).map((o) => o.value);
@@ -74,7 +79,7 @@ function MultiPeriodo({
     >
       {periodos.map((p) => (
         <option key={p} value={p}>
-          {formatPeriodo(p)}
+          {p}
         </option>
       ))}
     </select>
@@ -93,8 +98,7 @@ function MultiJuris({
   return (
     <select
       multiple
-      size={6}
-      className="gasto-multi"
+      className="period-select multi"
       value={value}
       onChange={(e) => {
         const sel = Array.from(e.target.selectedOptions).map((o) => o.value);
@@ -156,7 +160,8 @@ export default function GastoDashboard() {
 
   useEffect(() => {
     if (lastPeriodo && tblPeriodo.length === 0) setTblPeriodo([lastPeriodo]);
-  }, [lastPeriodo, tblPeriodo.length]);
+    if (lastPeriodo && avPeriodo.length === 0) setAvPeriodo([lastPeriodo]);
+  }, [lastPeriodo, tblPeriodo.length, avPeriodo.length]);
 
   const jurisEnBD = useMemo(() => {
     const s = new Set(rawData.map((d) => (d.jurisdiccion || "").trim()));
@@ -224,256 +229,262 @@ export default function GastoDashboard() {
   if (!rawData.length) {
     return (
       <div className="chart-container">
-        <p style={{ color: "var(--text-secondary)" }}>Cargando datos…</p>
+        <p style={{ color: "var(--text-secondary)" }}>Cargando datos de gasto…</p>
       </div>
     );
   }
 
   return (
     <>
-      <section className="chart-container heatmap-section">
-        <div
-          className="info-tooltip"
-          data-tooltip="Mapa de calor del ratio acumulado / Crédito Vigente."
-        >
-          ?
+      <header className="dashboard-header">
+        <div className="title-block">
+          <h1 className="text-gradient dashboard-title">Análisis de Gasto Público</h1>
         </div>
-        <div className="section-header">
-          <div>
-            <h2 className="section-title">{heatmap?.heatmapTitle ?? "Mapa de Calor"}</h2>
-            <p className="section-subtitle">Ratio acumulado / Crédito Vigente por partida y organismo</p>
+        <div className="period-select-wrapper">
+          <label className="period-label">Última Actualización:</label>
+          <strong>{lastPeriodo}</strong>
+        </div>
+      </header>
+
+      {/* SECCIÓN 1: HEATMAP */}
+      <section className="section-group">
+        <div className="chart-container heatmap-section">
+          <div
+            className="info-tooltip"
+            data-tooltip="Mapa de calor del ratio acumulado / Crédito Vigente. Muestra el nivel de ejecución presupuestaria por partida."
+          >
+            ?
+          </div>
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">{heatmap?.heatmapTitle ?? "Mapa de Calor de Ejecución"}</h2>
+              <p className="section-subtitle">Ratio acumulado / Crédito Vigente por partida y organismo</p>
+            </div>
+          </div>
+          <div className="section-filters gasto-filters">
+            <div className="sf-group">
+              <label>Estado</label>
+              <select value={hmEstado} onChange={(e) => setHmEstado(e.target.value)}>
+                <option value="Comprometido">Comprometido</option>
+                <option value="Ordenado">Ordenado</option>
+              </select>
+            </div>
+            <div className="sf-group">
+              <label>Jurisdicción</label>
+              <select value={hmJurisGroup} onChange={(e) => setHmJurisGroup(e.target.value)}>
+                <option value="TODAS">TODAS LAS JURISDICCIONES</option>
+                <option value="MINISTERIOS">MINISTERIOS</option>
+                <option value="RESTO">RESTO</option>
+              </select>
+            </div>
+            <div className="sf-group">
+              <label>Fuente</label>
+              <MultiFuente value={hmFuente} onChange={setHmFuente} />
+            </div>
+          </div>
+          <div className="heatmap-scroll-wrapper">
+            {heatmap && (
+              <table className="heatmap-table">
+                <thead>
+                  <tr>
+                    <th className="heatmap-corner" />
+                    {heatmap.visibleJuris.map((j) => (
+                      <th key={j} className="heatmap-juris-header" title={j}>
+                        <span>{heatmap.shortName(j)}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {heatmap.rows.map((row) => (
+                    <tr key={row.partida}>
+                      <td className="heatmap-partida-label">
+                        {row.partida} - {row.code}
+                      </td>
+                      {row.cells.map((c) => (
+                        <td
+                          key={c.j}
+                          className="heatmap-cell"
+                          style={{ backgroundColor: c.color }}
+                          title={c.title}
+                        >
+                          {c.pct}%
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
-        <div className="section-filters gasto-filters">
-          <div className="sf-group">
-            <label>Estado</label>
-            <select value={hmEstado} onChange={(e) => setHmEstado(e.target.value)}>
-              <option value="Comprometido">Comprometido</option>
-              <option value="Ordenado">Ordenado</option>
-            </select>
+        <p className="source-text">Fuente: Contaduría General de la Provincia de Corrientes</p>
+      </section>
+
+      {/* SECCIÓN 2: COMPOSICIÓN */}
+      <section className="section-group">
+        <div className="chart-container composition-section">
+          <div className="info-tooltip" data-tooltip="Tabla detallada de ejecución por fuente y jurisdicción.">
+            ?
           </div>
-          <div className="sf-group">
-            <label>Jurisdicción</label>
-            <select value={hmJurisGroup} onChange={(e) => setHmJurisGroup(e.target.value)}>
-              <option value="TODAS">TODAS LAS JURISDICCIONES</option>
-              <option value="MINISTERIOS">MINISTERIOS</option>
-              <option value="RESTO">RESTO</option>
-            </select>
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">Composición de Ejecución</h2>
+              <p className="section-subtitle">Detalle por fuente de financiamiento y organismo</p>
+            </div>
           </div>
-          <div className="sf-group">
-            <label>Fuente</label>
-            <MultiFuente value={hmFuente} onChange={setHmFuente} />
+          <div className="section-filters gasto-filters">
+            <div className="sf-group">
+              <label>Período</label>
+              <MultiPeriodo periodos={allPeriodos} value={tblPeriodo} onChange={setTblPeriodo} />
+            </div>
+            <div className="sf-group">
+              <label>Fuente</label>
+              <MultiFuente value={tblFuente} onChange={setTblFuente} />
+            </div>
+            <div className="sf-group">
+              <label>Jurisdicción</label>
+              <MultiJuris juris={jurisEnBD} value={tblJuris} onChange={setTblJuris} />
+            </div>
           </div>
-        </div>
-        <div id="heatmap-grid" className="heatmap-scroll-wrapper">
-          {heatmap && (
-            <table className="heatmap-table">
+          <div className="heatmap-scroll-wrapper">
+            <table className="composition-table">
               <thead>
                 <tr>
-                  <th className="heatmap-corner" />
-                  {heatmap.visibleJuris.map((j) => (
-                    <th key={j} className="heatmap-juris-header" title={j}>
-                      <span>{heatmap.shortName(j)}</span>
-                    </th>
-                  ))}
+                  <th>Organismo</th>
+                  <th className="numeric">C. Vigente (M)</th>
+                  <th className="numeric">Comprom. (M)</th>
+                  <th className="numeric">Ordenado (M)</th>
+                  <th className="numeric">% Comp.</th>
+                  <th className="numeric">% Ord.</th>
                 </tr>
               </thead>
               <tbody>
-                {heatmap.rows.map((row) => (
-                  <tr key={row.partida}>
-                    <td className="heatmap-partida-label">
-                      {row.partida} - {row.code}
-                    </td>
-                    {row.cells.map((c) => (
-                      <td
-                        key={c.j}
-                        className="heatmap-cell"
-                        style={{ backgroundColor: c.color }}
-                        title={c.title}
-                      >
-                        {c.pct}%
-                      </td>
-                    ))}
+                {table?.rows.map((r) => (
+                  <tr key={r.juris}>
+                    <td>{r.juris}</td>
+                    <td className="numeric">{format1M(r.cVig)}</td>
+                    <td className="numeric">{format1M(r.cComp)}</td>
+                    <td className="numeric">{format1M(r.cOrd)}</td>
+                    <td className="numeric">{r.pComp}</td>
+                    <td className="numeric">{r.pOrd}</td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          )}
-        </div>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
-          Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
-        </p>
-      </section>
-
-      <section className="chart-container" style={{ marginBottom: "3rem" }}>
-        <div className="info-tooltip" data-tooltip="Composición del gasto por partida.">?</div>
-        <div className="section-header">
-          <div>
-            <h2 className="section-title">{table?.title ?? "Composición del Gasto"}</h2>
-            <p className="section-subtitle">Crédito vigente, comprometido y ordenado por partida</p>
-          </div>
-        </div>
-        <div className="section-filters gasto-filters">
-          <div className="sf-group">
-            <label>Período</label>
-            <MultiPeriodo periodos={allPeriodos} value={tblPeriodo} onChange={setTblPeriodo} />
-          </div>
-          <div className="sf-group">
-            <label>Fuente</label>
-            <MultiFuente value={tblFuente} onChange={setTblFuente} />
-          </div>
-          <div className="sf-group">
-            <label>Jurisdicción</label>
-            <MultiJuris juris={jurisEnBD} value={tblJuris} onChange={setTblJuris} />
-          </div>
-        </div>
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Partida de Gasto</th>
-                <th className="numeric">Crédito Vigente</th>
-                <th className="numeric">Comprometido</th>
-                <th className="numeric">Ordenado</th>
-                <th className="numeric">Comp/Vigente (%)</th>
-                <th className="numeric">Ord/Vigente (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {table?.rows.map((r) => (
-                <tr key={r.partida}>
-                  <td>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        background: r.colorDot,
-                        marginRight: 8,
-                      }}
-                    />
-                    {r.codigo} - {r.partida}
-                  </td>
-                  <td className="numeric">{format1M(r.vigente)}</td>
-                  <td className="numeric">{format1M(r.comprometido)}</td>
-                  <td className="numeric">{format1M(r.ordenado)}</td>
-                  <td className="numeric">{r.pesoComp.toFixed(2)}%</td>
-                  <td className="numeric">{r.pesoOrd.toFixed(2)}%</td>
+              <tfoot>
+                <tr>
+                  <td>TOTAL</td>
+                  <td className="numeric">{table ? format1M(table.tV) : ""}</td>
+                  <td className="numeric">{table ? format1M(table.tC) : ""}</td>
+                  <td className="numeric">{table ? format1M(table.tO) : ""}</td>
+                  <td className="numeric">{table?.totalPesoComp}</td>
+                  <td className="numeric">{table?.totalPesoOrd}</td>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>TOTAL</td>
-                <td className="numeric">{table ? format1M(table.tV) : ""}</td>
-                <td className="numeric">{table ? format1M(table.tC) : ""}</td>
-                <td className="numeric">{table ? format1M(table.tO) : ""}</td>
-                <td className="numeric">{table?.totalPesoComp}</td>
-                <td className="numeric">{table?.totalPesoOrd}</td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
         </div>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "0.5rem" }}>
-          Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
-        </p>
+        <p className="source-text">Fuente: Ministerio de Hacienda y Finanzas de Corrientes</p>
       </section>
 
-      <section className="chart-container full-width-chart">
-        <div className="info-tooltip" data-tooltip="Avance de ejecución por partida.">?</div>
-        <div className="section-header">
-          <div>
-            <h2 className="section-title">Avance de Ejecución por Partida (Acumulado)</h2>
-            <p className="section-subtitle">{ratio?.subtitle}</p>
+      {/* SECCIÓN 3: RATIO / AVANCE */}
+      <section className="section-group">
+        <div className="chart-container full-width-chart">
+          <div className="info-tooltip" data-tooltip="Avance de ejecución por partida.">?</div>
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">Avance de Ejecución por Partida (Acumulado)</h2>
+              <p className="section-subtitle">{ratio?.subtitle}</p>
+            </div>
+          </div>
+          <div className="section-filters gasto-filters">
+            <div className="sf-group">
+              <label>Período</label>
+              <MultiPeriodo periodos={allPeriodos} value={avPeriodo} onChange={setAvPeriodo} />
+            </div>
+            <div className="sf-group">
+              <label>Fuente</label>
+              <MultiFuente value={avFuente} onChange={setAvFuente} />
+            </div>
+            <div className="sf-group">
+              <label>Jurisdicción</label>
+              <MultiJuris juris={jurisEnBD} value={avJuris} onChange={setAvJuris} />
+            </div>
+          </div>
+          <div className="chart-wrapper" style={{ height: 400 }}>
+            {ratio && (
+              <Chart type="bar" data={ratio.chartData as ChartData<"bar">} options={ratio.options} />
+            )}
           </div>
         </div>
-        <div className="section-filters gasto-filters">
-          <div className="sf-group">
-            <label>Período</label>
-            <MultiPeriodo periodos={allPeriodos} value={avPeriodo} onChange={setAvPeriodo} />
-          </div>
-          <div className="sf-group">
-            <label>Fuente</label>
-            <MultiFuente value={avFuente} onChange={setAvFuente} />
-          </div>
-          <div className="sf-group">
-            <label>Jurisdicción</label>
-            <MultiJuris juris={jurisEnBD} value={avJuris} onChange={setAvJuris} />
-          </div>
-        </div>
-        <div className="chart-wrapper" style={{ height: 400 }}>
-          {ratio && (
-            <Chart type="bar" data={ratio.chartData as ChartData<"bar">} options={ratio.options} />
-          )}
-        </div>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
-          Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
-        </p>
+        <p className="source-text">Fuente: Ministerio de Hacienda y Finanzas de Corrientes</p>
       </section>
 
-      <section className="chart-container full-width-chart">
-        <div className="info-tooltip" data-tooltip="Gráfico cascada de ejecución mensual.">?</div>
-        <div className="section-header">
-          <div>
-            <h2 className="section-title">Ejecución Acumulada Gráfico Cascada</h2>
-            <p className="section-subtitle">Barras flotantes de ejecución mensual vs techos teóricos</p>
+      {/* SECCIÓN 4: CASCADA */}
+      <section className="section-group">
+        <div className="chart-container full-width-chart">
+          <div className="info-tooltip" data-tooltip="Gráfico cascada de ejecución mensual.">?</div>
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">Ejecución Acumulada Gráfico Cascada</h2>
+              <p className="section-subtitle">Barras flotantes de ejecución mensual vs techos teóricos</p>
+            </div>
+          </div>
+          <div className="section-filters gasto-filters">
+            <div className="sf-group">
+              <label>Estado</label>
+              <select value={wfEstado} onChange={(e) => setWfEstado(e.target.value)}>
+                <option value="Comprometido">Comprometido</option>
+                <option value="Ordenado">Ordenado</option>
+              </select>
+            </div>
+            <div className="sf-group">
+              <label>Jurisdicción</label>
+              <select value={wfJuris} onChange={(e) => setWfJuris(e.target.value)}>
+                <option value="TODAS">Todas</option>
+                {jurisEnBD.map((j) => (
+                  <option key={j} value={j}>
+                    {j}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sf-group">
+              <label>Partida</label>
+              <select value={wfPartida} onChange={(e) => setWfPartida(e.target.value)}>
+                <option value="TODAS">Todas</option>
+                {ORDEN_PARTIDAS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sf-group">
+              <label>Fuente</label>
+              <select value={wfFuente} onChange={(e) => setWfFuente(e.target.value)}>
+                <option value="TODAS">Todas</option>
+                {FUENTE_OPTS.map((o) => (
+                  <option key={o.v} value={o.v}>
+                    {o.l}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="chart-wrapper" style={{ height: 400 }}>
+            {waterfall && waterfall.chartData.datasets?.length ? (
+              <Chart
+                type="bar"
+                data={waterfall.chartData as ChartData<"bar">}
+                options={waterfall.options}
+              />
+            ) : (
+              <div className="chart-placeholder">Cargando gráfico…</div>
+            )}
           </div>
         </div>
-        <div className="section-filters gasto-filters">
-          <div className="sf-group">
-            <label>Estado</label>
-            <select value={wfEstado} onChange={(e) => setWfEstado(e.target.value)}>
-              <option value="Comprometido">Comprometido</option>
-              <option value="Ordenado">Ordenado</option>
-            </select>
-          </div>
-          <div className="sf-group">
-            <label>Jurisdicción</label>
-            <select value={wfJuris} onChange={(e) => setWfJuris(e.target.value)}>
-              <option value="TODAS">Todas</option>
-              {jurisEnBD.map((j) => (
-                <option key={j} value={j}>
-                  {j}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="sf-group">
-            <label>Partida</label>
-            <select value={wfPartida} onChange={(e) => setWfPartida(e.target.value)}>
-              <option value="TODAS">Todas</option>
-              {ORDEN_PARTIDAS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="sf-group">
-            <label>Fuente</label>
-            <select value={wfFuente} onChange={(e) => setWfFuente(e.target.value)}>
-              <option value="TODAS">Todas</option>
-              {FUENTE_OPTS.map((o) => (
-                <option key={o.v} value={o.v}>
-                  {o.l}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="chart-wrapper" style={{ height: 400 }}>
-          {waterfall && waterfall.chartData.datasets?.length ? (
-            <Chart
-              type="bar"
-              data={waterfall.chartData as ChartData<"bar">}
-              options={waterfall.options}
-            />
-          ) : null}
-        </div>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
-          Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
-        </p>
+        <p className="source-text">Fuente: Contaduría General de la Provincia</p>
       </section>
     </>
   );

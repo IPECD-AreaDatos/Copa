@@ -281,7 +281,7 @@ export default function AnalisisPersonalDashboard() {
         Análisis de puestos de trabajo y masa salarial | {kpi.periodo_actual}
       </p>
 
-      <section className="hero-grid">
+      <section className="hero-grid-flex">
         <article className="kpi-card">
           <div className="info-tooltip" data-tooltip="Salario promedio y cantidad de empleados públicos.">?</div>
           <div className="kpi-label">Salario Promedio Bruto</div>
@@ -349,7 +349,7 @@ export default function AnalisisPersonalDashboard() {
         </p>
       </div>
 
-      <section className="hero-grid">
+      <section className="hero-grid-flex">
         <article className="kpi-card">
           <div className="info-tooltip" data-tooltip="Valor CBT período seleccionado.">?</div>
           <div className="kpi-label">{`Valor CBT (${kpi.periodo_actual})`}</div>
