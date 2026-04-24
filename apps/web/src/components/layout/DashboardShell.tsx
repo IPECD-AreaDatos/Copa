@@ -102,24 +102,28 @@ export default function DashboardShell({
           <Link href="/" className={navClass("/")} onClick={() => setSidebarOpen(false)}>
             Inicio
           </Link>
-          <Link href="/monitor-mensual" className={navClass("/monitor-mensual")} onClick={() => setSidebarOpen(false)}>
-            Análisis Mensual RON
-          </Link>
-          <Link href="/analisis-anual" className={navClass("/analisis-anual")} onClick={() => setSidebarOpen(false)}>
-            Análisis Anual RON
-          </Link>
-          <Link
-            href="/analisis-personal"
-            className={navClass("/analisis-personal")}
-            style={{ display: "none" }}
-            onClick={() => setSidebarOpen(false)}
-          >
-            Análisis Salarial
-          </Link>
-          {!gastoHidden && (
-            <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
-              Gasto
-            </Link>
+          {displayName !== "Invitado" && (
+            <>
+              <Link href="/monitor-mensual" className={navClass("/monitor-mensual")} onClick={() => setSidebarOpen(false)}>
+                Análisis Mensual RON
+              </Link>
+              <Link href="/analisis-anual" className={navClass("/analisis-anual")} onClick={() => setSidebarOpen(false)}>
+                Análisis Anual RON
+              </Link>
+              <Link
+                href="/analisis-personal"
+                className={navClass("/analisis-personal")}
+                style={{ display: "none" }}
+                onClick={() => setSidebarOpen(false)}
+              >
+                Análisis Salarial
+              </Link>
+              {!gastoHidden && (
+                <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
+                  Gasto
+                </Link>
+              )}
+            </>
           )}
         </nav>
 

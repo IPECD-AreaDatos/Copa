@@ -44,7 +44,7 @@ export default function GastoDashboard() {
   // Heatmap filters
   const [hmEstado, setHmEstado] = useState("Comprometido");
   const [hmJurisGroup, setHmJurisGroup] = useState("MINISTERIOS");
-  const [hmFuente, setHmFuente] = useState<string[]>(["10"]);
+  const [hmFuente, setHmFuente] = useState<string>("10");
 
   const allPeriodos = useMemo(
     () => [...new Set(rawData.map((d) => d.periodo))].sort(),
@@ -53,14 +53,14 @@ export default function GastoDashboard() {
   const lastPeriodo = allPeriodos.length ? allPeriodos[allPeriodos.length - 1] : "";
 
   // Table filters
-  const [tblPeriodo, setTblPeriodo] = useState<string[]>([]);
-  const [tblFuente, setTblFuente] = useState<string[]>(["10"]);
-  const [tblJuris, setTblJuris] = useState<string[]>([]);
+  const [tblPeriodo, setTblPeriodo] = useState<string>("");
+  const [tblFuente, setTblFuente] = useState<string>("10");
+  const [tblJuris, setTblJuris] = useState<string>("");
 
   // Avance filters
-  const [avPeriodo, setAvPeriodo] = useState<string[]>([]);
-  const [avFuente, setAvFuente] = useState<string[]>(["10"]);
-  const [avJuris, setAvJuris] = useState<string[]>([]);
+  const [avPeriodo, setAvPeriodo] = useState<string>("");
+  const [avFuente, setAvFuente] = useState<string>("10");
+  const [avJuris, setAvJuris] = useState<string>("");
 
   // Waterfall filters
   const [wfEstado, setWfEstado] = useState("Comprometido");
@@ -81,9 +81,9 @@ export default function GastoDashboard() {
   }, []);
 
   useEffect(() => {
-    if (lastPeriodo && tblPeriodo.length === 0) setTblPeriodo([lastPeriodo]);
-    if (lastPeriodo && avPeriodo.length === 0) setAvPeriodo([lastPeriodo]);
-  }, [lastPeriodo, tblPeriodo.length, avPeriodo.length]);
+    if (lastPeriodo && !tblPeriodo) setTblPeriodo(lastPeriodo);
+    if (lastPeriodo && !avPeriodo) setAvPeriodo(lastPeriodo);
+  }, [lastPeriodo, tblPeriodo, avPeriodo]);
 
   const jurisEnBD = useMemo(() => {
     const s = new Set(rawData.map((d) => (d.jurisdiccion || "").trim()));
@@ -92,26 +92,25 @@ export default function GastoDashboard() {
 
   const heatmap = useMemo(() => {
     if (!rawData.length) return null;
-    const fuenteFilter =
-      hmFuente.length === 0 || hmFuente.length === FUENTE_VALUES.length ? null : hmFuente;
+    const fuenteFilter = hmFuente === "TODAS" ? null : [hmFuente];
     return computeHeatmap({ rawData, estado: hmEstado, jurisGroup: hmJurisGroup, fuenteFilter });
   }, [rawData, hmEstado, hmJurisGroup, hmFuente]);
 
   const table = useMemo(() => {
     if (!rawData.length) return null;
-    const periodoSel = tblPeriodo.length === 0 || tblPeriodo.length === allPeriodos.length ? null : tblPeriodo;
-    const fuenteSel = tblFuente.length === 0 || tblFuente.length === FUENTE_VALUES.length ? null : tblFuente;
-    const jurisSel = tblJuris.length === 0 || tblJuris.length === jurisEnBD.length ? null : tblJuris;
+    const periodoSel = tblPeriodo === "TODAS" || !tblPeriodo ? null : [tblPeriodo];
+    const fuenteSel = tblFuente === "TODAS" || !tblFuente ? null : [tblFuente];
+    const jurisSel = tblJuris === "TODAS" || !tblJuris ? null : [tblJuris];
     return computeCompositionTable({ rawData, periodoSel, fuenteSel, jurisSel });
-  }, [rawData, tblPeriodo, tblFuente, tblJuris, allPeriodos.length, jurisEnBD.length]);
+  }, [rawData, tblPeriodo, tblFuente, tblJuris]);
 
   const ratio = useMemo(() => {
     if (!rawData.length) return null;
-    const periodoSel = avPeriodo.length === 0 || avPeriodo.length === allPeriodos.length ? null : avPeriodo;
-    const fuenteSel = avFuente.length === 0 || avFuente.length === FUENTE_VALUES.length ? null : avFuente;
-    const jurisSel = avJuris.length === 0 || avJuris.length === jurisEnBD.length ? null : avJuris;
+    const periodoSel = avPeriodo === "TODAS" || !avPeriodo ? null : [avPeriodo];
+    const fuenteSel = avFuente === "TODAS" || !avFuente ? null : [avFuente];
+    const jurisSel = avJuris === "TODAS" || !avJuris ? null : [avJuris];
     return computeRatioChartData({ rawData, periodoSel, fuenteSel, jurisSel });
-  }, [rawData, avPeriodo, avFuente, avJuris, allPeriodos.length, jurisEnBD.length]);
+  }, [rawData, avPeriodo, avFuente, avJuris]);
 
   const waterfall = useMemo(() => {
     if (!rawData.length) return null;
@@ -178,11 +177,10 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Fuente</label>
             <select
-              multiple
               value={hmFuente}
-              onChange={(e) => setHmFuente(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "260px" }}
+              onChange={(e) => setHmFuente(e.target.value)}
             >
+              <option value="TODAS">TODAS LAS FUENTES</option>
               {FUENTE_OPTS.filter(f => f.value !== "TODAS").map((f) => (
                 <option key={f.value} value={f.value}>{f.label}</option>
               ))}
@@ -242,10 +240,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Período</label>
             <select
-              multiple
               value={tblPeriodo}
-              onChange={(e) => setTblPeriodo(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "180px" }}
+              onChange={(e) => setTblPeriodo(e.target.value)}
             >
               {allPeriodos.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -255,10 +251,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Fuente</label>
             <select
-              multiple
               value={tblFuente}
-              onChange={(e) => setTblFuente(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "260px" }}
+              onChange={(e) => setTblFuente(e.target.value)}
             >
               {FUENTE_OPTS.map((f) => (
                 <option key={f.value} value={f.value}>{f.label}</option>
@@ -268,10 +262,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Jurisdicción</label>
             <select
-              multiple
               value={tblJuris}
-              onChange={(e) => setTblJuris(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "260px" }}
+              onChange={(e) => setTblJuris(e.target.value)}
             >
               <option value="">Todas las Jurisdicciones</option>
               {jurisEnBD.map((j) => (
@@ -347,10 +339,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Período</label>
             <select
-              multiple
               value={avPeriodo}
-              onChange={(e) => setAvPeriodo(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "180px" }}
+              onChange={(e) => setAvPeriodo(e.target.value)}
             >
               {allPeriodos.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -360,10 +350,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Fuente</label>
             <select
-              multiple
               value={avFuente}
-              onChange={(e) => setAvFuente(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "260px" }}
+              onChange={(e) => setAvFuente(e.target.value)}
             >
               {FUENTE_OPTS.map((f) => (
                 <option key={f.value} value={f.value}>{f.label}</option>
@@ -373,10 +361,8 @@ export default function GastoDashboard() {
           <div className="sf-group">
             <label>Jurisdicción</label>
             <select
-              multiple
               value={avJuris}
-              onChange={(e) => setAvJuris(Array.from(e.target.selectedOptions, o => o.value))}
-              style={{ minHeight: "80px", minWidth: "260px" }}
+              onChange={(e) => setAvJuris(e.target.value)}
             >
               <option value="">Todas las Jurisdicciones</option>
               {jurisEnBD.map((j) => (

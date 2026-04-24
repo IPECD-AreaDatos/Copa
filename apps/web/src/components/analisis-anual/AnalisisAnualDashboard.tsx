@@ -368,7 +368,8 @@ export default function AnalisisAnualDashboard() {
         </div>
       </section>
 
-      {/* 6. SECCIÓN: PRESUPUESTO (solo si tiene datos) */}
+      {/* 6. SECCIÓN: PRESUPUESTO (oculta por ahora) */}
+      {/* 
       {vm.presupuestoProv && (
         <section className="section-group" style={{ marginTop: "2rem" }}>
           <div className="section-header-block">
@@ -398,6 +399,7 @@ export default function AnalisisAnualDashboard() {
           <p className="source-text" style={{ padding: "0 3%" }}>Fuente: Ministerio de Economía de la Provincia</p>
         </section>
       )}
+      */}
 
       {/* 7. SECCIÓN: BRECHA (si hay datos) */}
       {brechaBundle && (
