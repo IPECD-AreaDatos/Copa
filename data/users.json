@@ -29,16 +29,16 @@
     "name": "Jgazzo",
     "role": "user"
   },
-  "admin": {
-    "id": 6,
-    "password": "$2b$10$ycwhTI6cmn7XZKTh4IFacOcfN51LKycMF1IwdEHFNqoOO.7BPDDzm",
-    "name": "Admin",
-    "role": "user"
-  },
   "jpvaldes": {
     "id": 3,
     "password": "gobernador",
     "name": "Gob. JP. Valdes",
+    "role": "user"
+  },
+  "admin": {
+    "id": 6,
+    "password": "IPECD2026",
+    "name": "Admin",
     "role": "user"
   }
 }
