@@ -37,7 +37,7 @@
   },
   "admin": {
     "id": 6,
-    "password": "$2b$10$ObU4VfjDCAZEhQL8b8MbhOMw5K8FQhFz91otgzBSgkd5v37STJ4wK",
+    "password": "IPECD2026",
     "name": "Admin",
     "role": "user"
   }
