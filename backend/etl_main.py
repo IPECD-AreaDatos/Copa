@@ -231,9 +231,11 @@ def fetch_masa_salarial(target_years):
     """
     Fetches monthly salary bill (Masa Salarial) for specified years.
     
-    Primary source: MySQL table 'plantilla_personal_provincia' (same DB used by fetch_salary_details).
-    Includes ALL items (SAC included) as requested.
-    Fallback: Excel file 'masa_salarial.xlsx' in inputs/ (legacy support).
+    Data sources (in order of priority):
+      1. Excel file 'masa_salarial.xlsx' in inputs/ (manual overrides, highest priority)
+      2. MySQL table 'plantilla_personal_provincia' (SUM(importe_gral), historical data)
+      3. PostgreSQL table 'copa_gastos' (GASTOS EN PERSONAL, fuentes 10+14, estado=Comprometido)
+         → Fills months not covered by Excel or MySQL (e.g. most recent months).
     
     Args:
         target_years (list): List of integers representing the years to query.
@@ -242,7 +244,7 @@ def fetch_masa_salarial(target_years):
         pd.DataFrame: Aggregated monetary mass by year and month, columns: ['anio', 'mes', 'masa_salarial'].
     """
     df_mysql = pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
-    # --- Primary: MySQL ---
+    # --- Source 2: MySQL ---
     print("  [masa_salarial] Leyendo tabla histórica desde MySQL (plantilla_personal_provincia)...")
     years_str = ",".join(map(str, target_years))
     query = f"""
@@ -268,7 +270,7 @@ def fetch_masa_salarial(target_years):
     finally:
         conn.close()
 
-    # --- Excel Overrides/Data ---
+    # --- Source 1: Excel Overrides/Data (highest priority) ---
     df_excel = pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
     excel_path = os.path.join(os.path.dirname(__file__), 'inputs', 'masa_salarial.xlsx')
     if os.path.exists(excel_path):
@@ -289,15 +291,56 @@ def fetch_masa_salarial(target_years):
         else:
             print("  [masa_salarial] WARNING: No se encontró columna de año/mes en Excel.")
 
-    # Combine both, giving priority to Excel
-    if not df_excel.empty and not df_mysql.empty:
-        # Merge allowing Excel to override MySQL for same year/month
-        df_combined = pd.concat([df_excel, df_mysql]).drop_duplicates(subset=['anio', 'mes'], keep='first')
-        return df_combined.sort_values(['anio', 'mes']).reset_index(drop=True)
-    elif not df_excel.empty:
-        return df_excel
+    # --- Source 3: PostgreSQL copa_gastos (lowest priority, fills gaps) ---
+    df_pg = pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
+    print("  [masa_salarial] Leyendo copa_gastos desde PostgreSQL (fuentes 10+14, Comprometido)...")
+    try:
+        conn_pg = get_pg_connection()
+        query_pg = """
+        SELECT 
+            EXTRACT(YEAR FROM periodo)::int AS anio,
+            EXTRACT(MONTH FROM periodo)::int AS mes,
+            SUM(monto) AS masa_salarial
+        FROM copa_gastos
+        WHERE partida IN ('GASTOS EN PERSONAL', 'GASTO EN PERSONAL')
+          AND tipo_financ IN ('10', '14')
+          AND estado = 'Comprometido'
+        GROUP BY EXTRACT(YEAR FROM periodo), EXTRACT(MONTH FROM periodo)
+        ORDER BY anio, mes
+        """
+        df_pg = pd.read_sql(query_pg, conn_pg)
+        df_pg['masa_salarial'] = pd.to_numeric(df_pg['masa_salarial'], errors='coerce').fillna(0)
+        df_pg['anio'] = df_pg['anio'].astype(int)
+        df_pg['mes'] = df_pg['mes'].astype(int)
+        # Filter to target years
+        df_pg = df_pg[df_pg['anio'].isin(target_years)].copy()
+        # Convert from copa_gastos units (already in pesos) to match the other sources
+        print(f"  [masa_salarial] {len(df_pg)} registros cargados desde copa_gastos (PostgreSQL).")
+    except Exception as e:
+        print(f"  [masa_salarial] WARNING: No se pudo leer copa_gastos: {e}.")
+    finally:
+        if 'conn_pg' in locals() and conn_pg:
+            conn_pg.close()
+
+    # --- Combine: Excel > MySQL > copa_gastos ---
+    # Start with copa_gastos as base (lowest priority)
+    frames = []
+    if not df_pg.empty:
+        frames.append(df_pg)
+    if not df_mysql.empty:
+        frames.append(df_mysql)
+    if not df_excel.empty:
+        frames.append(df_excel)
+    
+    if frames:
+        # Reverse concat: last added (Excel) takes priority via keep='last'
+        df_combined = pd.concat(frames, ignore_index=True)
+        df_combined = df_combined.drop_duplicates(subset=['anio', 'mes'], keep='last')
+        df_combined = df_combined.sort_values(['anio', 'mes']).reset_index(drop=True)
+        print(f"  [masa_salarial] Total combinado: {len(df_combined)} periodos únicos.")
+        return df_combined
     else:
-        return df_mysql
+        return pd.DataFrame(columns=['anio', 'mes', 'masa_salarial'])
 
 def fetch_recaudacion_provincial():
     """
