@@ -23,4 +23,20 @@ Thumbs.db
 .idea/
 *.xlsx
 *base64.txt
+
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# macOS
+.DS_Store
 Icon?
+.Spotlight-V100
+.Trashes
