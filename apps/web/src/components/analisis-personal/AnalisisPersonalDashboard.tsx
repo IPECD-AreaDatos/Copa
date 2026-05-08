@@ -80,12 +80,7 @@ export default function AnalisisPersonalDashboard() {
 
   useEffect(() => {
     let c = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/api/personal/masa-salarial", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetch("/copa/data/data_personal_v1.json")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");
         return r.json() as Promise<PersonalJson>;

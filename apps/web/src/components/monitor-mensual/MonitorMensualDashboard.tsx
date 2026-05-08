@@ -68,7 +68,7 @@ export default function MonitorMensualDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/_data_ipce_v1.json")
+    fetch("/copa/data/_data_ipce_v1.json")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");
         return r.json() as Promise<MonitorJson>;

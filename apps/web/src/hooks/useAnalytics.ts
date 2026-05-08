@@ -31,7 +31,7 @@ export function useAnalytics() {
 
     try {
       // We use the analytics endpoint configured in the backend
-      await fetch("/api/analytics/log", {
+      await fetch("/copa-api/api/analytics/log", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

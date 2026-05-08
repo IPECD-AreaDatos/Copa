@@ -344,7 +344,7 @@ export default function HomeDashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("/data/_data_ipce_v1.json")
+    fetch("/copa/data/_data_ipce_v1.json")
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();

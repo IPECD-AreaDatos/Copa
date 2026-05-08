@@ -91,12 +91,7 @@ export default function GastoDashboard() {
 
   useEffect(() => {
     let c = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/api/gastos/all-data", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetch("/copa/data/gasto_data.json")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos de gasto.");
         return r.json() as Promise<GastoRow[]>;
