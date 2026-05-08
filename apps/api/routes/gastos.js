@@ -3,6 +3,28 @@ const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
 
+const JURISDICCION_ALIASES = {
+    'ADMINIST. DE OBRAS SANITARIAS DE': 'ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES',
+    'AGENCIA CORRENTINA DE BIENES DEL': 'AGENCIA CORRENTINA DE BIENES DEL ESTADO',
+    'CENTRO DE ONCOLOGIA "ANNA ROCCA DE': "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+    'DIRECCION PROVINCIAL DE ENERGIA DE': 'DIRECCIÓN PROVINCIAL DE ENERGIA DE CORRIENTES',
+    'DIRECCION PROVINCIAL DE VIALIDAD': 'DIRECCIÓN PROVINCIAL DE VIALIDAD',
+    'INSTITUTO CORRENTINO DEL AGUA Y DEL': 'INSTITUTO CORRENTINO DEL AGUA Y DEL AMBIENTE',
+    'INSTITUTO DE DESARROLLO RURAL DE': 'INSTITUTO DE DESARROLLO RURAL DE CORRIENTES',
+    'MINISTERIO DE COORDINACION Y': 'MINISTERIO DE COORDINACIÓN Y PLANIFICACIÓN',
+    'MINISTERIO DE EDUCACION': 'MINISTERIO DE EDUCACIÓN',
+    'MINISTERIO DE INDUSTRIA TRABAJO Y': 'MINISTERIO DE INDUSTRIA TRABAJO Y COMERCIO',
+    'MINISTERIO DE JUSTICIA Y DERECHOS': 'MINISTERIO DE JUSTICIA Y DERECHOS HUMANOS',
+    'MINISTERIO DE OBRAS Y SERVICIOS PUBLICOS': 'MINISTERIO DE OBRAS Y SERVICIOS PÚBLICOS',
+    'MINISTERIO DE PRODUCCION': 'MINISTERIO DE PRODUCCIÓN',
+    'MINISTERIO DE SALUD PUBLICA': 'MINISTERIO DE SALUD PÚBLICA',
+};
+
+function canonizeJurisdiccion(raw) {
+    const key = String(raw || '').trim().toUpperCase();
+    return JURISDICCION_ALIASES[key] || String(raw || '').trim();
+}
+
 /**
  * Obtiene el resumen de gastos agrupados.
  * Soporta filtros por jurisdicción, partida, fuente y estado.
@@ -81,6 +103,7 @@ router.get('/all-data', authMiddleware, async (req, res) => {
         // El frontend espera un array de objetos GastoRow con monto como número
         const rows = result.rows.map(r => ({
             ...r,
+            jurisdiccion: canonizeJurisdiccion(r.jurisdiccion),
             monto: parseFloat(r.monto)
         }));
         res.json(rows);

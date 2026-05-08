@@ -165,6 +165,10 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
   const prevNet = kpi.recaudacion.disponible_prev ?? kpi.recaudacion.prev ?? 0;
   const diffNomNet = kpi.recaudacion.diff_nom ?? 0;
   const diffSign = diffNomNet >= 0 ? "+" : "-";
+  const coberturaBaseCurr = (kpi.rop?.bruta_current ?? 0) + (kpi.recaudacion.bruta_current ?? 0);
+  const coberturaBasePrev = (kpi.rop?.bruta_prev ?? 0) + (kpi.recaudacion.bruta_prev ?? 0);
+  const coberturaCurr = coberturaBaseCurr > 0 ? ((kpi.masa_salarial.current ?? 0) / coberturaBaseCurr) * 100 : 0;
+  const coberturaPrev = coberturaBasePrev > 0 ? ((kpi.masa_salarial.prev ?? 0) / coberturaBasePrev) * 100 : 0;
 
   const isIpcNacionMissing = !!kpi.recaudacion.ipc_missing;
 
@@ -341,10 +345,10 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     recaudacion: {
       current: formatBillions(currentNet),
       prev: formatBillions(prevNet),
-      netaCurr: formatBillions(kpi.recaudacion.neta_current),
-      netaPrev: formatBillions(kpi.recaudacion.neta_prev),
-      brutaCurr: formatBillions(kpi.recaudacion.bruta_current),
-      brutaPrev: formatBillions(kpi.recaudacion.bruta_prev),
+      netaCurr: formatMillions(kpi.recaudacion.neta_current),
+      netaPrev: formatMillions(kpi.recaudacion.neta_prev),
+      brutaCurr: formatMillions(kpi.recaudacion.bruta_current),
+      brutaPrev: formatMillions(kpi.recaudacion.bruta_prev),
       varNomAbs: diffSign + formatBillions(Math.abs(diffNomNet)),
       varNomPct:
         ((kpi.recaudacion.var_nom ?? 0) >= 0 ? "+" : "-") +
@@ -366,8 +370,8 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     masa: {
       current: isIncomplete ? "Sin datos" : formatBillions(kpi.masa_salarial.current),
       prev: formatBillions(kpi.masa_salarial.prev),
-      cobCurr: `Cobertura: ${(kpi.masa_salarial.cobertura_current ?? 0).toFixed(1)}%`,
-      cobPrev: `Cobertura: ${(kpi.masa_salarial.cobertura_prev ?? 0).toFixed(1)}%`,
+      cobCurr: `Cobertura: ${coberturaCurr.toFixed(1)}%`,
+      cobPrev: `Cobertura: ${coberturaPrev.toFixed(1)}%`,
       varNomPct: masaVarNomPct,
       varNomPctClass: masaVarNomPctClass,
       varNomAbs: masaVarNomAbs,

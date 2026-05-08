@@ -15,6 +15,12 @@ export type MonthlyAnnualShape = {
   data_prev: number[];
 };
 
+function normalizeToMillions(value: number | null | undefined): number | null {
+  if (value == null || Number.isNaN(value)) return null;
+  // Si viene en pesos, lo llevamos a millones para mantener formato consistente.
+  return Math.abs(value) >= 1_000_000_000 ? value / 1_000_000 : value;
+}
+
 export function buildMonthlyAnnualData(
   monthlyData: MonthlyAnnualShape,
   currentYear: number,
@@ -22,8 +28,12 @@ export function buildMonthlyAnnualData(
   isMobile: boolean,
 ): ChartData<"bar"> {
   let chartLabels = Array.isArray(monthlyData?.labels) ? [...monthlyData.labels] : [];
-  let dataCurrNet = Array.isArray(monthlyData?.data_curr) ? [...monthlyData.data_curr] : [];
-  let dataPrevNet = Array.isArray(monthlyData?.data_prev) ? [...monthlyData.data_prev] : [];
+  let dataCurrNet = Array.isArray(monthlyData?.data_curr)
+    ? monthlyData.data_curr.map((v) => normalizeToMillions(v) ?? 0)
+    : [];
+  let dataPrevNet = Array.isArray(monthlyData?.data_prev)
+    ? monthlyData.data_prev.map((v) => normalizeToMillions(v) ?? 0)
+    : [];
 
   if (isMobile) {
     const quarterLabels = ["T1", "T2", "T3", "T4"];
@@ -122,8 +132,12 @@ export function buildCopaVsAnnualMixed(
   isMobile: boolean,
 ): ChartData<"bar" | "line"> {
   let chartLabels = Array.isArray(dataCopa?.labels) ? [...dataCopa.labels] : [];
-  let cumulativeCopaNet = Array.isArray(dataCopa?.cumulative_copa) ? [...dataCopa.cumulative_copa] : [];
-  let salarioTarget = Array.isArray(dataCopa?.salario_target) ? [...dataCopa.salario_target] : [];
+  let cumulativeCopaNet = Array.isArray(dataCopa?.cumulative_copa)
+    ? dataCopa.cumulative_copa.map((v) => normalizeToMillions(v))
+    : [];
+  let salarioTarget = Array.isArray(dataCopa?.salario_target)
+    ? dataCopa.salario_target.map((v) => normalizeToMillions(v))
+    : [];
 
   if (isMobile) {
     const quarterEndIndices = [2, 5, 8, 11];
@@ -157,9 +171,11 @@ export function buildCopaVsAnnualMixed(
         borderWidth: 2,
         borderDash: [5, 5],
         pointRadius: 0,
+        tension: 0.3,
         fill: false,
         yAxisID: "y",
-        spanGaps: false,
+        spanGaps: true,
+        order: 0,
       },
       {
         type: "bar",
@@ -170,6 +186,7 @@ export function buildCopaVsAnnualMixed(
         borderWidth: 1,
         borderRadius: 4,
         yAxisID: "y",
+        order: 10,
       },
     ],
   };
@@ -186,6 +203,12 @@ export function copaVsAnnualOptions(): ChartOptions<"bar"> {
           usePointStyle: true,
           padding: 20,
           font: { size: 12, weight: 600 },
+          sort: (a, b) => {
+            const aMasa = a.text.includes("Masa Salarial");
+            const bMasa = b.text.includes("Masa Salarial");
+            if (aMasa === bMasa) return 0;
+            return aMasa ? -1 : 1;
+          },
         },
       },
       tooltip: {
@@ -221,6 +244,7 @@ export function copaVsAnnualOptions(): ChartOptions<"bar"> {
         ticks: {
           font: { size: 11 },
           color: "#64748b",
+          maxTicksLimit: 6,
           callback: (value) => formatBillions(Number(value)),
         },
       },

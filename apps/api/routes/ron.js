@@ -1,7 +1,69 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db_datalake');
+const gastosDb = require('../db');
 const authMiddleware = require('../middleware/auth');
+const fs = require('fs');
+const path = require('path');
+const annualPath = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
+
+let annualMonitorCache = null;
+let annualMonitorCacheMtimeMs = 0;
+
+function getAnnualMonitorBase() {
+    const stat = fs.statSync(annualPath);
+    if (!annualMonitorCache || stat.mtimeMs !== annualMonitorCacheMtimeMs) {
+        const payload = JSON.parse(fs.readFileSync(annualPath, 'utf8'));
+        if (!payload?.annual_monitor?.data) {
+            throw new Error('Formato de annual_monitor inválido');
+        }
+        annualMonitorCache = payload.annual_monitor;
+        annualMonitorCacheMtimeMs = stat.mtimeMs;
+    }
+    return annualMonitorCache;
+}
+
+async function getMasaSalarialByPeriodo() {
+    const result = await gastosDb.query(`
+        SELECT
+            TO_CHAR(periodo, 'YYYY-MM') AS period_id,
+            SUM(monto) AS masa_salarial
+        FROM copa_gastos
+        WHERE UPPER(estado) = 'ORDENADO'
+          AND UPPER(partida) LIKE 'GAST% EN PERSONAL%'
+          AND tipo_financ IN (10, 14)
+        GROUP BY 1
+    `);
+
+    return result.rows.reduce((acc, row) => {
+        acc[row.period_id] = parseFloat(row.masa_salarial || 0);
+        return acc;
+    }, {});
+}
+
+function buildMasaAcumuladaHastaMes(masaByPeriodo, year, maxMonth, scale) {
+    let total = 0;
+    for (let m = 1; m <= maxMonth; m++) {
+        const periodId = `${year}-${String(m).padStart(2, '0')}`;
+        total += masaByPeriodo[periodId] || 0;
+    }
+    return total / scale;
+}
+
+function buildMasaCumulativeSerie(labels, masaByPeriodo, year, scale) {
+    return labels.map((label, index) => {
+        const monthNumFromLabel = parseInt(label, 10);
+        const monthNum = Number.isFinite(monthNumFromLabel) && monthNumFromLabel > 0
+            ? monthNumFromLabel
+            : index + 1;
+        if (!Number.isFinite(monthNum) || monthNum <= 0) return null;
+        let acc = 0;
+        for (let m = 1; m <= monthNum; m++) {
+            const periodId = `${year}-${String(m).padStart(2, '0')}`;
+            acc += masaByPeriodo[periodId] || 0;
+        }
+        return acc / scale;
+    });
+}
 
 /**
  * Adaptador de Compatibilidad para el Monitor Anual.
@@ -9,134 +71,80 @@ const authMiddleware = require('../middleware/auth');
  */
 router.get('/annual-monitor', authMiddleware, async (req, res) => {
     try {
-        // Consultamos RON y Personal para armar el monitor cruzado
-        const ronResult = await db.query('SELECT * FROM v_ron_mensual_completo ORDER BY anio DESC, mes DESC');
-        const personalResult = await db.query('SELECT * FROM v_analisis_personal_completo ORDER BY anio DESC, mes DESC');
-        
-        if (ronResult.rows.length === 0) {
-            return res.status(404).json({ message: 'No hay datos disponibles' });
-        }
+        const masaByPeriodo = await getMasaSalarialByPeriodo();
+        const annual = getAnnualMonitorBase();
 
-        const years = [...new Set(ronResult.rows.map(r => parseInt(r.anio)))];
-        const annual_data = {};
+        const SCALE = 1000000;
+        const data = JSON.parse(JSON.stringify(annual.data));
 
-        for (const year of years) {
-            // Datos del año actual (YTD)
-            const currRows = ronResult.rows.filter(r => parseInt(r.anio) === year);
-            const maxMonth = Math.max(...currRows.map(r => parseInt(r.mes)));
-            
-            // Datos del año anterior recortados al mismo mes (para comparación justa)
-            const prevRows = ronResult.rows.filter(r => parseInt(r.anio) === year - 1 && parseInt(r.mes) <= maxMonth);
-            
-            // Sumas RON (Convertimos a MILLONES para compatibilidad con el frontend)
-            const SCALE = 1000000;
-            const ronBrutoCurr = currRows.reduce((sum, r) => sum + parseFloat(r.ron_bruto), 0) / SCALE;
-            const ronBrutoPrev = prevRows.reduce((sum, r) => sum + parseFloat(r.ron_bruto), 0) / SCALE;
-            const ronNetoCurr = currRows.reduce((sum, r) => sum + parseFloat(r.ron_neto), 0) / SCALE;
-            const ronNetoPrev = prevRows.reduce((sum, r) => sum + parseFloat(r.ron_neto), 0) / SCALE;
+        // 2022-2024 quedan hardcodeados; 2025 y 2026 se recalculan desde la misma fuente del dashboard
+        ['2025', '2026'].forEach((yearId) => {
+            const row = data[yearId];
+            if (!row?.kpi?.meta) return;
 
-            // Sumas Masa Salarial (Personal)
-            const persCurrRows = personalResult.rows.filter(r => parseInt(r.anio) === year);
-            const persPrevRows = personalResult.rows.filter(r => parseInt(r.anio) === year - 1 && parseInt(r.mes) <= maxMonth);
-            
-            const masaCurr = persCurrRows.reduce((sum, r) => sum + parseFloat(r.masa_salarial), 0) / SCALE;
-            const masaPrev = persPrevRows.reduce((sum, r) => sum + parseFloat(r.masa_salarial), 0) / SCALE;
+            const year = parseInt(yearId, 10);
+            const maxMonth = Number(row.kpi.meta.max_month || 12);
 
-            // Variaciones RON
-            const varNomRon = ronNetoPrev > 0 ? (ronNetoCurr / ronNetoPrev) - 1 : 0;
-            const avgIpcCurr = currRows.reduce((sum, r) => sum + (parseFloat(r.ipc_valor) || 0), 0) / currRows.length;
-            const avgIpcPrev = prevRows.reduce((sum, r) => sum + (parseFloat(r.ipc_valor) || 0), 0) / prevRows.length;
-            const varRealRon = (avgIpcPrev > 0 && avgIpcCurr > 0) ? ((varNomRon + 1) / (avgIpcCurr / avgIpcPrev) - 1) : 0;
+            const masaCurr = buildMasaAcumuladaHastaMes(masaByPeriodo, year, maxMonth, SCALE);
+            const masaPrevFromDb = buildMasaAcumuladaHastaMes(masaByPeriodo, year - 1, maxMonth, SCALE);
+            const masaPrevHardcoded = Number(
+                row.kpi.masa_salarial?.prev ??
+                data[String(year - 1)]?.kpi?.masa_salarial?.current ??
+                0
+            );
+            // Regla de negocio: 2022-2024 permanecen hardcodeados.
+            // Para 2025, el año previo debe seguir mostrando 2024 hardcodeado.
+            const masaPrev = year === 2025 ? masaPrevHardcoded : masaPrevFromDb;
+            const ronBrutaCurr = Number(row.kpi.recaudacion?.bruta_current ?? 0);
+            const ronBrutaPrev = Number(row.kpi.recaudacion?.bruta_prev ?? 0);
+            const ropBrutaCurr = Number(row.kpi.rop?.bruta_current ?? 0);
+            const ropBrutaPrev = Number(row.kpi.rop?.bruta_prev ?? 0);
+            const coberturaBaseCurr = ronBrutaCurr + ropBrutaCurr;
+            const coberturaBasePrev = ronBrutaPrev + ropBrutaPrev;
 
-            // Ordenamos cronológicamente para los gráficos y acumulados
-            const ronRowsAsc = [...currRows].reverse();
-            const ronPrevRowsAsc = [...prevRows].reverse();
-            const persRowsAsc = [...persCurrRows].reverse();
-
-            // ROP y Municipal (Datos no encontrados en BD, usamos placeholders para habilitar las cards)
-            // TODO: Localizar tablas de ROP y Distribución Municipal
-            const ropBrutaCurr = 0;
-            const ropBrutaPrev = 0;
-            const muniNatCurr = 0;
-            const muniNatPrev = 0;
-            const muniProvCurr = 0;
-            const muniProvPrev = 0;
-
-            annual_data[year] = {
-                kpi: {
-                    meta: {
-                        periodo: `${year} (YTD)`,
-                        max_month: maxMonth,
-                        is_complete: maxMonth === 12
-                    },
-                    recaudacion: {
-                        current: ronNetoCurr, 
-                        prev: ronNetoPrev,
-                        bruta_current: ronBrutoCurr,
-                        bruta_prev: ronBrutoPrev,
-                        neta_current: ronNetoCurr,
-                        neta_prev: ronNetoPrev,
-                        disponible_current: ronNetoCurr,
-                        disponible_prev: ronNetoPrev,
-                        diff_nom: ronNetoCurr - ronNetoPrev,
-                        var_nom: varNomRon * 100,
-                        var_real: varRealRon * 100
-                    },
-                    rop: {
-                        bruta_current: ropBrutaCurr,
-                        bruta_prev: ropBrutaPrev,
-                        disponible_current: ropBrutaCurr, 
-                        disponible_prev: ropBrutaPrev,
-                        var_nom: 0,
-                        var_real: 0,
-                        diff_nom: 0
-                    },
-                    distribucion_municipal: {
-                        current: muniNatCurr + muniProvCurr,
-                        prev: muniNatPrev + muniProvPrev,
-                        nacion_current: muniNatCurr,
-                        nacion_prev: muniNatPrev,
-                        provincia_current: muniProvCurr,
-                        provincia_prev: muniProvPrev,
-                        var_nom: 0,
-                        var_real: 0,
-                        diff_nom: 0
-                    },
-                    masa_salarial: {
-                        current: masaCurr,
-                        prev: masaPrev,
-                        cobertura_current: ronNetoCurr > 0 ? (masaCurr / ronNetoCurr) * 100 : 0,
-                        cobertura_prev: ronNetoPrev > 0 ? (masaPrev / ronNetoPrev) * 100 : 0,
-                        var_nom: masaPrev > 0 ? ((masaCurr / masaPrev) - 1) * 100 : 0,
-                        diff_nom: masaCurr - masaPrev
-                    }
-                },
-                charts: {
-                    monthly: {
-                        labels: ronRowsAsc.map(r => String(r.mes)),
-                        data_curr: ronRowsAsc.map(r => parseFloat(r.ron_neto) / SCALE),
-                        data_prev: ronPrevRowsAsc.map(r => parseFloat(r.ron_neto) / SCALE)
-                    },
-                    copa_vs_salario: {
-                        labels: ronRowsAsc.map(r => String(r.mes)),
-                        cumulative_copa: ronRowsAsc.map((_, i, arr) => 
-                            arr.slice(0, i + 1).reduce((s, x) => s + parseFloat(x.ron_neto), 0) / SCALE
-                        ),
-                        salario_target: persRowsAsc.map((_, i, arr) => 
-                            arr.slice(0, i + 1).reduce((s, x) => s + parseFloat(x.masa_salarial), 0) / SCALE
-                        )
-                    }
-                }
+            row.kpi.masa_salarial = {
+                ...(row.kpi.masa_salarial || {}),
+                current: masaCurr,
+                prev: masaPrev,
+                diff_nom: masaCurr - masaPrev,
+                var_nom: masaPrev > 0 ? ((masaCurr / masaPrev) - 1) * 100 : 0,
+                cobertura_current: coberturaBaseCurr > 0 ? (masaCurr / coberturaBaseCurr) * 100 : 0,
+                cobertura_prev: coberturaBasePrev > 0 ? (masaPrev / coberturaBasePrev) * 100 : 0
             };
-        }
+
+            const labels = row.charts?.copa_vs_salario?.labels || [];
+            if (row.charts?.copa_vs_salario) {
+                row.charts.copa_vs_salario.salario_target =
+                    buildMasaCumulativeSerie(labels, masaByPeriodo, year, SCALE);
+            }
+        });
+
+        const years = Object.keys(data)
+            .map((y) => parseInt(y, 10))
+            .filter((y) => Number.isFinite(y))
+            .sort((a, b) => b - a);
+
+        const available_periods = years.map((y) => {
+            const yData = data[String(y)];
+            const isComplete = !!yData?.kpi?.meta?.is_complete;
+            return {
+                id: String(y),
+                label: String(y),
+                year: y,
+                incomplete: !isComplete
+            };
+        });
+
+        const defaultComplete = available_periods.find((p) => !p.incomplete);
+        const default_period_id = defaultComplete?.id || available_periods[0]?.id || null;
 
         res.json({
             annual_monitor: {
                 meta: {
-                    default_period_id: String(years[0]),
-                    available_periods: years.map(y => ({ id: String(y), label: String(y), year: y }))
+                    default_period_id,
+                    available_periods
                 },
-                data: annual_data
+                data
             }
         });
     } catch (err) {

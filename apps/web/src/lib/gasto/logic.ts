@@ -61,9 +61,9 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
 
   const estadoAcum: Record<string, number> = {};
   const vigente: Record<string, number> = {};
+  const filteredRows = rawData.filter((d) => matchFuente(d));
 
-  rawData.forEach((d) => {
-    if (!matchFuente(d)) return;
+  filteredRows.forEach((d) => {
     const j = (d.jurisdiccion || "").trim();
     const key = `${d.partida}|${j}`;
     const rowYear = d.periodo.split("-")[0];
@@ -77,7 +77,7 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
     if (d.estado === "Credito Vigente" && d.periodo === ultimoPeriodo) vigente[key] = (vigente[key] || 0) + d.monto;
   });
 
-  const jurisVistasEnBD = new Set(rawData.map((d) => (d.jurisdiccion || "").trim()));
+  const jurisVistasEnBD = new Set(filteredRows.map((d) => (d.jurisdiccion || "").trim()));
   const jurisdicciones = ORDEN_JURISDICCIONES.filter((j) => jurisVistasEnBD.has(j));
 
   let visibleJuris = jurisdicciones.filter((j) => {
@@ -95,7 +95,8 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
       vigA += vigente[`${p}|${a}`] || 0;
       vigB += vigente[`${p}|${b}`] || 0;
     });
-    return vigB - vigA;
+    if (vigB !== vigA) return vigB - vigA;
+    return ORDEN_JURISDICCIONES.indexOf(a) - ORDEN_JURISDICCIONES.indexOf(b);
   });
 
   const rows = ORDEN_PARTIDAS.map((p) => {
@@ -395,21 +396,28 @@ export function computeRatioChartData(inp: RatioInput): {
 export type WaterfallInput = {
   rawData: GastoRow[];
   estado: string;
-  jurisFilter: string;
-  partidaFilter: string;
-  fuente: string;
+  year: string;
+  jurisFilter: string[] | null;
+  partidaFilter: string[] | null;
+  fuente: string[] | null;
 };
 
 export function computeWaterfall(inp: WaterfallInput): {
   chartData: ChartData<"bar" | "line">;
   options: ChartOptions<"bar">;
 } {
-  const mj = (d: GastoRow) =>
-    inp.jurisFilter === "TODAS" || (d.jurisdiccion || "").trim() === inp.jurisFilter;
-  const mp = (d: GastoRow) =>
-    inp.partidaFilter === "TODAS" || d.partida === inp.partidaFilter;
-  const mf = (d: GastoRow) =>
-    inp.fuente === "TODAS" || String(d.tipo_financ) === inp.fuente;
+  const mj = (d: GastoRow) => {
+    if (!inp.jurisFilter || inp.jurisFilter.length === 0) return true;
+    return inp.jurisFilter.includes((d.jurisdiccion || "").trim());
+  };
+  const mp = (d: GastoRow) => {
+    if (!inp.partidaFilter || inp.partidaFilter.length === 0) return true;
+    return inp.partidaFilter.includes(d.partida);
+  };
+  const mf = (d: GastoRow) => {
+    if (!inp.fuente || inp.fuente.length === 0) return true;
+    return inp.fuente.includes(String(d.tipo_financ));
+  };
 
   const periodos = [...new Set(inp.rawData.map((d) => d.periodo))].sort();
   if (periodos.length === 0) {
@@ -419,12 +427,16 @@ export function computeWaterfall(inp: WaterfallInput): {
     };
   }
 
-  const year = periodos[periodos.length - 1].split("-")[0];
+  const year = inp.year || periodos[periodos.length - 1].split("-")[0];
   const lastPeriod = periodos[periodos.length - 1];
+  const periodosDelAnio = periodos.filter((p) => p.startsWith(`${year}-`));
+  const lastPeriodOfYear = periodosDelAnio.length
+    ? periodosDelAnio[periodosDelAnio.length - 1]
+    : lastPeriod;
 
   const vigData = inp.rawData.filter(
     (d) =>
-      d.periodo === lastPeriod &&
+      d.periodo === lastPeriodOfYear &&
       d.estado === "Credito Vigente" &&
       mj(d) &&
       mp(d) &&

@@ -1,8 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db_datalake');
+const gastosDb = require('../db');
 const authMiddleware = require('../middleware/auth');
 const { getIpcProjections } = require('../services/projections');
+
+async function getMasaSalarialByPeriodo() {
+    const result = await gastosDb.query(`
+        SELECT
+            TO_CHAR(periodo, 'YYYY-MM') AS period_id,
+            SUM(monto) AS masa_salarial
+        FROM copa_gastos
+        WHERE UPPER(estado) = 'ORDENADO'
+          AND UPPER(partida) LIKE 'GAST% EN PERSONAL%'
+          AND tipo_financ IN (10, 14)
+        GROUP BY 1
+    `);
+
+    return result.rows.reduce((acc, row) => {
+        acc[row.period_id] = parseFloat(row.masa_salarial || 0);
+        return acc;
+    }, {});
+}
 
 /**
  * Retorna los datos de empleo público directamente desde la base de datos (vistas).
@@ -11,6 +30,7 @@ const { getIpcProjections } = require('../services/projections');
 router.get('/masa-salarial', authMiddleware, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM v_analisis_personal_completo ORDER BY anio DESC, mes DESC');
+        const masaByPeriodo = await getMasaSalarialByPeriodo();
         
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No hay datos disponibles' });
@@ -59,10 +79,11 @@ router.get('/masa-salarial', authMiddleware, async (req, res) => {
         finalDataRows.forEach((row, index) => {
             const period_id = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
             const window = finalDataRows.slice(index, index + 12).reverse();
+            const masaSalarialPeriodo = (masaByPeriodo[period_id] || 0) / 1000000;
             
             data_by_period[period_id] = {
                 kpi: {
-                    masa_salarial: parseFloat(row.masa_salarial) / 1000000,
+                    masa_salarial: masaSalarialPeriodo,
                     salario_promedio: parseFloat(row.salario_promedio),
                     empleados: parseInt(row.cantidad_empleados),
                     var_nominal_ia: parseFloat(row.var_nominal_ia) * 100,

@@ -474,7 +474,7 @@ export default function HomeDashboard() {
               <option value="">Cargando…</option>
             ) : (
               periodOptions.map(({ period, label, incomplete }) => (
-                <option key={period.id} value={period.id}>
+                <option key={period.id} value={period.id} data-incomplete={incomplete ? "true" : "false"}>
                   {label}
                 </option>
               ))
@@ -529,7 +529,7 @@ La masa salarial total incluye los conceptos de salarios,  plus y bonos para los
             }
           />
         </div>
-        <p className="source-text">
+        <p className="source-text" style={{ textAlign: "left", padding: "0 3%", marginTop: "1rem" }}>
           Fuente: INDEC, Ministerio de Economía de la Nación y Contaduría General de la Provincia de Corrientes
         </p>
       </section>
@@ -556,7 +556,7 @@ La masa salarial total incluye los conceptos de salarios,  plus y bonos para los
                 <div className="chart-placeholder">Cargando gráfico…</div>
               )}
             </div>
-            <p className="source-text">
+            <p className="source-text" style={{ textAlign: "left", padding: "0 3%", marginTop: "1rem" }}>
               Fuente: INDEC y Ministerio de Economía de la Nación
             </p>
           </div>
@@ -581,7 +581,7 @@ La masa salarial total incluye los conceptos de salarios,  plus y bonos para los
                 <div className="chart-placeholder">Cargando gráfico…</div>
               )}
             </div>
-            <p className="source-text">
+            <p className="source-text" style={{ textAlign: "left", padding: "0 3%", marginTop: "1rem" }}>
               Fuente: Contaduría General de la Provincia de Corrientes y Ministerio de Economía de la Nación
             </p>
           </div>

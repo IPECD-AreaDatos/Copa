@@ -221,6 +221,7 @@ export function buildMonitorViewModel(
   kpi: KpiShape,
   isMobileLayout: boolean,
 ): MonitorViewModel {
+  const isNonNegativeForDisplay = (value: number | null | undefined) => (value ?? 0) >= -0.05;
   const [yearStr] = periodId.split("-");
   const currentYear = parseInt(yearStr, 10);
   const prevYear = currentYear - 1;
@@ -346,7 +347,7 @@ export function buildMonitorViewModel(
       realAbs = "--";
     } else {
       realPct = formatPercentage(rp.var_real ?? 0);
-      realPctClass = `kpi-value ${(rp.var_real ?? 0) >= 0 ? "text-success" : "text-danger"}`;
+      realPctClass = `kpi-value ${isNonNegativeForDisplay(rp.var_real) ? "text-success" : "text-danger"}`;
       const provDiffReal = rp.diff_real;
       if (provDiffReal !== undefined) {
         const provDiffRealSign = provDiffReal >= 0 ? "+" : "-";
