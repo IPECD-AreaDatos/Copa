@@ -68,12 +68,7 @@ export default function MonitorMensualDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/api/dashboard/monthly", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetch("/data/_data_ipce_v1.json")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");
         return r.json() as Promise<MonitorJson>;

@@ -344,12 +344,7 @@ export default function HomeDashboard() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("copa_token");
-    fetch("/api/dashboard/home", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetch("/data/_data_ipce_v1.json")
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
