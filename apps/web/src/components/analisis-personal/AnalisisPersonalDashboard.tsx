@@ -11,6 +11,7 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 type PersonalJson = {
   meta: { default_period_id: string; available_periods: { id: string; label: string; year: number }[] };
@@ -63,6 +64,11 @@ export default function AnalisisPersonalDashboard() {
   const [periodId, setPeriodId] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [wide768, setWide768] = useState(false);
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    logAction("Análisis Salarial", "Acceso a apartado");
+  }, [logAction]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -205,9 +211,10 @@ export default function AnalisisPersonalDashboard() {
           "Atención: El periodo seleccionado aún cuenta con datos incompletos. Las variaciones y proyecciones pueden cambiar significativamente hasta el cierre definitivo.",
         );
       }
+      logAction("Análisis Salarial", "Cambio de Período", { period_id: v });
       setPeriodId(v);
     },
-    [periods, defaultIndex],
+    [periods, defaultIndex, logAction],
   );
 
   if (err) {
@@ -400,7 +407,13 @@ export default function AnalisisPersonalDashboard() {
           </div>
         </div>
         <div className="chart-wrapper">
-          <Line data={lineData} options={lineOpts} />
+          <Line
+            data={lineData}
+            options={{
+              ...lineOpts,
+              onClick: () => logAction("Análisis Salarial", "Interacción con Gráfico Salario vs RIPTE")
+            } as any}
+          />
         </div>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "1rem" }}>
           Fuente: Contaduría General de la Provincia de Corrientes / Ministerio de Economía de la Nación (RIPTE)

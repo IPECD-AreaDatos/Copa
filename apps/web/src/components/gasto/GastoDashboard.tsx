@@ -3,7 +3,8 @@
 import "@/lib/chart/registerChartJs";
 import type { ChartData } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 import {
   computeCompositionTable,
@@ -46,6 +47,11 @@ function normalizeText(value: string) {
 export default function GastoDashboard() {
   const [rawData, setRawData] = useState<GastoRow[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    logAction("Gasto", "Acceso a apartado");
+  }, [logAction]);
 
   // Heatmap filters
   const [hmEstado, setHmEstado] = useState("Comprometido");
@@ -280,14 +286,22 @@ export default function GastoDashboard() {
         <div className="section-filters gasto-filters">
           <div className="sf-group">
             <label>Estado</label>
-            <select value={hmEstado} onChange={(e) => setHmEstado(e.target.value)}>
+            <select value={hmEstado} onChange={(e) => {
+              const v = e.target.value;
+              setHmEstado(v);
+              logAction("Gasto", "Cambio Estado Heatmap", { estado: v });
+            }}>
               <option value="Comprometido">Comprometido</option>
               <option value="Ordenado">Ordenado</option>
             </select>
           </div>
           <div className="sf-group">
             <label>Jurisdicción</label>
-            <select value={hmJurisGroup} onChange={(e) => setHmJurisGroup(e.target.value)}>
+            <select value={hmJurisGroup} onChange={(e) => {
+              const v = e.target.value;
+              setHmJurisGroup(v);
+              logAction("Gastos", "Cambio Jurisdicción Heatmap", { grupo: v });
+            }}>
               <option value="TODAS">TODAS LAS JURISDICCIONES</option>
               <option value="MINISTERIOS">MINISTERIOS</option>
               <option value="RESTO">RESTO</option>
@@ -363,6 +377,7 @@ export default function GastoDashboard() {
                         className="heatmap-cell"
                         style={{ backgroundColor: c.color }}
                         title={c.title}
+                        onClick={() => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
                       >
                         {c.pct}%
                       </td>
@@ -512,7 +527,7 @@ export default function GastoDashboard() {
             </thead>
             <tbody>
               {table?.rows.map((r) => (
-                <tr key={r.partida}>
+                <tr key={r.partida} onClick={() => logAction("Gasto", "Interacción con Tabla Composición", { partida: r.partida })}>
                   <td>
                     <span
                       style={{
@@ -671,7 +686,18 @@ export default function GastoDashboard() {
         </div>
         <div className="chart-wrapper" style={{ height: 400 }}>
           {ratio && (
-            <Chart type="bar" data={ratio.chartData as ChartData<"bar">} options={ratio.options} />
+            <Chart
+              type="bar"
+              data={ratio.chartData as ChartData<"bar">}
+              options={{
+                ...ratio.options,
+                onClick: (_: any, elements: any[]) => {
+                  if (elements.length > 0) {
+                    logAction("Gasto", "Interacción con Gráfico Avance");
+                  }
+                }
+              } as any}
+            />
           )}
         </div>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
@@ -828,7 +854,14 @@ export default function GastoDashboard() {
             <Chart
               type="bar"
               data={waterfall.chartData as ChartData<"bar">}
-              options={waterfall.options}
+              options={{
+                ...waterfall.options,
+                onClick: (_: any, elements: any[]) => {
+                  if (elements.length > 0) {
+                    logAction("Gasto", "Interacción con Gráfico Cascada");
+                  }
+                }
+              } as any}
             />
           ) : (
             <div className="chart-placeholder">Cargando gráfico…</div>

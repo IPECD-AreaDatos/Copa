@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import type { ChartOptions } from "chart.js";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 type Period = {
   id: string;
@@ -328,6 +329,11 @@ export default function HomeDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentPeriodId, setCurrentPeriodId] = useState<string>("");
   const [isMobile, setIsMobile] = useState(false);
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    logAction("Inicio", "Acceso a apartado");
+  }, [logAction]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -417,6 +423,7 @@ export default function HomeDashboard() {
   const onPeriodChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       const selectedId = e.target.value;
+      logAction("Inicio", "Cambio de Período", { period_id: selectedId });
       setCurrentPeriodId(selectedId);
 
       const opt = e.target.selectedOptions[0];

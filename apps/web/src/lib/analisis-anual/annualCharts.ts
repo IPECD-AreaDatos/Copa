@@ -192,7 +192,7 @@ export function buildCopaVsAnnualMixed(
   };
 }
 
-export function copaVsAnnualOptions(): ChartOptions<"bar"> {
+export function copaVsAnnualOptions(): ChartOptions<"bar" | "line"> {
   return {
     responsive: true,
     maintainAspectRatio: false,

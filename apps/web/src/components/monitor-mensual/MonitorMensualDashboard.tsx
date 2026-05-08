@@ -21,6 +21,7 @@ import {
   buildMonitorViewModel,
   type MonitorJson,
 } from "@/lib/monitor-mensual/viewModel";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 function useViewportFlags() {
   const [wide768, setWide768] = useState(false);
@@ -59,6 +60,11 @@ export default function MonitorMensualDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [periodId, setPeriodId] = useState<string>("");
   const { isMobile768, isMobile640 } = useViewportFlags();
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    logAction("Análisis Mensual RON", "Acceso a apartado");
+  }, [logAction]);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,8 +105,16 @@ export default function MonitorMensualDashboard() {
 
   const dailyOpts = useMemo(() => {
     if (!vm) return null;
-    return dailyBarOptions(vm.monthName);
-  }, [vm]);
+    const base = dailyBarOptions(vm.monthName);
+    return {
+      ...base,
+      onClick: (_: any, elements: any[]) => {
+        if (elements.length > 0) {
+          logAction("Análisis Mensual RON", "Interacción con Gráfico Diario");
+        }
+      }
+    };
+  }, [vm, logAction]);
 
   const copaVsData = useMemo(() => {
     if (!charts) return null;
@@ -166,6 +180,7 @@ export default function MonitorMensualDashboard() {
   const onPeriodChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       const next = e.target.value;
+      logAction("Análisis Mensual RON", "Cambio de Período", { period_id: next });
       const idx = periodMeta.findIndex((p) => p.id === next);
       const incomplete = defaultIndex >= 0 && idx > defaultIndex;
       if (incomplete) {

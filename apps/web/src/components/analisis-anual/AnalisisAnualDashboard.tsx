@@ -23,6 +23,7 @@ import {
   type MonthlyAnnualShape,
 } from "@/lib/analisis-anual/annualCharts";
 import { buildAnnualVm } from "@/lib/analisis-anual/annualVm";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 type AnnualMeta = {
   annual_monitor: {
@@ -69,6 +70,11 @@ export default function AnalisisAnualDashboard() {
   const [err, setErr] = useState<string | null>(null);
   const [yearId, setYearId] = useState("");
   const isMobile = useMobile768();
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    logAction("Análisis Anual RON", "Acceso a apartado");
+  }, [logAction]);
 
   useEffect(() => {
     let c = false;
@@ -109,14 +115,34 @@ export default function AnalisisAnualDashboard() {
     return buildMonthlyAnnualData(periodRow.charts.monthly, iterYear, prevYear, isMobile);
   }, [periodRow, iterYear, prevYear, isMobile]);
 
-  const monthlyOpts = useMemo(() => monthlyAnnualOptions(), []);
+  const monthlyOpts = useMemo(() => {
+    const base = monthlyAnnualOptions();
+    return {
+      ...base,
+      onClick: (_: any, elements: any[]) => {
+        if (elements.length > 0) {
+          logAction("Análisis Anual RON", "Interacción con Gráfico Mensual");
+        }
+      }
+    };
+  }, [logAction]);
 
   const copaVsMixed = useMemo(() => {
     if (!periodRow) return null;
     return buildCopaVsAnnualMixed(periodRow.charts.copa_vs_salario, isMobile);
   }, [periodRow, isMobile]);
 
-  const copaVsOpts = useMemo(() => copaVsAnnualOptions(), []);
+  const copaVsOpts = useMemo(() => {
+    const base = copaVsAnnualOptions();
+    return {
+      ...base,
+      onClick: (_: any, elements: any[]) => {
+        if (elements.length > 0) {
+          logAction("Análisis Anual RON", "Interacción con Gráfico RON vs Sueldos");
+        }
+      }
+    };
+  }, [logAction]);
 
   const brechaBundle = useMemo(() => {
     if (!periodRow || !Number.isFinite(iterYear)) return null;
@@ -135,6 +161,7 @@ export default function AnalisisAnualDashboard() {
   const onYear = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       const v = e.target.value;
+      logAction("Análisis Anual RON", "Cambio de Período", { period_id: v });
       const idx = periods.findIndex((p) => p.id === v);
       const incomplete = periods[idx]?.incomplete;
       if (incomplete) {
@@ -351,7 +378,7 @@ export default function AnalisisAnualDashboard() {
           </div>
           <div className="info-tooltip" data-tooltip="Comparación de la recaudación acumulada mensual de coparticipación disponible frente al monto objetivo para el pago de salarios a lo largo del año. La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios. La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal. La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">?</div>
           <div className="chart-wrapper">
-            {copaVsMixed && <Chart type="bar" data={copaVsMixed} options={copaVsOpts} />}
+            {copaVsMixed && <Chart type="bar" data={copaVsMixed as any} options={copaVsOpts as any} />}
           </div>
           <p className="source-text" style={{ marginTop: "1rem", textAlign: "left" }}>
             Fuente: Ministerio de Economía de la Provincia (RON) / Contaduría General de la Provincia (Salarios)
