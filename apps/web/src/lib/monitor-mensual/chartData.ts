@@ -343,8 +343,8 @@ export function brechaOptions(
               const missingPercentage = ((exp - act) / exp) * 100;
               const pctText =
                 missingPercentage > 0
-                  ? `Porcentaje Faltante: ${missingPercentage.toFixed(1)}%`
-                  : `Superávit: ${Math.abs(missingPercentage).toFixed(1)}%`;
+                  ? `Porcentaje Faltante: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(missingPercentage)}%`
+                  : `Superávit: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(Math.abs(missingPercentage))}%`;
               return [
                 "",
                 "━━━━━━━━━━━━━━━━━━━━",

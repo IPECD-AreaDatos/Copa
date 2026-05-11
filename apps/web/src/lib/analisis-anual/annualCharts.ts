@@ -437,7 +437,7 @@ export function brechaAnnualChartOptions(): ChartOptions<"bar"> {
             const totalAct = act + exc;
             if (totalEsp > 0) {
               const pct = (totalAct / totalEsp) * 100;
-              return `\n% del Esperado: ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(pct)}%`;
+              return `\n% del Esperado: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(pct)}%`;
             }
             return "";
           },

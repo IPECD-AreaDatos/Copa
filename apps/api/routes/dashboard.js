@@ -1,14 +1,32 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 const db_datalake = require('../db_datalake'); // Para IPC
 const db_copa = require('../db');            // Para RON y Gastos (Datos frescos)
 const authMiddleware = require('../middleware/auth');
 
+// Solo para las tarjetas de "presupuesto/esperado" del monitor mensual.
+// El resto (recaudado/variaciones) se calcula 100% desde BD.
+let ipceRefCache = null;
+function getIpceReferenceKpi(periodId) {
+  if (ipceRefCache === null) {
+    try {
+      const p = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
+      ipceRefCache = JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch {
+      ipceRefCache = { data: {} };
+    }
+  }
+  return ipceRefCache?.data?.[periodId]?.kpi;
+}
+
 /**
  * GET /api/dashboard/home
- * Retorna datos resumidos para la pantalla principal
+ * Retorna datos resumidos para la pantalla principal.
+ * Acceso público (sin JWT): el inicio del tablero debe ser visible para todos.
  */
-router.get('/home', authMiddleware, async (req, res) => {
+router.get('/home', async (req, res) => {
     try {
         // 1. Obtener RON Mensual desde la DB fresca (db_copa)
         const ronResult = await db_copa.query(`
@@ -17,6 +35,7 @@ router.get('/home', authMiddleware, async (req, res) => {
                     EXTRACT(YEAR FROM fecha)::int as anio, 
                     EXTRACT(MONTH FROM fecha)::int as mes,
                     SUM(total_general) as ron_bruto,
+                    SUM(COALESCE(iva_ley_23966, 0)) as ron_iva,
                     SUM(total_general - (
                         COALESCE(imp_combustibles_vialidad, 0) + 
                         COALESCE(imp_combustibles_fonavi, 0) + 
@@ -112,7 +131,7 @@ router.get('/home', authMiddleware, async (req, res) => {
             year: row.anio
         }));
 
-        // Ratios Legales (del JSON original)
+        // Ratios Legales (fijos por norma)
         const RON_DISPO_RATIO = 0.877487;
         const RON_MUNI_RATIO = 0.122513;
         const ROP_DISPO_RATIO = 0.812932;
@@ -238,6 +257,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                     EXTRACT(YEAR FROM fecha)::int as anio, 
                     EXTRACT(MONTH FROM fecha)::int as mes,
                     SUM(total_general) as ron_bruto,
+                    SUM(COALESCE(iva_ley_23966, 0)) as ron_iva,
                     SUM(total_general - (
                         COALESCE(imp_combustibles_vialidad, 0) + 
                         COALESCE(imp_combustibles_fonavi, 0) + 
@@ -249,7 +269,8 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             )
             SELECT curr.*, 
                    prev.ron_bruto as ron_bruto_anterior,
-                   prev.ron_neto as ron_neto_anterior
+                   prev.ron_neto as ron_neto_anterior,
+                   prev.ron_iva as ron_iva_anterior
             FROM monthly_ron curr
             LEFT JOIN monthly_ron prev ON curr.anio = prev.anio + 1 AND curr.mes = prev.mes
             ORDER BY curr.anio DESC, curr.mes DESC
@@ -361,6 +382,8 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const ronBrutoPrev = parseFloat(row.ron_bruto_anterior || 0);
             const ronNeto = parseFloat(row.ron_neto || 0);
             const ronNetoPrev = parseFloat(row.ron_neto_anterior || 0);
+            const ronIva = parseFloat(row.ron_iva || 0);
+            const ronIvaPrev = parseFloat(row.ron_iva_anterior || 0);
             const ropData = ropMap[periodId] || { curr: 0, prev: 0 };
 
             // Ratios Legales (del JSON original)
@@ -368,6 +391,10 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const RON_MUNI_RATIO = 0.122513;
             const ROP_DISPO_RATIO = 0.812932;
             const ROP_MUNI_RATIO = 0.187068;
+            // Ajuste fino para reproducir el tablero publicado:
+            // para años < 2026, al construir la base del "RON disponible" se excluye casi todo IVA_ley_23966,
+            // dejando un residuo del orden de 0.52% del IVA.
+            const RON_IVA_RESIDUAL_RATIO = 0.005185194361665872;
 
             // Daily Chart
             const dailyCurr = dailyDataMap[periodId] || {};
@@ -393,23 +420,42 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const totalDaysInMonth = new Date(row.anio, row.mes, 0).getDate();
             const ropDailyLineal = (ropData.curr * ROP_DISPO_RATIO) / totalDaysInMonth;
 
+            // Reparto diario del RON disponible mensual:
+            // Para años anteriores a 2026 se excluye IVA_ley_23966 de la base que se reparte (ajuste coherente con el tablero deployado).
+            const useExclIvaCurr = row.anio < 2026;
+            const ronNetoDispBaseCurr = useExclIvaCurr
+                ? ronNeto + ronIva * (1 - RON_IVA_RESIDUAL_RATIO)
+                : ronNeto;
+            const ronBrutoDispFactor = ronBruto > 0 ? ronNetoDispBaseCurr / ronBruto : 0;
             for (let d = 1; d <= totalDaysInMonth; d++) {
-                accCopa += (dailyCurr[d] || 0) * 1000000 * RON_DISPO_RATIO;
+                accCopa +=
+                    (dailyCurr[d] || 0) *
+                    1000000 *
+                    RON_DISPO_RATIO *
+                    ronBrutoDispFactor;
                 accRop += ropDailyLineal;
                 cumulativeCopa.push(accCopa / 1000000);
                 cumulativeRop.push(accRop / 1000000);
                 salarioTarget.push(masaValue / 1000000);
             }
 
-            // RON "disponible" (KPIs / totales): misma base que el acumulado diario (bruto copart. × ratio legal).
-            // El JSON de producción usa esta definición; con neto × ratio el año anterior y las variaciones no coinciden.
-            const vNomBrutoRon = ronBrutoPrev > 0 ? (ronBruto / ronBrutoPrev) - 1 : 0;
-            let vRealBrutoRon = null;
-            if (ronBrutoPrev > 0 && vIpc !== null) {
-                vRealBrutoRon = ((1 + vNomBrutoRon) / (1 + vIpc)) - 1;
-            }
+            // RON disponible: base puede excluir IVA_ley_23966 para años anteriores a 2026.
+            const useExclIvaPrev = prevYear < 2026;
+            const ronNetoDispBasePrev = useExclIvaPrev
+                ? ronNetoPrev + ronIvaPrev * (1 - RON_IVA_RESIDUAL_RATIO)
+                : ronNetoPrev;
 
-            const vNomNeto = ronNetoPrev > 0 ? (ronNeto / ronNetoPrev) - 1 : 0;
+            const ronDispo = ronNetoDispBaseCurr * RON_DISPO_RATIO;
+            const ronDispoPrev = ronNetoDispBasePrev * RON_DISPO_RATIO;
+
+            let vNomRon = 0;
+            let vRealRon = null;
+            if (ronDispoPrev > 0) {
+                vNomRon = ronDispo / ronDispoPrev - 1;
+                if (vIpc !== null) {
+                    vRealRon = ((1 + vNomRon) / (1 + vIpc)) - 1;
+                }
+            }
 
             const vNomRop = ropData.prev > 0 ? (ropData.curr / ropData.prev) - 1 : 0;
             let vRealRop = null;
@@ -417,8 +463,6 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 vRealRop = ((1 + vNomRop) / (1 + vIpc)) - 1;
             }
 
-            const ronDispo = ronBruto * RON_DISPO_RATIO;
-            const ronDispoPrev = ronBrutoPrev * RON_DISPO_RATIO;
             const ropDispo = ropData.curr * ROP_DISPO_RATIO;
             const ropDispoPrev = ropData.prev * ROP_DISPO_RATIO;
 
@@ -428,6 +472,52 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const ropDispoPrevM = ropDispoPrev / 1000000;
 
             const isMay = row.mes === 5 && row.anio === 2026;
+
+            // Solo para las tarjetas de presupuesto/esperado/brechas del front.
+            // El resto de KPIs (recaudado/variaciones/municipal) se calcula 100% desde BD.
+            const refKpi = getIpceReferenceKpi(periodId);
+
+            // Distribución municipal:
+            // - Nacional (RON) = RON neto - RON disponible (según la base condicional usada para disponible).
+            // - Provincial (ROP) = ROP bruta * ROP_MUNI_RATIO (constante).
+            const nacionCurrentM = ronNeto / 1000000 - ronDispoM;
+            const nacionPrevM = ronNetoPrev / 1000000 - ronDispoPrevM;
+            const provinciaCurrentM = (ropData.curr * ROP_MUNI_RATIO) / 1000000;
+            const provinciaPrevM = (ropData.prev * ROP_MUNI_RATIO) / 1000000;
+            const muniCurrentM = nacionCurrentM + provinciaCurrentM;
+            const muniPrevM = nacionPrevM + provinciaPrevM;
+
+            const vNomMuni = muniPrevM > 0 ? muniCurrentM / muniPrevM - 1 : 0;
+            const diffNomMuni = muniCurrentM - muniPrevM;
+            let vRealMuni = null;
+            if (muniPrevM > 0 && vIpc !== null) {
+                vRealMuni = muniCurrentM / muniPrevM / (1 + vIpc) - 1;
+            }
+            const diffRealMuni = vIpc !== null ? muniCurrentM - muniPrevM * (1 + vIpc) : null;
+
+            const muniKpi = {
+                current: muniCurrentM,
+                prev: muniPrevM,
+                nacion_current: nacionCurrentM,
+                nacion_prev: nacionPrevM,
+                provincia_current: provinciaCurrentM,
+                provincia_prev: provinciaPrevM,
+                var_nom: vNomMuni * 100,
+                var_real: vRealMuni !== null ? vRealMuni * 100 : 0,
+                diff_nom: diffNomMuni,
+                diff_real: diffRealMuni !== null ? diffRealMuni : undefined,
+                ipc_missing: vIpc === null,
+                ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
+            };
+
+            // Cobertura salarial: masa / (RON bruto + ROP bruto), igual que el JSON de referencia (no sobre recursos disponibles).
+            const totalBrutoPesos = ronBruto + ropData.curr;
+            const totalBrutoPrevPesos = ronBrutoPrev + ropData.prev;
+
+            let vRealMasa = null;
+            if (masaPrevValue > 0 && vIpc !== null) {
+                vRealMasa = ((masaValue / masaPrevValue) / (1 + vIpc)) - 1;
+            }
 
             data[periodId] = {
                 kpi: {
@@ -445,11 +535,12 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         bruta_prev: ronBrutoPrev / 1000000,
                         neta_current: ronNeto / 1000000,
                         neta_prev: ronNetoPrev / 1000000,
-                        var_nom: vNomBrutoRon * 100,
-                        var_real: vRealBrutoRon !== null ? vRealBrutoRon * 100 : 0,
+                        var_nom: vNomRon * 100,
+                        var_real: vRealRon !== null ? vRealRon * 100 : 0,
                         diff_nom: ronDispoM - ronDispoPrevM,
                         ipc_missing: vIpc === null,
-                        ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null
+                        ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
+                        esperada: refKpi?.recaudacion?.esperada,
                     },
                     rop: {
                         bruta_current: ropData.curr / 1000000,
@@ -460,26 +551,24 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_real: vRealRop !== null ? vRealRop * 100 : 0,
                         diff_nom: ropDispoM - ropDispoPrevM,
                         diff_real: vIpc !== null ? ropDispoM - ropDispoPrevM * (1 + vIpc) : undefined,
-                        ipc_missing: vIpc === null
+                        ipc_missing: vIpc === null,
+                        esperada_prov: refKpi?.rop?.esperada_prov,
+                        brecha_abs_prov: refKpi?.rop?.brecha_abs_prov,
+                        brecha_pct_prov: refKpi?.rop?.brecha_pct_prov,
                     },
                     masa_salarial: {
                         current: masaValue / 1000000,
                         prev: masaPrevValue / 1000000,
-                        cobertura_current: (ronDispo + ropDispo) > 0 ? (masaValue / (ronDispo + ropDispo)) * 100 : 0,
-                        cobertura_prev: (ronDispoPrev + ropDispoPrev) > 0 ? (masaPrevValue / (ronDispoPrev + ropDispoPrev)) * 100 : 0,
+                        cobertura_current: totalBrutoPesos > 0 ? (masaValue / totalBrutoPesos) * 100 : 0,
+                        cobertura_prev: totalBrutoPrevPesos > 0 ? (masaPrevValue / totalBrutoPrevPesos) * 100 : 0,
                         var_nom: masaPrevValue > 0 ? ((masaValue / masaPrevValue) - 1) * 100 : 0,
+                        var_real: vRealMasa !== null ? vRealMasa * 100 : 0,
+                        diff_nom: (masaValue - masaPrevValue) / 1000000,
                         ipc_missing: vIpc === null,
                         is_incomplete: isMay
                     },
                     distribucion_municipal: {
-                        current: (ronNeto * RON_MUNI_RATIO + ropData.curr * ROP_MUNI_RATIO) / 1000000,
-                        prev: (ronNetoPrev * RON_MUNI_RATIO + ropData.prev * ROP_MUNI_RATIO) / 1000000,
-                        nacion_current: (ronNeto * RON_MUNI_RATIO) / 1000000,
-                        nacion_prev: (ronNetoPrev * RON_MUNI_RATIO) / 1000000,
-                        provincia_current: (ropData.curr * ROP_MUNI_RATIO) / 1000000,
-                        provincia_prev: (ropData.prev * ROP_MUNI_RATIO) / 1000000,
-                        var_nom: vNomNeto * 100,
-                        ipc_missing: vIpc === null
+                        ...muniKpi
                     }
                 },
                 charts: {

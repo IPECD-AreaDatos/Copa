@@ -70,9 +70,10 @@ export default function MonitorMensualDashboard() {
     let cancelled = false;
     const token = localStorage.getItem("copa_token");
     fetch("/copa/copa-api/api/dashboard/monthly", {
+      cache: "no-store",
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     })
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");

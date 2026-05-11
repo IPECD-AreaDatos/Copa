@@ -12,6 +12,8 @@ import {
   computeRatioChartData,
   computeWaterfall,
   format1M,
+  formatPctOneDecimal,
+  formatPctNoDecimals,
 } from "@/lib/gasto/logic";
 
 import {
@@ -379,7 +381,7 @@ export default function GastoDashboard() {
                         title={c.title}
                         onClick={() => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
                       >
-                        {c.pct}%
+                        {formatPctNoDecimals(c.pct)}
                       </td>
                     ))}
                   </tr>
@@ -545,8 +547,8 @@ export default function GastoDashboard() {
                   <td className="numeric">{format1M(r.vigente)}</td>
                   <td className="numeric">{format1M(r.comprometido)}</td>
                   <td className="numeric">{format1M(r.ordenado)}</td>
-                  <td className="numeric">{r.pesoComp.toFixed(2)}%</td>
-                  <td className="numeric">{r.pesoOrd.toFixed(2)}%</td>
+                  <td className="numeric">{formatPctOneDecimal(r.pesoComp)}</td>
+                  <td className="numeric">{formatPctOneDecimal(r.pesoOrd)}</td>
                 </tr>
               ))}
             </tbody>

@@ -267,7 +267,10 @@ const lineChartOptions: ChartOptions<"line"> = {
           if (label) label += ": ";
           const y = ctx.parsed.y;
           if (y !== null && y !== undefined) {
-            label += Math.round(Number(y)) + "%";
+            label +=
+              new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+                Number(y),
+              ) + "%";
           }
           return label;
         },
@@ -280,7 +283,7 @@ const lineChartOptions: ChartOptions<"line"> = {
       grid: { color: "rgba(0,0,0,0.05)" },
       ticks: {
         callback: (val) =>
-          Number(val).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + "%",
+          Number(val).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%",
       },
     },
     x: {
@@ -301,7 +304,10 @@ const barCoverageOptions: ChartOptions<"bar"> = {
       callbacks: {
         label: (ctx) => {
           const raw = ctx.raw as number;
-          const pctVal = raw.toFixed(1);
+          const pctVal = new Intl.NumberFormat("es-AR", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+          }).format(raw);
           return `${ctx.dataset.label}: ${pctVal}%`;
         },
       },
@@ -317,7 +323,10 @@ const barCoverageOptions: ChartOptions<"bar"> = {
       beginAtZero: true,
       max: 100,
       ticks: {
-        callback: (value) => value + "%",
+        callback: (value) =>
+          new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+            Number(value),
+          ) + "%",
       },
       grid: { color: "rgba(0,0,0,0.05)" },
     },
@@ -344,12 +353,7 @@ export default function HomeDashboard() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("copa_token");
-    fetch("/copa/copa-api/api/dashboard/home", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetch("/copa/copa-api/api/dashboard/home")
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();

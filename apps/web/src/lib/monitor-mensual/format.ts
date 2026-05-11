@@ -1,33 +1,44 @@
 export function formatMillions(value: number | null | undefined): string {
   if (value === undefined || value === null) return "N/A";
-  // Tres decimales en millones para alinear con el tablero publicado (evita +1 M por redondeo entero).
   return (
     "$" +
     new Intl.NumberFormat("es-AR", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 3,
-    }).format(value) +
+      maximumFractionDigits: 0,
+    }).format(Math.round(value)) +
     " M"
   );
 }
 
-export function formatPercentage(value: number | null | undefined): string {
+export type PercentageFormatOpts = { fractionDigits?: number };
+
+export function formatPercentage(
+  value: number | null | undefined,
+  opts?: PercentageFormatOpts,
+): string {
   if (value === undefined || value === null) return "N/A";
+  const fd = opts?.fractionDigits ?? 1;
   const sign = value >= 0 ? "+" : "";
+  const n = fd === 0 ? Math.round(value) : value;
   const formattedValue = new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(value);
+    minimumFractionDigits: fd,
+    maximumFractionDigits: fd,
+  }).format(n);
   return `${sign}${formattedValue}%`;
 }
 
 /** Igual que en script.js: saca signo duplicado al componer con + o - manual */
-export function formatPercentageUnsigned(value: number | null | undefined): string {
+export function formatPercentageUnsigned(
+  value: number | null | undefined,
+  opts?: PercentageFormatOpts,
+): string {
   if (value === undefined || value === null) return "N/A";
+  const fd = opts?.fractionDigits ?? 1;
+  const n = fd === 0 ? Math.round(Math.abs(value)) : Math.abs(value);
   const formattedValue = new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(Math.abs(value));
+    minimumFractionDigits: fd,
+    maximumFractionDigits: fd,
+  }).format(n);
   return `${formattedValue}%`;
 }
 

@@ -18,6 +18,19 @@ export type GastoRow = {
 };
 
 const numFmt = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const pctFmt1 = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pctFmt0 = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+/** Porcentajes en pantalla: siempre 1 decimal (es-AR). */
+export function formatPctOneDecimal(n: number) {
+  return pctFmt1.format(n) + "%";
+}
+
+/** Para heatmap: porcentajes SIN decimales (es-AR). */
+export function formatPctNoDecimals(n: number) {
+  return pctFmt0.format(n) + "%";
+}
+
 export function format1M(val: number) {
   return "$" + numFmt.format(Math.round(val / 1_000_000)) + " M";
 }
@@ -108,7 +121,7 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
       const ratio = vig > 0 ? comp / vig : 0;
       const pct = Math.round(ratio * 100);
       const color = heatmapColor(ratio);
-      return { j, pct, color, title: `${p}\n${j}\n${estado}/Vigente: ${pct}%` };
+      return { j, pct, color, title: `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}` };
     });
     return { partida: p, code, cells };
   });
@@ -228,8 +241,8 @@ export function computeCompositionTable(inp: TableInput) {
     tV,
     tC,
     tO,
-    totalPesoComp: tV > 0 ? ((tC / tV) * 100).toFixed(2) + "%" : "0.00%",
-    totalPesoOrd: tV > 0 ? ((tO / tV) * 100).toFixed(2) + "%" : "0.00%",
+    totalPesoComp: tV > 0 ? formatPctOneDecimal((tC / tV) * 100) : formatPctOneDecimal(0),
+    totalPesoOrd: tV > 0 ? formatPctOneDecimal((tO / tV) * 100) : formatPctOneDecimal(0),
   };
 }
 
@@ -359,7 +372,7 @@ export function computeRatioChartData(inp: RatioInput): {
           label(ctx) {
             const y = ctx.parsed.y;
             if (y === undefined || y === null) return "";
-            return ` ${ctx.dataset.label}: ${Number(y).toFixed(2)}%`;
+            return ` ${ctx.dataset.label}: ${formatPctOneDecimal(Number(y))}`;
           },
         },
       },
@@ -382,7 +395,7 @@ export function computeRatioChartData(inp: RatioInput): {
         min: 0,
         suggestedMax: 100,
         ticks: {
-          callback: (v) => v + "%",
+          callback: (v) => formatPctOneDecimal(Number(v)),
           color: "#9CA3AF",
         },
         grid: { color: "rgba(0,0,0,0.05)" },
@@ -540,7 +553,7 @@ export function computeWaterfall(inp: WaterfallInput): {
             const height = raw[1] - raw[0];
             return [
               `${inp.estado} del mes: ${fmtARS.format(monto)}`,
-              `Ejecutado: ${(height * 100).toFixed(2)}% del Crédito Vigente`,
+              `Ejecutado: ${formatPctOneDecimal(height * 100)} del Crédito Vigente`,
             ];
           },
         },

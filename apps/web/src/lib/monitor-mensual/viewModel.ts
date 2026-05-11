@@ -499,8 +499,8 @@ export function buildMonitorViewModel(
     masa: {
       current: isIncomplete ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
       prev: formatMillions(kpi.masa_salarial.prev),
-      cobCurr: `Cobertura: ${(kpi.masa_salarial.cobertura_current ?? 0).toFixed(1)}%`,
-      cobPrev: `Cobertura: ${(kpi.masa_salarial.cobertura_prev ?? 0).toFixed(1)}%`,
+      cobCurr: `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
+      cobPrev: `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
       varNomPct: masaVarNomPct,
       varNomPctClass: masaVarNomPctClass,
       varNomAbs: masaVarNomAbs,
