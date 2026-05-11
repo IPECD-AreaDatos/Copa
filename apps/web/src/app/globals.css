@@ -231,6 +231,7 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 2rem;
 }
 
 .section-header-block {
@@ -836,7 +837,7 @@ footer.app-footer {
   max-width: none;
 }
 
-.annual-dashboard .section-group > .chart-container {
+.annual-dashboard .section-group>.chart-container {
   width: 94%;
 }
 

@@ -79,7 +79,7 @@ export default function AnalisisAnualDashboard() {
   useEffect(() => {
     let c = false;
     const token = localStorage.getItem("copa_token");
-    fetch("/copa-api/api/ron/annual-monitor", {
+    fetch("/copa/copa-api/api/ron/annual-monitor", {
       headers: {
         "Authorization": `Bearer ${token}`
       }

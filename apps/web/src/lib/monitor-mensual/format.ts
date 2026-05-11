@@ -1,8 +1,12 @@
 export function formatMillions(value: number | null | undefined): string {
   if (value === undefined || value === null) return "N/A";
+  // Tres decimales en millones para alinear con el tablero publicado (evita +1 M por redondeo entero).
   return (
     "$" +
-    new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(value) +
+    new Intl.NumberFormat("es-AR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3,
+    }).format(value) +
     " M"
   );
 }
