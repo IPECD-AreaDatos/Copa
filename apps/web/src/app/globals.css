@@ -493,7 +493,8 @@ main:has(.heatmap-section) {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  /* visible: los tooltips (.info-tooltip::after) quedan fuera de la tarjeta y no se recortan */
+  overflow: visible;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -569,6 +570,7 @@ main:has(.heatmap-section) {
   position: relative;
   transition: all 0.3s ease;
   width: 100%;
+  overflow: visible;
 }
 
 
@@ -642,9 +644,10 @@ main:has(.heatmap-section) {
   content: attr(data-tooltip);
   position: absolute;
   top: calc(100% + 8px);
-  right: -10px;
+  right: 0;
+  left: auto;
   width: max-content;
-  max-width: 320px;
+  max-width: min(420px, 92vw);
   white-space: pre-wrap;
   padding: 10px 12px;
   background-color: var(--brand-dark);

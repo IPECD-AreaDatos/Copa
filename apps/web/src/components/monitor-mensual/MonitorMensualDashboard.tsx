@@ -254,7 +254,12 @@ export default function MonitorMensualDashboard() {
       <section className="section-group">
         <div className="hero-grid-flex" style={{ marginTop: "1rem" }}>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.resumen.totalDisp)}` }}>
-            <div className="info-tooltip" data-tooltip="Suma de RON Disponible + ROP Disponible.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip="Suma de RON Disponible + ROP Disponible. Representa el total de recursos líquidos de libre disponibilidad para el periodo."
+            >
+              ?
+            </div>
             <div className="kpi-label">Recaudación Total Disponible</div>
             <div className="kpi-value">{vm.resumen.totalDisp}</div>
             <div className="kpi-sub">
@@ -262,7 +267,12 @@ export default function MonitorMensualDashboard() {
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.resumen.postSueldos)}` }}>
-            <div className="info-tooltip" data-tooltip="Monto tras descontar Masa Salarial.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip="Monto remanente tras descontar la Masa Salarial del total de recursos disponibles (Recaudación Total Disponible - Masa Salarial)."
+            >
+              ?
+            </div>
             <div className="kpi-label">Recursos para Gastos Operativos e Inversión</div>
             <div className={`kpi-value ${vm.resumen.postClass}`.trim()}>{vm.resumen.postSueldos}</div>
             <div className="kpi-sub">Monto remanente tras cubrir salarios</div>
@@ -283,7 +293,12 @@ export default function MonitorMensualDashboard() {
         <div className="hero-grid-flex">
           {/* RON Curr */}
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.current)}` }}>
-            <div className="info-tooltip" data-tooltip="Recursos de Origen Nacional disponibles del mes actual.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip="Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el periodo actual seleccionado."
+            >
+              ?
+            </div>
             <div className="kpi-label">{`RON Disponible ${vm.monthName} ${vm.currentYear}`}</div>
             <div className="kpi-value">{vm.recaudacion.current}</div>
             <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -293,7 +308,7 @@ export default function MonitorMensualDashboard() {
           </article>
           {/* RON Prev */}
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.prev)}` }}>
-            <div className="info-tooltip" data-tooltip="Recursos de Origen Nacional disponibles del mismo mes del año anterior.">?</div>
+            <div className="info-tooltip" data-tooltip="Comparación interanual del RON disponible (mismo mes del año anterior).">?</div>
             <div className="kpi-label">{`RON Disponible ${vm.monthName} ${vm.prevYear}`}</div>
             <div className="kpi-value">{vm.recaudacion.prev}</div>
 
@@ -305,7 +320,7 @@ export default function MonitorMensualDashboard() {
           {!vm.isIncomplete && (
             <>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.varNomPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación Nominal Interanual de RON.">?</div>
+                <div className="info-tooltip" data-tooltip="Variación nominal interanual del RON disponible.">?</div>
                 <div className="kpi-label">Variación Nominal RON</div>
                 <div className={vm.recaudacion.varNomClass}>{vm.recaudacion.varNomPct}</div>
                 <div className="kpi-sub">
@@ -313,7 +328,7 @@ export default function MonitorMensualDashboard() {
                 </div>
               </article>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación Real (ajustada por inflación) de RON.">?</div>
+                <div className="info-tooltip" data-tooltip="Variación real interanual del RON disponible (IPC país).">?</div>
                 <div className="kpi-label">Variación Real RON</div>
                 <div className={vm.recaudacion.realPctClass}>{vm.recaudacion.realPct}</div>
                 <div className="kpi-sub">
@@ -336,7 +351,7 @@ export default function MonitorMensualDashboard() {
 
           <div className="hero-grid-flex">
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.dispCurr)}` }}>
-              <div className="info-tooltip" data-tooltip="Recaudación de Origen Provincial disponible del mes actual.">?</div>
+              <div className="info-tooltip" data-tooltip="Recaudación provincial disponible (periodo actual).">?</div>
               <div className="kpi-label">{`ROP Disponible ${vm.monthName} ${vm.currentYear}`}</div>
               <div className="kpi-value">{vm.rop.dispCurr}</div>
               <div className="kpi-sub">
@@ -344,7 +359,7 @@ export default function MonitorMensualDashboard() {
               </div>
             </article>
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.dispPrev)}` }}>
-              <div className="info-tooltip" data-tooltip="Recaudación de Origen Provincial disponible del mismo mes del año anterior.">?</div>
+              <div className="info-tooltip" data-tooltip="Recaudación provincial disponible (mismo mes del año anterior).">?</div>
               <div className="kpi-label">{`ROP Disponible ${vm.monthName} ${vm.prevYear}`}</div>
               <div className="kpi-value">{vm.rop.dispPrev}</div>
 
@@ -355,7 +370,7 @@ export default function MonitorMensualDashboard() {
             {!vm.isIncomplete && (
               <>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.varNomPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación Nominal Interanual de ROP.">?</div>
+                  <div className="info-tooltip" data-tooltip="Variación nominal interanual de la recaudación provincial disponible.">?</div>
                   <div className="kpi-label">Variación Nominal ROP</div>
                   <div className={vm.rop.varNomClass}>{vm.rop.varNomPct}</div>
                   <div className="kpi-sub">
@@ -363,7 +378,7 @@ export default function MonitorMensualDashboard() {
                   </div>
                 </article>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación Real (ajustada por inflación) de ROP.">?</div>
+                  <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
                   <div className="kpi-label">Variación Real ROP</div>
                   <div className={vm.rop.realPctClass}>{vm.rop.realPct}</div>
                   <div className="kpi-sub">
@@ -387,7 +402,7 @@ export default function MonitorMensualDashboard() {
 
           <div className="hero-grid-flex">
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.current)}` }}>
-              <div className="info-tooltip" data-tooltip="Distribución Municipal del mes actual.">?</div>
+              <div className="info-tooltip" data-tooltip="Distribución municipal — periodo actual.">?</div>
               <div className="kpi-label">{`Distribución Municipal ${vm.monthName} ${vm.currentYear}`}</div>
               <div className="kpi-value">{vm.muni.current}</div>
               <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -397,7 +412,7 @@ export default function MonitorMensualDashboard() {
             </article>
 
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.prev)}` }}>
-              <div className="info-tooltip" data-tooltip="Distribución Municipal del mismo mes del año anterior.">?</div>
+              <div className="info-tooltip" data-tooltip="Distribución municipal — mismo mes del año anterior.">?</div>
               <div className="kpi-label">{`Distribución Municipal ${vm.monthName} ${vm.prevYear}`}</div>
               <div className="kpi-value" style={{ color: "#64748b" }}>{vm.muni.prev}</div>
               <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -408,7 +423,7 @@ export default function MonitorMensualDashboard() {
             {!vm.isIncomplete && (
               <>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.varNomPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación Nominal Interanual de la Distribución Municipal.">?</div>
+                  <div className="info-tooltip" data-tooltip="Variación nominal interanual de la distribución municipal.">?</div>
                   <div className="kpi-label">Variación Nominal</div>
                   <div className={vm.muni.varNomClass}>{vm.muni.varNomPct}</div>
                   <div className="kpi-sub">
@@ -416,7 +431,7 @@ export default function MonitorMensualDashboard() {
                   </div>
                 </article>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.realPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación Real (ajustada por inflación) de la Distribución Municipal.">?</div>
+                  <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
                   <div className="kpi-label">Variación Real</div>
                   <div className={vm.muni.realPctClass}>{vm.muni.realPct}</div>
                   <div className="kpi-sub">
@@ -438,7 +453,7 @@ export default function MonitorMensualDashboard() {
           </div>
           <div className="hero-grid-flex">
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.diffAbs)}` }}>
-              <div className="info-tooltip" data-tooltip="Diferencia Nominal respecto al presupuesto de RON.">?</div>
+              <div className="info-tooltip" data-tooltip="Diferencia nominal entre el RON disponible efectivo y el monto presupuestado para el mes.">?</div>
               <div className="kpi-label">RON: DIFERENCIA NOMINAL</div>
               <div className={vm.presupuesto.diffAbsClass}>{vm.presupuesto.diffAbs}</div>
               <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -447,7 +462,7 @@ export default function MonitorMensualDashboard() {
               </div>
             </article>
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.diffPct)}` }}>
-              <div className="info-tooltip" data-tooltip="Diferencia Porcentual respecto al presupuesto de RON.">?</div>
+              <div className="info-tooltip" data-tooltip="Brecha porcentual respecto al presupuesto mensual de RON disponible.">?</div>
               <div className="kpi-label">RON: DIFERENCIA PORCENTUAL</div>
               <div className={vm.presupuesto.diffPctClass}>{vm.presupuesto.diffPct}</div>
               <div className="kpi-sub">Brecha respecto al monto presupuestado</div>
@@ -456,7 +471,7 @@ export default function MonitorMensualDashboard() {
             {vm.presupuesto.rop && (
               <>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.rop.diffAbs)}` }}>
-                  <div className="info-tooltip" data-tooltip="Diferencia Nominal respecto al presupuesto de ROP.">?</div>
+                  <div className="info-tooltip" data-tooltip="Diferencia nominal de la ROP disponible frente al presupuesto provincial del mes.">?</div>
                   <div className="kpi-label">ROP: DIFERENCIA NOMINAL</div>
                   <div className={vm.presupuesto.rop.diffAbsClass}>{vm.presupuesto.rop.diffAbs}</div>
                   <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -465,7 +480,7 @@ export default function MonitorMensualDashboard() {
                   </div>
                 </article>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.rop.diffPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Diferencia Porcentual respecto al presupuesto de ROP.">?</div>
+                  <div className="info-tooltip" data-tooltip="Brecha porcentual de la ROP disponible respecto al presupuesto provincial.">?</div>
                   <div className="kpi-label">ROP: DIFERENCIA PORCENTUAL</div>
                   <div className={vm.presupuesto.rop.diffPctClass}>{vm.presupuesto.rop.diffPct}</div>
                   <div className="kpi-sub">Brecha respecto al monto presupuestado provincial</div>
@@ -484,7 +499,7 @@ export default function MonitorMensualDashboard() {
         </div>
         <div className="hero-grid-flex">
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.current)}` }}>
-            <div className="info-tooltip" data-tooltip="Masa Salarial del mes actual.">?</div>
+            <div className="info-tooltip" data-tooltip="Masa salarial total liquidada en el periodo seleccionado.">?</div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.currentYear}`}</div>
             <div className="kpi-value">{vm.masa.current}</div>
             <div className="kpi-sub">
@@ -492,7 +507,7 @@ export default function MonitorMensualDashboard() {
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.prev)}` }}>
-            <div className="info-tooltip" data-tooltip="Masa Salarial del mismo mes del año anterior.">?</div>
+            <div className="info-tooltip" data-tooltip="Masa salarial liquidada en el mismo mes del año anterior.">?</div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.prevYear}`}</div>
             <div className="kpi-value" style={{ color: "#64748b" }}>{vm.masa.prev}</div>
             <div className="kpi-sub">
@@ -502,7 +517,7 @@ export default function MonitorMensualDashboard() {
           {!vm.isIncomplete && (
             <>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.varNomPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación Nominal Interanual de la Masa Salarial.">?</div>
+                <div className="info-tooltip" data-tooltip="Variación nominal interanual de la masa salarial.">?</div>
                 <div className="kpi-label">Variación Nominal Masa Salarial</div>
                 <div className={vm.masa.varNomPctClass} style={{ color: "#10b981" }}>{vm.masa.varNomPct}</div>
                 <div className="kpi-sub">
@@ -510,7 +525,7 @@ export default function MonitorMensualDashboard() {
                 </div>
               </article>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación Real (ajustada por inflación) de la Masa Salarial.">?</div>
+                <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
                 <div className="kpi-label">Variación Real Masa Salarial</div>
                 <div className={vm.masa.realPctClass}>{vm.masa.realPct}</div>
                 <div className="kpi-sub">
@@ -559,7 +574,7 @@ export default function MonitorMensualDashboard() {
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
             <div
               className="info-tooltip"
-              data-tooltip="Visualización de la brecha diaria entre la recaudación ingresada y la esperada (Objetivo Salarial)."
+              data-tooltip="Visualización de la brecha diaria entre la recaudación ingresada y la esperada (objetivo salarial). Incluye la comparación acumulada efectiva vs esperada."
             >
               ?
             </div>
@@ -585,7 +600,7 @@ export default function MonitorMensualDashboard() {
 
         <div className="charts-grid-half" style={{ padding: "0 3%" }}>
           <div className="chart-container">
-            <div className="info-tooltip" data-tooltip="Gráfico comparativo de la evolución real de RON vs año anterior.">?</div>
+            <div className="info-tooltip" data-tooltip="Evolución del RON disponible real — últimos 3 meses (pesos constantes).">?</div>
             <h3 className="chart-title">RON Disponible Real</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
             <div className="chart-wrapper">
@@ -594,7 +609,7 @@ export default function MonitorMensualDashboard() {
             <p className="source-text" style={{ textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
           </div>
           <div className="chart-container">
-            <div className="info-tooltip" data-tooltip="Gráfico comparativo de la evolución real de la Masa Salarial vs año anterior.">?</div>
+            <div className="info-tooltip" data-tooltip="Evolución de la masa salarial real — últimos 3 meses (pesos constantes).">?</div>
             <h3 className="chart-title">Masa Salarial Real</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
             <div className="chart-wrapper">
@@ -610,7 +625,7 @@ export default function MonitorMensualDashboard() {
         <section className="section-group">
 
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
-            <div className="info-tooltip" data-tooltip="Comportamiento diario de la recaudación.">?</div>
+            <div className="info-tooltip" data-tooltip="Ingresos diarios de coparticipación disponible — comparación interanual.">?</div>
             <h3 className="chart-title">{`Comportamiento de RON Disponible Diario ${vm.monthName}`}</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Comparativa de ingresos diarios nominales (Millones de pesos)</p>
             <div className="chart-wrapper">
