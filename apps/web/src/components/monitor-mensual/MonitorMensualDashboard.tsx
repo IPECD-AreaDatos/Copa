@@ -98,19 +98,19 @@ export default function MonitorMensualDashboard() {
 
   const chosen = data && periodId ? data.data[periodId] : undefined;
   const vm = useMemo(() => {
-    if (!data || !chosen) return null;
+    if (!data || !chosen) return undefined;
     return buildMonitorViewModel(data, periodId, chosen.kpi, isMobile640);
   }, [data, periodId, chosen, isMobile640]);
 
   const charts = chosen?.charts;
 
   const dailyData = useMemo(() => {
-    if (!charts || !vm) return null;
+    if (!charts || !vm) return undefined;
     return buildDailyBarData(charts.daily, vm.monthName, vm.currentYear, vm.prevYear, isMobile768);
   }, [charts, vm, isMobile768]);
 
   const dailyOpts = useMemo(() => {
-    if (!vm) return null;
+    if (!vm) return undefined;
     const base = dailyBarOptions(vm.monthName);
     return {
       ...base,
@@ -123,19 +123,19 @@ export default function MonitorMensualDashboard() {
   }, [vm, logAction]);
 
   const copaVsData = useMemo(() => {
-    if (!charts) return null;
+    if (!charts) return undefined;
     return buildCopaVsSalarioMixed(charts.copa_vs_salario, isMobile768);
   }, [charts, isMobile768]);
 
   const copaVsOpts = useMemo(() => copaVsSalarioOptions(), []);
 
   const brechaData = useMemo(() => {
-    if (!charts) return null;
+    if (!charts) return undefined;
     return buildBrechaStacked(charts.copa_vs_salario);
   }, [charts]);
 
   const brechaOpts = useMemo(() => {
-    if (!charts) return null;
+    if (!charts) return undefined;
     const dataCopa = charts.copa_vs_salario;
     const neta = dataCopa.cumulative_neta;
     const useNeta = neta?.some((v) => v != null);
@@ -145,12 +145,12 @@ export default function MonitorMensualDashboard() {
   }, [charts]);
 
   const realEvol = useMemo(() => {
-    if (!data || !periodId) return null;
+    if (!data || !periodId) return undefined;
     return buildRealEvolutionSeries(data, periodId);
   }, [data, periodId]);
 
   const chartCopaReal = useMemo(() => {
-    if (!realEvol) return null;
+    if (!realEvol) return undefined;
     return buildBarComparison(
       realEvol.labels,
       "RON Disponible Real",
@@ -162,7 +162,7 @@ export default function MonitorMensualDashboard() {
   }, [realEvol]);
 
   const chartMasaReal = useMemo(() => {
-    if (!realEvol) return null;
+    if (!realEvol) return undefined;
     return buildBarComparison(
       realEvol.labels,
       "Masa Salarial Real",
@@ -174,12 +174,12 @@ export default function MonitorMensualDashboard() {
   }, [realEvol]);
 
   const optCopaReal = useMemo(() => {
-    if (!realEvol) return null;
+    if (!realEvol) return undefined;
     return barComparisonOptions("RON Disponible Real", realEvol.barPeriods);
   }, [realEvol]);
 
   const optMasaReal = useMemo(() => {
-    if (!realEvol) return null;
+    if (!realEvol) return undefined;
     return barComparisonOptions("Masa Salarial Real", realEvol.barPeriods);
   }, [realEvol]);
 
@@ -596,29 +596,30 @@ export default function MonitorMensualDashboard() {
       )}
 
       {/* SECCIÓN: GRÁFICOS */}
-      <section className="section-group">
-
-        <div className="charts-grid-half" style={{ padding: "0 3%" }}>
-          <div className="chart-container">
-            <div className="info-tooltip" data-tooltip="Evolución del RON disponible real — últimos 3 meses (pesos constantes).">?</div>
-            <h3 className="chart-title">RON Disponible Real</h3>
-            <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
-            <div className="chart-wrapper">
-              <Bar data={chartCopaReal!} options={optCopaReal!} />
+      {realEvol && (
+        <section className="section-group">
+          <div className="charts-grid-half" style={{ padding: "0 3%" }}>
+            <div className="chart-container">
+              <div className="info-tooltip" data-tooltip="Evolución del RON disponible real — últimos 3 meses (pesos constantes).">?</div>
+              <h3 className="chart-title">RON Disponible Real</h3>
+              <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
+              <div className="chart-wrapper">
+                <Bar data={chartCopaReal!} options={optCopaReal} />
+              </div>
+              <p className="source-text" style={{ textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
             </div>
-            <p className="source-text" style={{ textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
-          </div>
-          <div className="chart-container">
-            <div className="info-tooltip" data-tooltip="Evolución de la masa salarial real — últimos 3 meses (pesos constantes).">?</div>
-            <h3 className="chart-title">Masa Salarial Real</h3>
-            <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
-            <div className="chart-wrapper">
-              <Bar data={chartMasaReal!} options={optMasaReal!} />
+            <div className="chart-container">
+              <div className="info-tooltip" data-tooltip="Evolución de la masa salarial real — últimos 3 meses (pesos constantes).">?</div>
+              <h3 className="chart-title">Masa Salarial Real</h3>
+              <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
+              <div className="chart-wrapper">
+                <Bar data={chartMasaReal!} options={optMasaReal} />
+              </div>
+              <p className="source-text" style={{ textAlign: "left" }}>Fuente: Ministerio de Economía de la Provincia</p>
             </div>
-            <p className="source-text" style={{ textAlign: "left" }}>Fuente: Ministerio de Economía de la Provincia</p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* SECCIÓN: DAILY */}
       {dailyData && (
@@ -629,7 +630,7 @@ export default function MonitorMensualDashboard() {
             <h3 className="chart-title">{`Comportamiento de RON Disponible Diario ${vm.monthName}`}</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Comparativa de ingresos diarios nominales (Millones de pesos)</p>
             <div className="chart-wrapper">
-              <Chart type="bar" data={dailyData} options={dailyOpts!} />
+              <Chart type="bar" data={dailyData} options={dailyOpts} />
             </div>
             <p className="source-text" style={{ textAlign: "left" }}>Fuente: Ministerio de Economía de la Nación</p>
           </div>
