@@ -83,14 +83,14 @@ export default function DashboardShell({
         >
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
             <Image
-              src="/assets/logo-blanco-gob.png"
+              src="/copa/assets/logo-blanco-gob.png"
               alt="Gobierno"
               width={120}
               height={40}
               style={{ height: "40px", width: "auto" }}
             />
             <Image
-              src="/assets/logo-blanco-ipecd.png"
+              src="/copa/assets/logo-blanco-ipecd.png"
               alt="IPECD"
               width={100}
               height={30}
@@ -155,7 +155,7 @@ export default function DashboardShell({
           <div className="footer-content">
             <div className="footer-branding">
               <Image
-                src="/assets/logo-blanco-ipecd.png"
+                src="/copa/assets/logo-blanco-ipecd.png"
                 alt="IPECD"
                 width={120}
                 height={48}
