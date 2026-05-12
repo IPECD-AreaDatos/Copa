@@ -541,7 +541,8 @@ export default function MonitorMensualDashboard() {
 
 
 
-      {/* SECCIÓN: RON ACUMULADA VS MASA SALARIAL OBJETIVO */}
+      {/* SECCIÓN: RON ACUMULADA VS MASA SALARIAL OBJETIVO (OCULTO) */}
+      {/* 
       {copaVsData && (
         <section className="section-group">
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
@@ -567,33 +568,7 @@ export default function MonitorMensualDashboard() {
           </div>
         </section>
       )}
-
-      {/* SECCIÓN: BRECHA DE RECAUDACIÓN */}
-      {brechaData && (
-        <section className="section-group">
-          <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
-            <div
-              className="info-tooltip"
-              data-tooltip="Visualización de la brecha diaria entre la recaudación ingresada y la esperada (objetivo salarial). Incluye la comparación acumulada efectiva vs esperada."
-            >
-              ?
-            </div>
-            <h3 className="chart-title">Brecha de Recaudación Acumulada</h3>
-            <p
-              className="chart-subtitle"
-              style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}
-            >
-              Comparativa diaria: Ingreso real vs Objetivo del mes
-            </p>
-            <div className="chart-wrapper">
-              <Bar data={brechaData} options={brechaOpts} />
-            </div>
-            <p className="source-text" style={{ textAlign: "left" }}>
-              Fuente: Ministerio de Economía de la Provincia
-            </p>
-          </div>
-        </section>
-      )}
+      */}
 
       {/* SECCIÓN: GRÁFICOS */}
       {realEvol && (
