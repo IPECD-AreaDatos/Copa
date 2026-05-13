@@ -364,10 +364,45 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             dailyDataMap[key][d.dia] = parseFloat(d.total_general || 0) / 1000000;
         });
 
-        // Invertir para available_periods ASC
+        // Invertir para available_periods ASC (cronológico: más viejo → más nuevo)
         const ronRowsAsc = [...ronResult.rows].reverse();
 
-        ronRowsAsc.forEach(row => {
+        // Igual que etl_main.py: un mes está "completo" si el mes calendario siguiente tiene al menos un día con RON diario > 0
+        const periodCompleteByNext = new Map();
+        ronRowsAsc.forEach((row) => {
+            const mP = String(row.mes).padStart(2, '0');
+            const pid = `${row.anio}-${mP}`;
+            const nm = row.mes === 12 ? 1 : row.mes + 1;
+            const ny = row.mes === 12 ? row.anio + 1 : row.anio;
+            const nextKey = `${ny}-${String(nm).padStart(2, '0')}`;
+            const nextDaily = dailyDataMap[nextKey] || {};
+            const hasNext = Object.values(nextDaily).some((v) => Number(v) > 0);
+            periodCompleteByNext.set(pid, hasNext);
+        });
+
+        const available_periods = ronRowsAsc.map((row) => ({
+            id: `${row.anio}-${String(row.mes).padStart(2, '0')}`,
+            label: months[row.mes - 1],
+            year: row.anio,
+            month: row.mes,
+        }));
+
+        let defaultId = null;
+        ronRowsAsc.forEach((row) => {
+            const mP = String(row.mes).padStart(2, '0');
+            const pid = `${row.anio}-${mP}`;
+            if (periodCompleteByNext.get(pid)) defaultId = pid;
+        });
+        if (!defaultId && available_periods.length > 0) {
+            defaultId = available_periods[available_periods.length - 1].id;
+        }
+
+        const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
+        available_periods.forEach((p, idx) => {
+            p.incomplete = defaultIndex >= 0 && idx > defaultIndex;
+        });
+
+        ronRowsAsc.forEach((row) => {
             const mPadded = String(row.mes).padStart(2, '0');
             const periodId = `${row.anio}-${mPadded}`;
             const ipcCurr = ipcMap[periodId];
@@ -411,14 +446,64 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 dailyChart.data_prev_nom.push(dailyPrev[d] || 0);
             });
 
-            // Copa vs Salario (Acumulado)
+            // Copa vs Salario (Acumulado) — alineado a backend/etl_main.py (pre migración Next)
+            const isCompletePeriod = !!periodCompleteByNext.get(periodId);
+            const now = new Date();
+            const isRunningMonth = row.anio === now.getFullYear() && row.mes === now.getMonth() + 1;
+
+            let maxDayCurr = 0;
+            for (const [k, v] of Object.entries(dailyCurr)) {
+                const di = parseInt(k, 10);
+                if (Number.isFinite(di) && Number(v) > 0) maxDayCurr = Math.max(maxDayCurr, di);
+            }
+
+            const totalDaysInMonth = new Date(row.anio, row.mes, 0).getDate();
+
+            let chartLastDay = totalDaysInMonth;
+            if ((isRunningMonth || !isCompletePeriod) && maxDayCurr > 0) {
+                chartLastDay = maxDayCurr;
+            }
+
+            const isMasaIncomplete = masaValue === 0;
+
+            let prevCalMonth = row.mes - 1;
+            let prevCalYear = row.anio;
+            if (prevCalMonth < 1) {
+                prevCalMonth = 12;
+                prevCalYear--;
+            }
+            const prevCalPeriodKey = `${prevCalYear}-${String(prevCalMonth).padStart(2, '0')}`;
+            const rawMasaPrevCal = masaMap[prevCalPeriodKey];
+
+            let masaPesosObjetivo = masaValue;
+            let salario_label_month = months[row.mes - 1];
+            let masa_objetivo_es_fallback = false;
+
+            if (isMasaIncomplete) {
+                if (rawMasaPrevCal != null && rawMasaPrevCal > 0) {
+                    masaPesosObjetivo = rawMasaPrevCal;
+                    salario_label_month = months[prevCalMonth - 1];
+                    masa_objetivo_es_fallback = true;
+                } else if (masaPrevValue > 0) {
+                    masaPesosObjetivo = masaPrevValue;
+                    salario_label_month = months[row.mes - 1];
+                    masa_objetivo_es_fallback = true;
+                } else {
+                    masaPesosObjetivo = 0;
+                }
+            }
+
+            const copa_label = months[row.mes - 1];
+
+            const periodIndex = available_periods.findIndex((p) => p.id === periodId);
+            const isPeriodIncomplete = !!available_periods[periodIndex]?.incomplete;
+
             const cumulativeCopa = [];
             const cumulativeRop = [];
             const salarioTarget = [];
             let accCopa = 0;
             let accRop = 0;
-            const totalDaysInMonth = new Date(row.anio, row.mes, 0).getDate();
-            const ropDailyLineal = (ropData.curr * ROP_DISPO_RATIO) / totalDaysInMonth;
+            const ropDispoPesosMes = ropData.curr * ROP_DISPO_RATIO;
 
             // Reparto diario del RON disponible mensual:
             // Para años anteriores a 2026 se excluye IVA_ley_23966 de la base que se reparte (ajuste coherente con el tablero deployado).
@@ -427,16 +512,18 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 ? ronNeto + ronIva * (1 - RON_IVA_RESIDUAL_RATIO)
                 : ronNeto;
             const ronBrutoDispFactor = ronBruto > 0 ? ronNetoDispBaseCurr / ronBruto : 0;
-            for (let d = 1; d <= totalDaysInMonth; d++) {
+            for (let d = 1; d <= chartLastDay; d++) {
                 accCopa +=
                     (dailyCurr[d] || 0) *
                     1000000 *
                     RON_DISPO_RATIO *
                     ronBrutoDispFactor;
-                accRop += ropDailyLineal;
+                if (d === maxDayCurr && maxDayCurr > 0) {
+                    accRop += ropDispoPesosMes;
+                }
                 cumulativeCopa.push(accCopa / 1000000);
                 cumulativeRop.push(accRop / 1000000);
-                salarioTarget.push(masaValue / 1000000);
+                salarioTarget.push(masaPesosObjetivo / 1000000);
             }
 
             // RON disponible: base puede excluir IVA_ley_23966 para años anteriores a 2026.
@@ -470,8 +557,6 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const ronDispoPrevM = ronDispoPrev / 1000000;
             const ropDispoM = ropDispo / 1000000;
             const ropDispoPrevM = ropDispoPrev / 1000000;
-
-            const isMay = row.mes === 5 && row.anio === 2026;
 
             // Solo para las tarjetas de presupuesto/esperado/brechas del front.
             // El resto de KPIs (recaudado/variaciones/municipal) se calcula 100% desde BD.
@@ -565,7 +650,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_real: vRealMasa !== null ? vRealMasa * 100 : 0,
                         diff_nom: (masaValue - masaPrevValue) / 1000000,
                         ipc_missing: vIpc === null,
-                        is_incomplete: isMay
+                        is_incomplete: isMasaIncomplete
                     },
                     distribucion_municipal: {
                         ...muniKpi
@@ -580,24 +665,22 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         cumulative_neta: cumulativeCopa.map((v, i) => v + cumulativeRop[i]),
                         cumulative_esperada: salarioTarget,
                         salario_target: salarioTarget,
-                        copa_label: `${months[row.mes-1]} ${row.anio}`,
-                        salario_label: `${months[row.mes-1]} ${row.anio}`
+                        copa_label,
+                        salario_label: salario_label_month,
+                        salario_line_label: 'Masa Salarial Objetivo',
+                        rop_dia_imputacion: maxDayCurr,
+                        chart_last_day: chartLastDay,
+                        chart_dias_mes: totalDaysInMonth,
+                        periodo_incompleto: isPeriodIncomplete,
+                        masa_objetivo_es_fallback,
                     }
                 }
             };
         });
 
-        const available_periods = ronRowsAsc.map(row => ({
-            id: `${row.anio}-${String(row.mes).padStart(2, '0')}`,
-            label: months[row.mes-1],
-            year: row.anio
-        }));
-
-        let defaultId = available_periods[available_periods.length - 1]?.id;
-        if (available_periods.length > 1 && available_periods[available_periods.length - 1].id === '2026-05') {
-            defaultId = available_periods[available_periods.length - 2]?.id;
-        }
-
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.json({
             meta: { default_period_id: defaultId, available_periods },
             data

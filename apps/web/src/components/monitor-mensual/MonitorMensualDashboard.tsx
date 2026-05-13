@@ -69,9 +69,10 @@ export default function MonitorMensualDashboard() {
   useEffect(() => {
     let cancelled = false;
     const token = localStorage.getItem("copa_token");
-    fetch("/copa/copa-api/api/dashboard/monthly", {
+    fetch(`/copa/copa-api/api/dashboard/monthly?ts=${Date.now()}`, {
       cache: "no-store",
       headers: {
+        "Cache-Control": "no-cache",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     })
@@ -188,7 +189,7 @@ export default function MonitorMensualDashboard() {
       const next = e.target.value;
       logAction("Análisis Mensual RON", "Cambio de Período", { period_id: next });
       const idx = periodMeta.findIndex((p) => p.id === next);
-      const incomplete = defaultIndex >= 0 && idx > defaultIndex;
+      const incomplete = periodMeta[idx]?.incomplete ?? (defaultIndex >= 0 && idx > defaultIndex);
       if (incomplete) {
         alert(
           "Atención: El periodo seleccionado aún cuenta con datos incompletos. Las variaciones y proyecciones pueden cambiar significativamente hasta el cierre definitivo.",
@@ -238,7 +239,7 @@ export default function MonitorMensualDashboard() {
           >
             {reversedPeriods.map((p) => {
               const pIndex = periodMeta.findIndex((x) => x.id === p.id);
-              const incomplete = defaultIndex >= 0 && pIndex > defaultIndex;
+              const incomplete = p.incomplete ?? (defaultIndex >= 0 && pIndex > defaultIndex);
               return (
                 <option key={p.id} value={p.id}>
                   {p.label} {p.year}
@@ -540,11 +541,9 @@ export default function MonitorMensualDashboard() {
 
 
 
-
-      {/* SECCIÓN: RON ACUMULADA VS MASA SALARIAL OBJETIVO (OCULTO) */}
-      {/* 
+      {/* SECCIÓN: RON ACUMULADA + ROP vs MASA SALARIAL OBJETIVO */}
       {copaVsData && (
-        <section className="section-group">
+        <section className="section-group" style={{ marginTop: "2rem" }}>
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
             <div
               className="info-tooltip"
@@ -552,15 +551,17 @@ export default function MonitorMensualDashboard() {
             >
               ?
             </div>
-            <h3 className="chart-title">Recursos Disponibles vs Sueldos</h3>
-            <p
-              className="chart-subtitle"
-              style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}
-            >
-              ¿Cuántos días de recaudación cubren la masa salarial?
-            </p>
+            <h3 className="chart-title" style={{ lineHeight: 1.35 }}>
+              {charts?.copa_vs_salario.copa_label && charts?.copa_vs_salario.salario_label
+                ? `Recursos Disponibles ${charts.copa_vs_salario.copa_label} vs Sueldos ${charts.copa_vs_salario.salario_label}`
+                : `Recursos Disponibles ${vm.monthName} vs Sueldos ${vm.monthName}`}
+            </h3>
             <div className="chart-wrapper">
-              <Chart type="bar" data={copaVsData as ChartData<"bar">} options={copaVsOpts} />
+              <Chart
+                type="bar"
+                data={copaVsData as ChartData<"bar">}
+                options={copaVsOpts as Parameters<typeof Chart>[0]["options"]}
+              />
             </div>
             <p className="source-text" style={{ textAlign: "left" }}>
               Fuente: Ministerio de Economía de la Provincia (RON/ROP) y Contaduría General de la Provincia de Corrientes (Salarios)
@@ -568,7 +569,6 @@ export default function MonitorMensualDashboard() {
           </div>
         </section>
       )}
-      */}
 
       {/* SECCIÓN: GRÁFICOS */}
       {realEvol && (

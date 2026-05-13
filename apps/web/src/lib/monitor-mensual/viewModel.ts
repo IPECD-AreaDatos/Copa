@@ -1,6 +1,12 @@
 import { formatMillions, formatPercentage, formatPercentageUnsigned } from "./format";
 
-export type PeriodMeta = { id: string; label: string; year: number; month: number };
+export type PeriodMeta = {
+  id: string;
+  label: string;
+  year: number;
+  month?: number;
+  incomplete?: boolean;
+};
 
 export type MonitorJson = {
   meta: {
@@ -32,8 +38,17 @@ export type CopaVsSalarioShape = {
   cumulative_esperada?: (number | null)[];
   cumulative_neta?: (number | null)[];
   salario_target: number[];
+  /** Título del gráfico: mes del RON (sin año), igual que el tablero legacy. */
   copa_label?: string;
+  /** Mes de referencia de la línea de sueldos (sin año); puede ser mes anterior si no hay masa del mes. */
   salario_label?: string;
+  /** Leyenda de la línea (legacy: "Masa Salarial Objetivo"). */
+  salario_line_label?: string;
+  rop_dia_imputacion?: number;
+  chart_last_day?: number;
+  chart_dias_mes?: number;
+  periodo_incompleto?: boolean;
+  masa_objetivo_es_fallback?: boolean;
 };
 
 type KpiShape = {

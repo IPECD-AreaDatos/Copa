@@ -136,12 +136,17 @@ export function buildCopaVsSalarioMixed(
   const colorROP = "#3b82f6";
   const colorAccent = "#af2f2f";
 
+  const salarioLegend =
+    typeof dataCopa.salario_line_label === "string" && dataCopa.salario_line_label.length > 0
+      ? dataCopa.salario_line_label
+      : "Masa salarial objetivo";
+
   return {
     labels: chartLabels,
     datasets: [
       {
         type: "line",
-        label: "Masa Salarial Objetivo",
+        label: salarioLegend,
         data: salarioTarget,
         borderColor: colorAccent,
         borderWidth: 2,
