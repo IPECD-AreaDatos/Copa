@@ -45,28 +45,33 @@
 }
 
 body {
-  background-color: #e9eff5;
-  color: #334155;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #e2e8f0 100%);
+  background-attachment: fixed;
+  color: #1e293b;
   font-family: var(--font-family);
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
 h1,
 h2,
 h3 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .dashboard-title {
-  font-size: var(--text-3xl);
-  font-weight: 800;
+  font-size: var(--text-4xl);
+  font-weight: 900;
   margin-bottom: 0;
   text-align: center;
-  letter-spacing: -0.03em;
-  color: #1e293b;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 
@@ -96,12 +101,14 @@ h3 {
 .kpi-value.text-missing {
   font-size: 1.4rem !important;
   font-weight: 500;
+  background: none;
+  -webkit-text-fill-color: var(--text-secondary);
 }
 
 .sidebar {
   width: var(--sidebar-width);
   height: 100vh;
-  background-color: var(--brand-dark);
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   color: white;
 
   position: fixed;
@@ -163,24 +170,47 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.2rem;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link-vertical::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--brand-green);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+  transform-origin: center;
 }
 
 .nav-link-vertical:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
-  transform: translateX(5px);
+  transform: translateX(6px);
+}
+
+.nav-link-vertical:hover::before {
+  transform: scaleY(0.5);
 }
 
 .nav-link-vertical.active {
-  background: var(--brand-green);
-  color: var(--brand-dark);
+  background: linear-gradient(90deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0) 100%);
+  color: white;
   font-weight: 700;
+  box-shadow: inset 2px 0 0 var(--brand-green);
+}
+
+.nav-link-vertical.active::before {
+  transform: scaleY(1);
 }
 
 
@@ -486,12 +516,14 @@ main:has(.heatmap-section) {
 
 .kpi-card {
   flex: 1 1 220px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
   position: relative;
   /* visible: los tooltips (.info-tooltip::after) quedan fuera de la tarjeta y no se recortan */
   overflow: visible;
@@ -504,14 +536,20 @@ main:has(.heatmap-section) {
 
 
 .kpi-card::before {
-  display: none;
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 
 .kpi-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 20px 40px -8px rgba(16, 185, 129, 0.15), 0 15px 20px -5px rgba(0, 0, 0, 0.05);
+  border-color: rgba(16, 185, 129, 0.4);
   z-index: 10;
 }
 
@@ -529,8 +567,25 @@ main:has(.heatmap-section) {
 
 .kpi-value {
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.25rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(to right, #1e293b, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.kpi-value.text-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.kpi-value.text-danger {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 
@@ -561,22 +616,25 @@ main:has(.heatmap-section) {
 }
 
 .chart-container {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
   padding: 1.5rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   position: relative;
-  transition: all 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
   width: 100%;
   overflow: visible;
 }
 
 
 .chart-container:hover {
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 1);
 }
 
 .chart-wrapper {

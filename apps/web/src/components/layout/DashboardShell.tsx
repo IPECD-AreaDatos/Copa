@@ -116,6 +116,15 @@ export default function DashboardShell({
                   Gasto
                 </Link>
               )}
+              {username === "admin" && (
+                <Link
+                  href="/auditoria"
+                  className={navClass("/auditoria")}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Uso del Tablero
+                </Link>
+              )}
             </>
           )}
         </nav>

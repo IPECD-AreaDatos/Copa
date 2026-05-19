@@ -10,6 +10,7 @@ const personalRoutes = require('./routes/personal');
 const ronRoutes = require('./routes/ron');
 const gastosRoutes = require('./routes/gastos');
 const dashboardRoutes = require('./routes/dashboard');
+const adminRoutes = require('./routes/admin');
 const activityLogger = require('./middleware/logger');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/personal', personalRoutes);   // Datos dinámicos desde vistas SQL
 app.use('/api/ron', ronRoutes);             // Datos de Recursos (RON) desde vistas SQL
 app.use('/api/gastos', gastosRoutes);       // Datos de Gastos desde vistas SQL
 app.use('/api/dashboard', dashboardRoutes); // Datos consolidados para tableros
+app.use('/api/admin', adminRoutes);         // Panel de administrador (Telemetría)
 
 // Health check
 app.get('/api/health', (req, res) => {
