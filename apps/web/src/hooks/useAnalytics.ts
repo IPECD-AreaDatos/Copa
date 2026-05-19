@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { fetchWithAuth } from "@/lib/api";
 
 /**
  * Hook to send telemetry data to the backend.
@@ -26,16 +27,15 @@ export function useAnalytics() {
     }
     logCache.set(cacheKey, now);
 
-    const token = localStorage.getItem("copa_token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("copa_token") : null;
     if (!token) return;
 
     try {
       // We use the analytics endpoint configured in the backend
-      await fetch("/copa-api/api/analytics/log", {
+      await fetchWithAuth("/copa/copa-api/api/analytics/log", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           seccion: section,

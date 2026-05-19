@@ -12,6 +12,7 @@ import {
   type ChangeEvent,
 } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { fetchWithAuth } from "@/lib/api";
 
 type PersonalJson = {
   meta: { default_period_id: string; available_periods: { id: string; label: string; year: number }[] };
@@ -80,12 +81,7 @@ export default function AnalisisPersonalDashboard() {
 
   useEffect(() => {
     let c = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/copa/copa-api/api/personal/masa-salarial", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetchWithAuth("/copa/copa-api/api/personal/masa-salarial")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");
         return r.json() as Promise<PersonalJson>;
@@ -348,7 +344,7 @@ export default function AnalisisPersonalDashboard() {
           </div>
         </article>
       </section>
-      <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", paddingLeft: 10, marginTop: "-3rem", marginBottom: "4rem" }}>
+      <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", paddingLeft: 10, marginTop: "1rem", marginBottom: "2rem" }}>
         Fuente: Cálculo en base a datos de Contaduría General de la Provincia de Corrientes e INDEC
       </p>
 

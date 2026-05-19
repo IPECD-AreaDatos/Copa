@@ -24,6 +24,7 @@ import {
 } from "@/lib/analisis-anual/annualCharts";
 import { buildAnnualVm } from "@/lib/analisis-anual/annualVm";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { fetchWithAuth } from "@/lib/api";
 
 type AnnualMeta = {
   annual_monitor: {
@@ -78,12 +79,7 @@ export default function AnalisisAnualDashboard() {
 
   useEffect(() => {
     let c = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/copa/copa-api/api/ron/annual-monitor", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetchWithAuth("/copa/copa-api/api/ron/annual-monitor")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos.");
         return r.json() as Promise<AnnualMeta>;

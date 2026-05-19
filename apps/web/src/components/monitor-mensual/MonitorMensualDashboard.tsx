@@ -22,6 +22,7 @@ import {
   type MonitorJson,
 } from "@/lib/monitor-mensual/viewModel";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { fetchWithAuth } from "@/lib/api";
 
 function useViewportFlags() {
   const [wide768, setWide768] = useState(false);
@@ -68,12 +69,10 @@ export default function MonitorMensualDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    const token = localStorage.getItem("copa_token");
-    fetch(`/copa/copa-api/api/dashboard/monthly?ts=${Date.now()}`, {
+    fetchWithAuth(`/copa/copa-api/api/dashboard/monthly?ts=${Date.now()}`, {
       cache: "no-store",
       headers: {
         "Cache-Control": "no-cache",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     })
       .then((r) => {

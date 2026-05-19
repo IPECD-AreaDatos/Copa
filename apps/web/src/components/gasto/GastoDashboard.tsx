@@ -5,6 +5,7 @@ import type { ChartData } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { fetchWithAuth } from "@/lib/api";
 
 import {
   computeCompositionTable,
@@ -93,12 +94,7 @@ export default function GastoDashboard() {
 
   useEffect(() => {
     let c = false;
-    const token = localStorage.getItem("copa_token");
-    fetch("/copa/copa-api/api/gastos/all-data", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
+    fetchWithAuth("/copa/copa-api/api/gastos/all-data")
       .then((r) => {
         if (!r.ok) throw new Error("No se pudieron cargar los datos de gasto.");
         return r.json() as Promise<GastoRow[]>;

@@ -83,18 +83,11 @@ export default function DashboardShell({
         >
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
             <Image
-              src="/copa/assets/logo-blanco-gob.png"
-              alt="Gobierno"
-              width={120}
+              src="/copa/assets/logo-modernizacion.png"
+              alt="Modernización"
+              width={160}
               height={40}
               style={{ height: "40px", width: "auto" }}
-            />
-            <Image
-              src="/copa/assets/logo-blanco-ipecd.png"
-              alt="IPECD"
-              width={100}
-              height={30}
-              style={{ height: "30px", width: "auto" }}
             />
           </Link>
         </div>
@@ -155,15 +148,15 @@ export default function DashboardShell({
           <div className="footer-content">
             <div className="footer-branding">
               <Image
-                src="/copa/assets/logo-blanco-ipecd.png"
-                alt="IPECD"
+                src="/copa/assets/logo-modernizacion.png"
+                alt="Modernización"
                 width={120}
                 height={48}
                 className="footer-logo"
               />
               <div className="footer-text">
                 <p className="copyright">
-                  ©2025 INSTITUTO DE ESTADÍSTICA Y CIENCIA DE DATOS DE LA PROVINCIA DE CORRIENTES.
+                  ©2026 INSTITUTO DE MODERNIZACIÓN E INNOVACIÓN
                 </p>
                 <p className="contact">estadistica@corrientes.gob.ar</p>
                 <p className="contact">Todos los derechos reservados.</p>

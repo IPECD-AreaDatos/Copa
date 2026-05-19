@@ -13,6 +13,7 @@ import {
 } from "react";
 import type { ChartOptions } from "chart.js";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { fetchWithAuth } from "@/lib/api";
 
 type Period = {
   id: string;
@@ -353,7 +354,7 @@ export default function HomeDashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("/copa/copa-api/api/dashboard/home")
+    fetchWithAuth("/copa/copa-api/api/dashboard/home")
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
