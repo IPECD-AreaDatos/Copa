@@ -15,17 +15,6 @@ type Props = {
   children: ReactNode;
 };
 
-function hideGastoTab(username?: string, displayName?: string) {
-  const u = (username || "").toLowerCase();
-  const n = displayName || "";
-  return (
-    u === "jpvaldes" ||
-    u === "gobernador" ||
-    n === "Gob. JP. Valdes" ||
-    n === "Gob. JP. Valdés"
-  );
-}
-
 export default function DashboardShell({
   activePath,
   displayName,
@@ -52,8 +41,6 @@ export default function DashboardShell({
 
   const navClass = (path: string) =>
     `nav-link-vertical${activePath === path ? " active" : ""}`;
-
-  const gastoHidden = hideGastoTab(username, displayName);
 
   return (
     <>
@@ -104,18 +91,18 @@ export default function DashboardShell({
               <Link href="/analisis-anual" className={navClass("/analisis-anual")} onClick={() => setSidebarOpen(false)}>
                 Análisis Anual RON
               </Link>
-              <Link
-                href="/analisis-personal"
-                className={navClass("/analisis-personal")}
-                onClick={() => setSidebarOpen(false)}
-              >
-                Análisis Salarial
-              </Link>
-              {!gastoHidden && (
-                <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
-                  Gasto
+              {username === "admin" && (
+                <Link
+                  href="/analisis-personal"
+                  className={navClass("/analisis-personal")}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Análisis Salarial
                 </Link>
               )}
+              <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
+                Gasto
+              </Link>
               {username === "admin" && (
                 <Link
                   href="/auditoria"
