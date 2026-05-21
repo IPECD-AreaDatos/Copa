@@ -172,6 +172,7 @@ export default function AuditoriaDashboard() {
       activePath="/auditoria"
       displayName={user.name || user.username || ""}
       username={user.username || ""}
+      name={user.name || ""}
       onLogout={logout}
     >
       <div className="dashboard-header" style={{ justifyContent: "space-between", marginBottom: "1rem" }}>

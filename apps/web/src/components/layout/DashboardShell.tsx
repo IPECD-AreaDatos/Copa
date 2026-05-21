@@ -27,6 +27,12 @@ export default function DashboardShell({
   const sidebarRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
+  const isGobernador =
+    username === "jpvaldes" ||
+    username === "gobernador" ||
+    name === "Gob. JP. Valdes" ||
+    name === "Gob. JP. Valdés";
+
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!sidebarOpen) return;
@@ -100,9 +106,11 @@ export default function DashboardShell({
                   Análisis Salarial
                 </Link>
               )}
-              <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
-                Gasto
-              </Link>
+              {!isGobernador && (
+                <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
+                  Gasto
+                </Link>
+              )}
               {username === "admin" && (
                 <Link
                   href="/auditoria"

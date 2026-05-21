@@ -285,7 +285,7 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     masaVarNomAbs = " - ";
   } else {
     const masaDiffSign = (kpi.masa_salarial.diff_nom ?? 0) >= 0 ? "+" : "-";
-    masaVarNomAbs = masaDiffSign + formatBillions(Math.abs(kpi.masa_salarial.diff_nom ?? 0));
+    masaVarNomAbs = masaDiffSign + formatMillions(Math.abs(kpi.masa_salarial.diff_nom ?? 0));
     masaVarNomPct =
       ((kpi.masa_salarial.var_nom ?? 0) >= 0 ? "+" : "-") +
       formatPctUnsigned(Math.abs(kpi.masa_salarial.var_nom ?? 0));
@@ -306,7 +306,7 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     const prevAjustado = (kpi.masa_salarial.prev ?? 0) * (1 + inflacionPct);
     const diffReal = (kpi.masa_salarial.current ?? 0) - prevAjustado;
     const diffRealSign = diffReal >= 0 ? "+" : "-";
-    masaRealAbs = diffRealSign + formatBillions(Math.abs(diffReal));
+    masaRealAbs = diffRealSign + formatMillions(Math.abs(diffReal));
     masaRealAbsClass = diffReal >= 0 ? "text-success" : "text-danger";
   }
 
@@ -368,8 +368,8 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     muni: muniVm,
     rop: ropVm,
     masa: {
-      current: isIncomplete ? "Sin datos" : formatBillions(kpi.masa_salarial.current),
-      prev: formatBillions(kpi.masa_salarial.prev),
+      current: isIncomplete ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
+      prev: formatMillions(kpi.masa_salarial.prev),
       cobCurr: `Cobertura: ${coberturaCurr.toFixed(1)}%`,
       cobPrev: `Cobertura: ${coberturaPrev.toFixed(1)}%`,
       varNomPct: masaVarNomPct,

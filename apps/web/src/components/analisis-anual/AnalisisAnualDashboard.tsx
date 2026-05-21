@@ -334,7 +334,7 @@ export default function AnalisisAnualDashboard() {
         </div>
         <div className="hero-grid-flex">
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.current)}` }}>
-            <div className="info-tooltip" data-tooltip="Muestra la masa salarial total liquidada, en billones de pesos corrientes, correspondiente al año seleccionado.">?</div>
+            <div className="info-tooltip" data-tooltip="Muestra la masa salarial total liquidada, en millones de pesos corrientes, correspondiente al año seleccionado.">?</div>
             <div className="kpi-label">{`Masa Salarial Año ${iterYear}`}</div>
             <div className="kpi-value">{vm.masa.current}</div>
             <div className="kpi-sub" style={{ alignItems: "flex-start" }}>
@@ -342,7 +342,7 @@ export default function AnalisisAnualDashboard() {
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.prev)}` }}>
-            <div className="info-tooltip" data-tooltip="Masa salarial total liquidada, en billones de pesos corrientes, para el año anterior al seleccionado.">?</div>
+            <div className="info-tooltip" data-tooltip="Masa salarial total liquidada, en millones de pesos corrientes, para el año anterior al seleccionado.">?</div>
             <div className="kpi-label">{`Masa Salarial Año ${prevYear}`}</div>
             <div className="kpi-value">{vm.masa.prev}</div>
             <div className="kpi-sub" style={{ alignItems: "flex-start" }}>
@@ -386,9 +386,9 @@ export default function AnalisisAnualDashboard() {
         <div className="chart-container" style={{ padding: "1rem 3%" }}>
           <div className="section-header-block" style={{ marginBottom: "0.75rem", textAlign: "left" }}>
             <h2>Comportamiento de RON Disponible Mensual</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", textAlign: "left" }}>Comparativa de ingresos mensuales nominales (Billones de pesos)</p>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", textAlign: "left" }}>Comparativa de ingresos mensuales nominales (Millones de pesos)</p>
           </div>
-          <div className="info-tooltip" data-tooltip="Comparación de la evolución de los ingresos mensuales de la coparticipación disponible en billones de pesos en términos nominales para el año actual seleccionado y el año anterior. La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios. La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal. La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">?</div>
+          <div className="info-tooltip" data-tooltip="Comparación de la evolución de los ingresos mensuales de la coparticipación disponible en millones de pesos en términos nominales para el año actual seleccionado y el año anterior. La coparticipacion disponible surge de restar a la coparticipación neta el 19% que se redistribuye a los municipios. La coparticipacion neta incluye la suma de los conceptos de: C.F.I. Neta de Ley N° N° 26.075, Financ. Educativo Ley N° 26.075, Reg.Simplif. p/Pequeños Contribuyentes Ley Nº 24.977 y Compensación Consenso Fiscal. La coparticipación bruta incluye el total recibido en términos de coparticipación, es decir los conceptos integrados en coparticipación neta y aquellos que tienen afectacion específica.">?</div>
           <div className="chart-wrapper">
             {monthlyData && <Bar data={monthlyData} options={monthlyOpts} />}
           </div>
