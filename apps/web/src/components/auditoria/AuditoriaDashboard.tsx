@@ -65,6 +65,63 @@ const doughnutLabelsPlugin = {
   }
 };
 
+const barLabelsPlugin = {
+  id: "barLabelsPlugin",
+  afterDraw(chart: any) {
+    const { ctx } = chart;
+    const datasetMeta = chart.getDatasetMeta(0);
+    if (!datasetMeta || datasetMeta.hidden) return;
+
+    const dataset = chart.data.datasets[0];
+    const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+    if (total === 0) return;
+
+    datasetMeta.data.forEach((element: any, index: number) => {
+      const value = dataset.data[index];
+      if (value === undefined || value === null) return;
+
+      const percentageValue = (value / total) * 100;
+      const pct = percentageValue.toFixed(1) + "%";
+
+      const { x, y, base } = element;
+      const barHeight = base - y;
+
+      let labelY;
+      let textColor;
+      let useStroke = false;
+      let textBaseline: CanvasTextBaseline = "bottom";
+
+      if (barHeight > 24) {
+        // Dentro de la barra (centrado un poco abajo del borde superior)
+        labelY = y + 12;
+        textColor = "#ffffff";
+        useStroke = true;
+        textBaseline = "middle";
+      } else {
+        // Fuera de la barra (arriba)
+        labelY = y - 6;
+        textColor = "#64748b";
+        textBaseline = "bottom";
+      }
+
+      ctx.save();
+      ctx.font = "bold 11px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = textBaseline;
+
+      if (useStroke) {
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
+        ctx.lineWidth = 3;
+        ctx.strokeText(pct, x, labelY);
+      }
+
+      ctx.fillStyle = textColor;
+      ctx.fillText(pct, x, labelY);
+      ctx.restore();
+    });
+  }
+};
+
 
 type TelemetriaRow = {
   id_registro: string;
@@ -414,9 +471,28 @@ export default function AuditoriaDashboard() {
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    plugins: { 
+                      legend: { display: false },
+                      tooltip: {
+                        callbacks: {
+                          label(ctx) {
+                            const val = ctx.parsed?.y ?? 0;
+                            const total = ctx.dataset.data.reduce((s: any, v: any) => s + v, 0);
+                            const pct = ((val / total) * 100).toFixed(1) + "%";
+                            return ` ${ctx.dataset.label || "Interacciones"}: ${val} (${pct})`;
+                          }
+                        }
+                      }
+                    },
+                    scales: { 
+                      y: { 
+                        beginAtZero: true, 
+                        ticks: { precision: 0 },
+                        grace: "8%"
+                      } 
+                    }
                   }} 
+                  plugins={[barLabelsPlugin]}
                 />
               </div>
             </div>
