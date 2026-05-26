@@ -295,7 +295,13 @@ export default function MonitorMensualDashboard() {
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.current)}` }}>
             <div
               className="info-tooltip"
-              data-tooltip="Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el periodo actual seleccionado."
+              data-tooltip={`Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el periodo actual seleccionado.
+
+El RON bruto incluye el total recibido de los Recursos de Origen Nacional, es decir el total que recibe la provincia para redistribuir a los municipios, aquellos con afectación específica y de libre disponibilidad.
+
+El RON neto surge del RON total descontado los recursos con afectación específica. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal.
+
+El RON disponible surge de restar al RON neto el 19% que se redistribuye a los municipios.`}
             >
               ?
             </div>
@@ -308,7 +314,18 @@ export default function MonitorMensualDashboard() {
           </article>
           {/* RON Prev */}
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.prev)}` }}>
-            <div className="info-tooltip" data-tooltip="Comparación interanual del RON disponible (mismo mes del año anterior).">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip={`Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el mismo periodo del año anterior al seleccionado.
+
+El RON bruto incluye el total recibido de los Recursos de Origen Nacional, es decir el total que recibe la provincia para redistribuir a los municipios, aquellos con afectación específica y de libre disponibilidad.
+
+El RON neto surge del RON total descontado los recursos con afectación específica. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal.
+
+El RON disponible surge de restar al RON neto el 19% que se redistribuye a los municipios.`}
+            >
+              ?
+            </div>
             <div className="kpi-label">{`RON Disponible ${vm.monthName} ${vm.prevYear}`}</div>
             <div className="kpi-value">{vm.recaudacion.prev}</div>
 
@@ -320,7 +337,16 @@ export default function MonitorMensualDashboard() {
           {!vm.isIncomplete && (
             <>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.varNomPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación nominal interanual del RON disponible.">?</div>
+                <div
+                  className="info-tooltip"
+                  data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el mismo periodo del año anterior al seleccionado.
+
+El indicador compara el monto percibido en el período elegido con el registrado en el mismo período del año previo, sin realizar ajustes por inflación. De esta manera, refleja el crecimiento o la disminución de los recursos en valores corrientes.
+
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+                >
+                  ?
+                </div>
                 <div className="kpi-label">Variación Nominal RON</div>
                 <div className={vm.recaudacion.varNomClass}>{vm.recaudacion.varNomPct}</div>
                 <div className="kpi-sub">
@@ -328,7 +354,16 @@ export default function MonitorMensualDashboard() {
                 </div>
               </article>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación real interanual del RON disponible (IPC país).">?</div>
+                <div
+                  className="info-tooltip"
+                  data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales del período seleccionado respecto al mismo período del año anterior.
+
+Para ello, primero se ajustan (deflactan) los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) utilizando el IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
+
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+                >
+                  ?
+                </div>
                 <div className="kpi-label">Variación Real RON</div>
                 <div className={vm.recaudacion.realPctClass}>{vm.recaudacion.realPct}</div>
                 <div className="kpi-sub">
@@ -351,7 +386,14 @@ export default function MonitorMensualDashboard() {
 
           <div className="hero-grid-flex">
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.dispCurr)}` }}>
-              <div className="info-tooltip" data-tooltip="Recaudación provincial disponible (periodo actual).">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de la Recaudación provincial para el periodo seleccionado.
+
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`}
+              >
+                ?
+              </div>
               <div className="kpi-label">{`ROP Disponible ${vm.monthName} ${vm.currentYear}`}</div>
               <div className="kpi-value">{vm.rop.dispCurr}</div>
               <div className="kpi-sub">
@@ -359,7 +401,14 @@ export default function MonitorMensualDashboard() {
               </div>
             </article>
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.dispPrev)}` }}>
-              <div className="info-tooltip" data-tooltip="Recaudación provincial disponible (mismo mes del año anterior).">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Monto total, en pesos corrientes, de los ingresos provinciales disponibles provenientes de la Recaudación provincial para el mismo periodo del año anterior al seleccionado.
+
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`}
+              >
+                ?
+              </div>
               <div className="kpi-label">{`ROP Disponible ${vm.monthName} ${vm.prevYear}`}</div>
               <div className="kpi-value">{vm.rop.dispPrev}</div>
 
@@ -370,7 +419,16 @@ export default function MonitorMensualDashboard() {
             {!vm.isIncomplete && (
               <>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.varNomPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación nominal interanual de la recaudación provincial disponible.">?</div>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial, en términos nominales, del período seleccionado respecto al mismo período del año anterior.
+
+El indicador compara el monto recaudado en el período elegido con el registrado en el mismo período del año previo, sin realizar ajustes por inflación. De esta manera, refleja el crecimiento o la disminución de los recursos en valores corrientes.
+
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`}
+                  >
+                    ?
+                  </div>
                   <div className="kpi-label">Variación Nominal ROP</div>
                   <div className={vm.rop.varNomClass}>{vm.rop.varNomPct}</div>
                   <div className="kpi-sub">
@@ -378,7 +436,16 @@ export default function MonitorMensualDashboard() {
                   </div>
                 </article>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial ,en términos reales, del período seleccionado respecto al mismo período del año anterior.
+
+Para ello, primero se ajustan (deflactan) los ingresos provinciales disponibles provenientes de la Recaudación provincial utilizando el IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
+
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`}
+                  >
+                    ?
+                  </div>
                   <div className="kpi-label">Variación Real ROP</div>
                   <div className={vm.rop.realPctClass}>{vm.rop.realPct}</div>
                   <div className="kpi-sub">
@@ -453,7 +520,14 @@ export default function MonitorMensualDashboard() {
           </div>
           <div className="hero-grid-flex">
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.diffAbs)}` }}>
-              <div className="info-tooltip" data-tooltip="Diferencia nominal entre el RON disponible efectivo y el monto presupuestado para el mes.">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir (según Presupuesto 2026) y lo que efectivamente percibió (RON Bruto). Valores positivos indican ingresos mayores a lo presupuestado.
+
+El RON bruto incluye el total recibido de los Recursos de Origen Nacional, es decir el total que recibe la provincia para redistribuir a los municipios, aquellos con afectación específica y de libre disponibilidad.`}
+              >
+                ?
+              </div>
               <div className="kpi-label">RON: DIFERENCIA NOMINAL</div>
               <div className={vm.presupuesto.diffAbsClass}>{vm.presupuesto.diffAbs}</div>
               <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -462,7 +536,14 @@ export default function MonitorMensualDashboard() {
               </div>
             </article>
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.diffPct)}` }}>
-              <div className="info-tooltip" data-tooltip="Brecha porcentual respecto al presupuesto mensual de RON disponible.">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Muestra la diferencia porcentual entre lo que la provincia esperaba recibir de acuerdo a lo presupuestado y lo que efectivamente percibió (RON bruto).
+
+El RON bruto incluye el total recibido de los Recursos de Origen Nacional, es decir el total que recibe la provincia para redistribuir a los municipios, aquellos con afectación específica y de libre disponibilidad.`}
+              >
+                ?
+              </div>
               <div className="kpi-label">RON: DIFERENCIA PORCENTUAL</div>
               <div className={vm.presupuesto.diffPctClass}>{vm.presupuesto.diffPct}</div>
               <div className="kpi-sub">Brecha respecto al monto presupuestado</div>
@@ -471,7 +552,12 @@ export default function MonitorMensualDashboard() {
             {vm.presupuesto.rop && (
               <>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.rop.diffAbs)}` }}>
-                  <div className="info-tooltip" data-tooltip="Diferencia nominal de la ROP disponible frente al presupuesto provincial del mes.">?</div>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Muestra la diferencia nominal en millones de pesos corrientes entre la recaudación efectivamente percibida y lo presupuestado para el mes seleccionado. Valores positivos indican ingresos mayores a lo presupuestado.`}
+                  >
+                    ?
+                  </div>
                   <div className="kpi-label">ROP: DIFERENCIA NOMINAL</div>
                   <div className={vm.presupuesto.rop.diffAbsClass}>{vm.presupuesto.rop.diffAbs}</div>
                   <div className="kpi-sub" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.25rem" }}>
@@ -480,7 +566,12 @@ export default function MonitorMensualDashboard() {
                   </div>
                 </article>
                 <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.rop.diffPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Brecha porcentual de la ROP disponible respecto al presupuesto provincial.">?</div>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Muestra la diferencia porcentual entre la recaudación efectivamente percibida de origen provincial y lo presupuestado para el mes seleccionado. Refleja el nivel de cumplimiento del presupuesto de ingresos provinciales.`}
+                  >
+                    ?
+                  </div>
                   <div className="kpi-label">ROP: DIFERENCIA PORCENTUAL</div>
                   <div className={vm.presupuesto.rop.diffPctClass}>{vm.presupuesto.rop.diffPct}</div>
                   <div className="kpi-sub">Brecha respecto al monto presupuestado provincial</div>
@@ -499,7 +590,16 @@ export default function MonitorMensualDashboard() {
         </div>
         <div className="hero-grid-flex">
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.current)}` }}>
-            <div className="info-tooltip" data-tooltip="Masa salarial total liquidada en el periodo seleccionado.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip={`Muestra la masa salarial total liquidada, en pesos corrientes, correspondiente al período seleccionado.
+
+El indicador representa la suma total de los salarios abonados en dicho período, expresados en valores nominales, es decir, sin ajuste por inflación.
+
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+            >
+              ?
+            </div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.currentYear}`}</div>
             <div className="kpi-value">{vm.masa.current}</div>
             <div className="kpi-sub">
@@ -507,7 +607,16 @@ export default function MonitorMensualDashboard() {
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.prev)}` }}>
-            <div className="info-tooltip" data-tooltip="Masa salarial liquidada en el mismo mes del año anterior.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip={`Masa salarial total liquidada, en pesos corrientes, para el mismo periodo del año anterior al seleccionado.
+
+El indicador representa la suma total de los salarios abonados en dicho período, expresados en valores nominales, es decir, sin ajuste por inflación.
+
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+            >
+              ?
+            </div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.prevYear}`}</div>
             <div className="kpi-value" style={{ color: "#64748b" }}>{vm.masa.prev}</div>
             <div className="kpi-sub">
@@ -517,7 +626,16 @@ export default function MonitorMensualDashboard() {
           {!vm.isIncomplete && (
             <>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.varNomPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación nominal interanual de la masa salarial.">?</div>
+                <div
+                  className="info-tooltip"
+                  data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos nominales del período seleccionado respecto al mismo período del año anterior.
+
+El indicador compara el monto total de salarios liquidados en el período elegido con el registrado en el mismo período del año previo, sin realizar ajustes por inflación. De esta manera, refleja el crecimiento o la disminución de la masa salarial en valores corrientes.
+
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+                >
+                  ?
+                </div>
                 <div className="kpi-label">Variación Nominal Masa Salarial</div>
                 <div className={vm.masa.varNomPctClass} style={{ color: "#10b981" }}>{vm.masa.varNomPct}</div>
                 <div className="kpi-sub">
@@ -525,7 +643,16 @@ export default function MonitorMensualDashboard() {
                 </div>
               </article>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
-                <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
+                <div
+                  className="info-tooltip"
+                  data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
+
+Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del nivel Nacional, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
+
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+                >
+                  ?
+                </div>
                 <div className="kpi-label">Variación Real Masa Salarial</div>
                 <div className={vm.masa.realPctClass}>{vm.masa.realPct}</div>
                 <div className="kpi-sub">
@@ -546,7 +673,11 @@ export default function MonitorMensualDashboard() {
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
             <div
               className="info-tooltip"
-              data-tooltip="Comparación de la recaudación acumulada diaria de coparticipación disponible frente al monto objetivo para el pago de salarios."
+              data-tooltip={`Compara la recaudación diaria de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) acumulada día a día con el monto objetivo correspondiente a la masa salarial total del período seleccionado. Además, en el último día del mes se suman los recursos de origen provincial (ROP) disponibles.
+
+El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. En caso de no disponerse del dato actualizado de la masa salarial del mes en curso, se utiliza como referencia la masa salarial correspondiente al mes anterior.
+
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
             >
               ?
             </div>
@@ -574,7 +705,14 @@ export default function MonitorMensualDashboard() {
         <section className="section-group">
           <div className="charts-grid-half" style={{ padding: "0 3%" }}>
             <div className="chart-container">
-              <div className="info-tooltip" data-tooltip="Evolución del RON disponible real — últimos 3 meses (pesos constantes).">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Muestra la evolución de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales de los últimos 3 meses, comparando los datos actuales contra el año anterior. Los Recursos de Origen Nacional (RON) disponibles se deflactan a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
+
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+              >
+                ?
+              </div>
               <h3 className="chart-title">RON Disponible Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
@@ -583,7 +721,14 @@ export default function MonitorMensualDashboard() {
               <p className="source-text" style={{ textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
             </div>
             <div className="chart-container">
-              <div className="info-tooltip" data-tooltip="Evolución de la masa salarial real — últimos 3 meses (pesos constantes).">?</div>
+              <div
+                className="info-tooltip"
+                data-tooltip={`Muestra la evolución de la masa salarial real de los últimos 3 meses, comparando los datos actuales contra el año anterior. La masa salarial se deflacta a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
+
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+              >
+                ?
+              </div>
               <h3 className="chart-title">Masa Salarial Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
@@ -600,7 +745,16 @@ export default function MonitorMensualDashboard() {
         <section className="section-group">
 
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
-            <div className="info-tooltip" data-tooltip="Ingresos diarios de coparticipación disponible — comparación interanual.">?</div>
+            <div
+              className="info-tooltip"
+              data-tooltip={`Permite comparar la evolución de los ingresos provinciales disponibles diarios provenientes de los Recursos de Origen Nacional (RON), expresados en millones de pesos corrientes, entre el período actual seleccionado y el mismo período del año anterior.
+
+El indicador presenta el comportamiento diario de los recursos recibidos por coparticipación en valores nominales, es decir, sin ajuste por inflación.
+
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+            >
+              ?
+            </div>
             <h3 className="chart-title">{`Comportamiento de RON Disponible Diario ${vm.monthName}`}</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Comparativa de ingresos diarios nominales (Millones de pesos)</p>
             <div className="chart-wrapper">

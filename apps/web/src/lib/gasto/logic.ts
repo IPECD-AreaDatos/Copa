@@ -48,10 +48,16 @@ function interpolateColor(c1: number[], c2: number[], t: number) {
 }
 
 export function heatmapColor(ratio: number) {
-  const r = Math.min(ratio, 1.5);
-  if (r <= 0.5) return interpolateColor([16, 185, 129], [251, 191, 36], r / 0.5);
-  if (r <= 1.0) return interpolateColor([251, 191, 36], [249, 115, 22], (r - 0.5) / 0.5);
-  return interpolateColor([249, 115, 22], [239, 68, 68], Math.min((r - 1.0) / 0.5, 1));
+  if (ratio <= 0) {
+    return { bg: "#64748b", text: "#ffffff" }; // Gris para 0%
+  }
+  if (ratio <= 0.45) {
+    return { bg: "#10b981", text: "#ffffff" }; // Verde
+  }
+  if (ratio <= 0.75) {
+    return { bg: "#eab308", text: "#1e293b" }; // Amarillo (con texto oscuro para legibilidad)
+  }
+  return { bg: "#ef4444", text: "#ffffff" }; // Rojo
 }
 
 export type HeatmapInput = {
@@ -120,8 +126,8 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
       const vig = vigente[key] || 0;
       const ratio = vig > 0 ? comp / vig : 0;
       const pct = Math.round(ratio * 100);
-      const color = heatmapColor(ratio);
-      return { j, pct, color, title: `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}` };
+      const colorInfo = heatmapColor(ratio);
+      return { j, pct, color: colorInfo.bg, textColor: colorInfo.text, title: `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}` };
     });
     return { partida: p, code, cells };
   });

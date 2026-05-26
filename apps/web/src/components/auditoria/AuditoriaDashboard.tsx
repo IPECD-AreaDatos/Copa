@@ -18,6 +18,54 @@ import { Bar, Doughnut } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
+const doughnutLabelsPlugin = {
+  id: "doughnutLabelsPlugin",
+  afterDraw(chart: any) {
+    const { ctx } = chart;
+    const datasetMeta = chart.getDatasetMeta(0);
+    if (!datasetMeta || datasetMeta.hidden) return;
+
+    const dataset = chart.data.datasets[0];
+    const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+    if (total === 0) return;
+
+    datasetMeta.data.forEach((element: any, index: number) => {
+      const value = dataset.data[index];
+      if (value === undefined || value === null) return;
+
+      const percentageValue = (value / total) * 100;
+      if (percentageValue < 3) return; // No pintar si la porción es menor al 3% para evitar solapamiento
+
+      const pct = percentageValue.toFixed(1) + "%";
+
+      // Obtener el centro del segmento (arco)
+      const { x, y, startAngle, endAngle, innerRadius, outerRadius } = element;
+      const avgAngle = startAngle + (endAngle - startAngle) / 2;
+      const r = innerRadius + (outerRadius - innerRadius) / 2;
+
+      // Convertir coordenadas polares a cartesianas en el canvas
+      const labelX = x + Math.cos(avgAngle) * r;
+      const labelY = y + Math.sin(avgAngle) * r;
+
+      ctx.save();
+      ctx.fillStyle = "#ffffff"; // Texto en blanco
+      ctx.font = "bold 11px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // Sombra/borde negro para contrastar en fondos claros
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(pct, labelX, labelY);
+
+      // Dibujar texto del porcentaje
+      ctx.fillText(pct, labelX, labelY);
+      ctx.restore();
+    });
+  }
+};
+
+
 type TelemetriaRow = {
   id_registro: string;
   fecha_hora: string;
@@ -34,6 +82,9 @@ export default function AuditoriaDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string>("Todos");
+  const [datePreset, setDatePreset] = useState<string>("Todos");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   useEffect(() => {
     async function loadData() {
@@ -63,6 +114,41 @@ export default function AuditoriaDashboard() {
     }
   }, [user]);
 
+  // Auxiliar para formatear fecha local a string YYYY-MM-DD
+  function getLocalDateString(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const handlePresetChange = (preset: string) => {
+    setDatePreset(preset);
+    const now = new Date();
+    if (preset === "Todos") {
+      setStartDate("");
+      setEndDate("");
+    } else if (preset === "Hoy") {
+      const todayStr = getLocalDateString(now);
+      setStartDate(todayStr);
+      setEndDate(todayStr);
+    } else if (preset === "7dias") {
+      const past = new Date();
+      past.setDate(now.getDate() - 7);
+      setStartDate(getLocalDateString(past));
+      setEndDate(getLocalDateString(now));
+    } else if (preset === "30dias") {
+      const past = new Date();
+      past.setDate(now.getDate() - 30);
+      setStartDate(getLocalDateString(past));
+      setEndDate(getLocalDateString(now));
+    } else if (preset === "esteMes") {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      setStartDate(getLocalDateString(startOfMonth));
+      setEndDate(getLocalDateString(now));
+    }
+  };
+
   // --- Filtrado de Usuarios ---
   const dataSinAdmin = useMemo(() => {
     // Filtramos contundentemente al usuario admin para no ensuciar las estadísticas
@@ -74,9 +160,35 @@ export default function AuditoriaDashboard() {
   }, [dataSinAdmin]);
 
   const filteredData = useMemo(() => {
-    if (selectedUser === "Todos") return dataSinAdmin;
-    return dataSinAdmin.filter((r) => (r.username || "Anónimo") === selectedUser);
-  }, [dataSinAdmin, selectedUser]);
+    let temp = dataSinAdmin;
+
+    // 1. Filtrar por Usuario
+    if (selectedUser !== "Todos") {
+      temp = temp.filter((r) => (r.username || "Anónimo") === selectedUser);
+    }
+
+    // 2. Filtrar por Fecha Inicio
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      temp = temp.filter((r) => {
+        const d = new Date(r.fecha_hora);
+        return d >= start;
+      });
+    }
+
+    // 3. Filtrar por Fecha Fin
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      temp = temp.filter((r) => {
+        const d = new Date(r.fecha_hora);
+        return d <= end;
+      });
+    }
+
+    return temp;
+  }, [dataSinAdmin, selectedUser, startDate, endDate]);
 
   // --- Lógica de KPIs y Agrupaciones ---
   const kpis = useMemo(() => {
@@ -107,12 +219,13 @@ export default function AuditoriaDashboard() {
       topSection,
       sectionCounts,
     };
-  }, [data]);
+  }, [filteredData]);
 
   // --- Datos para Gráficos ---
   const chartDataSecciones = useMemo(() => {
-    const labels = Object.keys(kpis.sectionCounts);
-    const values = Object.values(kpis.sectionCounts);
+    const sortedEntries = Object.entries(kpis.sectionCounts).sort((a, b) => b[1] - a[1]);
+    const labels = sortedEntries.map(([k]) => k);
+    const values = sortedEntries.map(([, v]) => v);
 
     return {
       labels,
@@ -130,20 +243,29 @@ export default function AuditoriaDashboard() {
   }, [kpis.sectionCounts]);
 
   const chartDataUsuarios = useMemo(() => {
-    const userCounts: Record<string, number> = {};
-    filteredData.forEach((row) => {
-      const u = row.username || "Anónimo";
-      userCounts[u] = (userCounts[u] || 0) + 1;
-    });
+    const counts: Record<string, number> = {};
+    
+    if (selectedUser === "Todos") {
+      filteredData.forEach((row) => {
+        const u = row.username || "Anónimo";
+        counts[u] = (counts[u] || 0) + 1;
+      });
+    } else {
+      // Si es un usuario específico, mostramos la distribución de sus acciones
+      filteredData.forEach((row) => {
+        const a = row.accion || "Otra Acción";
+        counts[a] = (counts[a] || 0) + 1;
+      });
+    }
 
-    const labels = Object.keys(userCounts);
-    const values = Object.values(userCounts);
+    const labels = Object.keys(counts);
+    const values = Object.values(counts);
 
     return {
       labels,
       datasets: [
         {
-          label: "Actividad por Usuario",
+          label: selectedUser === "Todos" ? "Actividad por Usuario" : "Acciones",
           data: values,
           backgroundColor: [
             "rgba(59, 130, 246, 0.7)",
@@ -151,6 +273,8 @@ export default function AuditoriaDashboard() {
             "rgba(245, 158, 11, 0.7)",
             "rgba(239, 68, 68, 0.7)",
             "rgba(139, 92, 246, 0.7)",
+            "rgba(236, 72, 153, 0.7)",
+            "rgba(20, 184, 166, 0.7)",
           ],
           borderColor: [
             "rgba(59, 130, 246, 1)",
@@ -158,12 +282,14 @@ export default function AuditoriaDashboard() {
             "rgba(245, 158, 11, 1)",
             "rgba(239, 68, 68, 1)",
             "rgba(139, 92, 246, 1)",
+            "rgba(236, 72, 153, 1)",
+            "rgba(20, 184, 166, 1)",
           ],
           borderWidth: 1,
         },
       ],
     };
-  }, [data]);
+  }, [filteredData, selectedUser]);
 
   if (!user) return null;
 
@@ -174,27 +300,78 @@ export default function AuditoriaDashboard() {
       username={user.username || ""}
       onLogout={logout}
     >
-      <div className="dashboard-header" style={{ justifyContent: "space-between", marginBottom: "1rem" }}>
-        <div className="title-block" style={{ flexDirection: "column", alignItems: "flex-start", flex: 1 }}>
+      <div className="dashboard-header" style={{ flexDirection: "column", alignItems: "stretch", marginBottom: "2rem" }}>
+        <div className="title-block" style={{ flexDirection: "column", alignItems: "flex-start", width: "100%", marginBottom: "1.5rem" }}>
           <h1 className="dashboard-title" style={{ textAlign: "left" }}>Telemetría de Uso</h1>
           <p style={{ color: "var(--text-secondary)", marginTop: "0.5rem" }}>
             Monitoreo del uso real del tablero por parte de las autoridades y analistas.
           </p>
         </div>
         {!loading && !error && (
-          <div className="period-select-wrapper" style={{ position: "static" }}>
-            <label htmlFor="userFilter" className="period-label">Filtrar por Usuario:</label>
-            <select
-              id="userFilter"
-              className="period-select"
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-            >
-              <option value="Todos">Todos los Usuarios</option>
-              {uniqueUsers.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
+          <div className="section-filters" style={{ width: "100%", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
+            {/* Filtro por Usuario */}
+            <div className="sf-group" style={{ flex: "1 1 200px" }}>
+              <label htmlFor="userFilter" style={{ fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "0.5rem", display: "block" }}>Usuario</label>
+              <select
+                id="userFilter"
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                style={{ width: "100%", height: "42px", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "0.6rem 1rem", fontSize: "0.875rem" }}
+              >
+                <option value="Todos">Todos los Usuarios</option>
+                {uniqueUsers.map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Presets de Fecha */}
+            <div className="sf-group" style={{ flex: "1 1 150px" }}>
+              <label htmlFor="datePreset" style={{ fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "0.5rem", display: "block" }}>Período</label>
+              <select
+                id="datePreset"
+                value={datePreset}
+                onChange={(e) => handlePresetChange(e.target.value)}
+                style={{ width: "100%", height: "42px", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "0.6rem 1rem", fontSize: "0.875rem" }}
+              >
+                <option value="Todos">Todo el Historial</option>
+                <option value="Hoy">Hoy</option>
+                <option value="7dias">Últimos 7 días</option>
+                <option value="30dias">Últimos 30 días</option>
+                <option value="esteMes">Este mes</option>
+                <option value="personalizado">Personalizado</option>
+              </select>
+            </div>
+
+            {/* Fecha Inicio */}
+            <div className="sf-group" style={{ flex: "1 1 150px" }}>
+              <label htmlFor="startDate" style={{ fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "0.5rem", display: "block" }}>Desde</label>
+              <input
+                type="date"
+                id="startDate"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setDatePreset("personalizado");
+                }}
+                style={{ width: "100%", height: "42px", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "0.6rem 1rem", fontSize: "0.875rem", boxSizing: "border-box" }}
+              />
+            </div>
+
+            {/* Fecha Fin */}
+            <div className="sf-group" style={{ flex: "1 1 150px" }}>
+              <label htmlFor="endDate" style={{ fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "0.5rem", display: "block" }}>Hasta</label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setDatePreset("personalizado");
+                }}
+                style={{ width: "100%", height: "42px", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "0.6rem 1rem", fontSize: "0.875rem", boxSizing: "border-box" }}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -244,15 +421,30 @@ export default function AuditoriaDashboard() {
               </div>
             </div>
             <div className="chart-container">
-              <h2 className="section-title" style={{ fontSize: "1.2rem" }}>Participación por Usuario</h2>
+              <h2 className="section-title" style={{ fontSize: "1.2rem" }}>
+                {selectedUser === "Todos" ? "Participación por Usuario" : `Acciones de ${selectedUser}`}
+              </h2>
               <div style={{ height: "300px", marginTop: "1rem", display: "flex", justifyContent: "center" }}>
                 <Doughnut 
                   data={chartDataUsuarios} 
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: "right" } }
+                    plugins: { 
+                      legend: { position: "right" },
+                      tooltip: {
+                        callbacks: {
+                          label(ctx) {
+                            const val = ctx.parsed;
+                            const total = ctx.dataset.data.reduce((s: any, v: any) => s + v, 0);
+                            const pct = ((val / total) * 100).toFixed(1) + "%";
+                            return ` ${ctx.label}: ${val} (${pct})`;
+                          }
+                        }
+                      }
+                    }
                   }} 
+                  plugins={[doughnutLabelsPlugin]}
                 />
               </div>
             </div>

@@ -550,11 +550,11 @@ main:has(.heatmap-section) {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 0 20px 40px -8px rgba(16, 185, 129, 0.15), 0 15px 20px -5px rgba(0, 0, 0, 0.05);
   border-color: rgba(16, 185, 129, 0.4);
-  z-index: 10;
+  z-index: 1000;
 }
 
 .chart-container:hover {
-  z-index: 50;
+  z-index: 1000;
 }
 
 .kpi-label {
@@ -696,6 +696,7 @@ main:has(.heatmap-section) {
 .info-tooltip:hover {
   background-color: var(--brand-dark);
   color: #fff;
+  z-index: 99999;
 }
 
 .info-tooltip::after {
@@ -926,6 +927,7 @@ footer.app-footer {
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
 }
 
 /* Gasto — filtros y heatmap */
