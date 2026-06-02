@@ -124,6 +124,15 @@ router.get('/home', async (req, res) => {
         const data = {};
 
         const ronRowsAsc = [...ronResult.rows].reverse();
+        const periodCompleteByNext = new Map();
+        ronRowsAsc.forEach((row) => {
+            const pid = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
+            const nm = row.mes === 12 ? 1 : row.mes + 1;
+            const ny = row.mes === 12 ? row.anio + 1 : row.anio;
+            const hasNext = ronRowsAsc.some(r => r.anio === ny && r.mes === nm && parseFloat(r.ron_bruto || 0) > 0);
+            periodCompleteByNext.set(pid, hasNext);
+        });
+
         const available_periods = ronRowsAsc.map((row) => ({
             id: `${row.anio}-${String(row.mes).padStart(2, '0')}`,
             label: months[row.mes - 1],
@@ -137,10 +146,14 @@ router.get('/home', async (req, res) => {
         const ROP_DISPO_RATIO = 0.812932;
         const ROP_MUNI_RATIO = 0.187068;
 
-        // Default = último mes completo (si el último es Mayo 2026, usamos Abril 2026)
-        let defaultId = available_periods[available_periods.length - 1]?.id;
-        if (available_periods.length > 1 && available_periods[available_periods.length - 1].id === "2026-05") {
-            defaultId = available_periods[available_periods.length - 2]?.id;
+        // Default = último mes completo
+        let defaultId = null;
+        ronRowsAsc.forEach((row) => {
+            const pid = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
+            if (periodCompleteByNext.get(pid)) defaultId = pid;
+        });
+        if (!defaultId && available_periods.length > 0) {
+            defaultId = available_periods[available_periods.length - 1].id;
         }
         const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
 
