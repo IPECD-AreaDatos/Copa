@@ -574,6 +574,14 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             // Solo para las tarjetas de presupuesto/esperado/brechas del front.
             // El resto de KPIs (recaudado/variaciones/municipal) se calcula 100% desde BD.
             const refKpi = getIpceReferenceKpi(periodId);
+            const ropBrutaCurrentM = ropData.curr / 1000000;
+            const esperadaProv = refKpi?.rop?.esperada_prov;
+            const brechaAbsProv = typeof esperadaProv === 'number'
+                ? ropBrutaCurrentM - esperadaProv
+                : undefined;
+            const brechaPctProv = typeof esperadaProv === 'number'
+                ? (esperadaProv > 0 ? ((ropBrutaCurrentM / esperadaProv) - 1) * 100 : 0)
+                : undefined;
 
             // Distribución municipal:
             // - Nacional (RON) = RON neto - RON disponible (según la base condicional usada para disponible).
@@ -641,7 +649,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         esperada: refKpi?.recaudacion?.esperada,
                     },
                     rop: {
-                        bruta_current: ropData.curr / 1000000,
+                        bruta_current: ropBrutaCurrentM,
                         bruta_prev: ropData.prev / 1000000,
                         disponible_current: ropDispoM,
                         disponible_prev: ropDispoPrevM,
@@ -650,9 +658,9 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         diff_nom: ropDispoM - ropDispoPrevM,
                         diff_real: vIpc !== null ? ropDispoM - ropDispoPrevM * (1 + vIpc) : undefined,
                         ipc_missing: vIpc === null,
-                        esperada_prov: refKpi?.rop?.esperada_prov,
-                        brecha_abs_prov: refKpi?.rop?.brecha_abs_prov,
-                        brecha_pct_prov: refKpi?.rop?.brecha_pct_prov,
+                        esperada_prov: esperadaProv,
+                        brecha_abs_prov: brechaAbsProv,
+                        brecha_pct_prov: brechaPctProv,
                     },
                     masa_salarial: {
                         current: masaValue / 1000000,
