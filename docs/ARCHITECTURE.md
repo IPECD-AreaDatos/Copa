@@ -1,87 +1,98 @@
-# Arquitectura del Tablero de Recursos de Origen Nacional (RON) y Empleo (IPECD)
+# Arquitectura Técnica - Tablero de Recursos y Empleo (COPA)
 
-Este documento detalla la arquitectura técnica, el flujo de datos y las decisiones de diseño del proyecto para facilitar el traspaso de la propiedad, el mantenimiento futuro y la escalabilidad.
+Este documento detalla la arquitectura de software, el flujo de comunicación y el diseño técnico del sistema para asegurar el correcto mantenimiento, escalabilidad y seguridad.
+
+---
 
 ## 1. Visión General (High-Level Architecture)
 
-El proyecto funciona bajo un modelo **SSG-like (Static Site Generation)** híbrido, compuesto por dos grandes piezas:
-1. **Frontend**: Una Single Page Application (SPA) compuesta de archivos estáticos HTML, CSS y Vanilla JavaScript. No requiere un servidor backend dinámico (como Node.js o Django) para servir peticiones de clientes.
-2. **Backend / Data Pipeline (ETL)**: Scripts escritos en Python (`etl_main.py` y `etl_personal.py`) que se conectan a una base de datos MySQL, procesan información y generan archivos estáticos JSON (`dashboard_data.json`).
+El sistema está estructurado como una aplicación **SPA (Single Page Application)** moderna bajo una arquitectura desacoplada en dos componentes principales de Node.js:
 
-El frontend "cobra vida" al leer asíncronamente (vía `fetch()`) esos archivos JSON estáticos generados por el backend.
-
----
-
-## 2. Flujo de Datos (Data Pipeline & ETL)
-
-### El proceso ETL (Extract, Transform, Load)
-
-Los datos originales residen en una base de datos MySQL, que aglomera la recaudación diaria, los presupuestos, el índice inflacionario (IPC) y la información de la masa salarial (SISPER).
-
-1. **Extract**: El script `etl_main.py` usa `mysql-connector-python` o `pandas.read_sql` para extraer los montos brutos, descuentos, masa salarial mensual, e IPC desde la base de datos.
-2. **Transform**: `pandas` es el motor principal aquí.
-   - **Agrupamientos**: Agrupa recaudación diaria por mes y por año.
-   - **Cálculos Reales (Deflactación)**: Ajusta los "Recursos de Origen Nacional (RON)" y la "Masa Salarial" usando las tasas del Índice de Precios al Consumidor (IPC) correspondientes a la región NEA para mostrar la *Variación Real*.
-   - **Lógica YTD (Year-to-Date)**: Entiende si un año en curso (ej. 2026) está incompleto y compara la recaudación únicamente contra los *mismos meses* del año anterior.
-   - **Cálculo de Brechas**: Compara los montos de ingresos "Esperados" contra los "Efectivos".
-3. **Load**: Los DataFrames de pandas se serializan en un gran y estructurado diccionario de Python, el cual finalmente se vuelca en `/main/dashboard_data.json`. Este JSON es el único punto de contacto con el frontend.
-
-**Ejecución:**
-Para actualizar el tablero con los últimos datos, un administrador o un proceso automatizado (ej. un cronjob o GitHub Actions) debe correr los scripts:
-```bash
-python main/etl_main.py
+```mermaid
+graph TD
+    Client[Navegador del Usuario] <-->|HTTP/HTTPS - Puerto 3000/3006| NextJS[Frontend Next.js]
+    Client <-->|API REST / JWT - Puerto 4000| ExpressAPI[Backend Express API]
+    ExpressAPI <-->|Consultas SQL / pg.Pool| PostgreSQL[(PostgreSQL Server)]
+    NextJS -.->|Rewrites en next.config.ts| ExpressAPI
 ```
 
----
-
-## 3. Frontend Estructura y UI
-
-Todo el frontend está diseñado sin frameworks reactivos complejos (como React o Angular) para mantener la dependencia de build lo más baja posible (Vanilla JS).
-
-### Carpetas Principales
-- `/main`: Contiene el **Monitor Mensual** (Landing Page post-login). Muestra los ingresos por mes, coparticipación diaria y mensual.
-- `/analisis-anual`: Contiene el **Monitor Anual**, una réplica funcional del Monitor Mensual pero agrupando la data por períodos de 12 meses, útil para entender la macroeconomía provincial anualizada.
-- `/analisis-personal`: Detalla la información referente a la **Masa Salarial**, el impacto del empleo gubernamental, salarios promedio, escalafones, la cobertura salarial frente a la recuadación, y la relación del salario contra la Canasta Básica Total (CBT).
-- `/auth`: Lógica y UI de autenticación visual.
-
-### Componentes Clave
-1. **Estructura HTML (Layout)**: Todas las vistas comparten un layout de un Sidebar izquierdo de navegación (`<aside class="sidebar">`) y un Canvas principal (`<main class="main-content">`).
-2. **Estilos (CSS)**: Se usa CSS plano con **CSS Variables (Custom Properties)** en la raíz (`:root`) para manejar los temas (modos claros/oscuros, paleta de colores verdes de la institución). Se rige por sistemas de Grid y Flexbox responsivos (`styles.css`).
-3. **Controladores JS**: Cada página tiene un analizador `script.js` (ej. `analisis-anual/script.js`). Este archivo es responsable de:
-   - Configurar los event listeners (selector de períodos).
-   - Hacer el `fetch("path/al/json")`.
-   - Repopular el DOM (`document.getElementById()`).
-
-### Motor de Gráficos (Chart.js)
-Se utiliza la librería de código abierto **Chart.js** por su ligereza y facilidad.
-- Todos los gráficos están instanciados de manera que si se cambia de período, la instancia se destruye (`chartInstance.destroy()`) y se vuelve a crear con la nueva *data*.
-- **Plugins/Tooltips**: Se modificó intensamente el objeto `options.plugins.tooltip.callbacks` a través del código JS para inyectarle lógica de negocio (ej. Mostrar "Variación Nominal" calculando en tiempo real la diferencia entre las dos barras sobre las que se hace hover).
+1. **Frontend (Next.js)**: 
+   - Procesa la interfaz de usuario en el lado del cliente (React/TypeScript).
+   - Se comunica dinámicamente con la API REST para renderizar los datos frescos sin necesidad de compilaciones periódicas estáticas.
+2. **Backend (Express API)**: 
+   - Servidor Node.js ligero que expone las rutas RESTful en el puerto 4000.
+   - Gestiona la seguridad (autenticación JWT), la auditoría de accesos automática, y realiza consultas directas y agregaciones analíticas sobre la base de datos PostgreSQL.
 
 ---
 
-## 4. Autenticación Actual
+## 2. Flujo de Comunicación y Configuración de Red
 
-El proyecto posee una carpeta `/auth` que imita o posee un flujo básico e inicial de Login (mock login) antes de entrar al *Tablero Ejecutivo Provincial*. 
+### A. Proxy Reverso y Enrutamiento (Rewrites)
+Para simplificar la configuración del lado del cliente y evitar problemas de CORS (Cross-Origin Resource Sharing) en producción, el frontend de Next.js configura un sistema de **Rewrites** en su archivo de configuración [`next.config.ts`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/next.config.ts):
 
-- La página de inicio es `login.html`.
-- **Importante para el próximo propietario**: Actualmente es un sistema "Client-Side" para restringir el acceso básico a la lectura del dashboard. Como es una SPA de archivos estáticos, la seguridad real para proteger el `dashboard_data.json` dependerá de dónde se despliegue. (Ej. colocar la página tras un Single Sign-On, un Proxy reverso con Basic Auth de Nginx, o reglas de bucket S3 privativas, o reescribir el login frente a un endpoint de autenticación JWT real manejado e.g. mediante AWS Cognito, Firebase o similar).
+- **Ruta de Base (basePath)**: `/copa`
+- **Enrutamiento de API**: Cualquier petición hacia `/copa/copa-api/:path*` o `/copa-api/:path*` es reescrita internamente en el servidor hacia la URL del backend: `http://localhost:4000/:path*`.
+- **Efecto**: El navegador realiza peticiones al mismo dominio y puerto del frontend, y Next.js actúa como proxy reverso transparente hacia el backend.
 
----
-
-## 5. Glosario de Términos Económicos y de Lógica de Negocio
-
-Para los ingenieros de software ajenos al organismo gubernamental, estas son las reglas de negocio mapeadas en los scripts:
-
-*   **RON Bruta**: Total girado por Nación a la provincia.
-*   **RON Neta (o Disponible)**: Es la RON Bruta menos los *descuentos* pre-acordados por leyes u obligaciones impositivas que Nación le retiene a la provincia antes de darle el líquido. **Este es el KPI principal del tablero.** El factor reductor usado suele ser ~19% por ley.
-*   **Masa Salarial (SISPER)**: El costo total de sueldos de la nómina de empleados públicos del mes (proviene del Sistema de Personal, SISPER).
-*   **Cobertura Salarial**: Porcentaje que indica cuánto de los RON disponibles se utiliza mensualmente/anualmente para pagar los sueldos ($ Masa Salarial / $ RON Neta).
-*   **Variación Nominal**: El delta en pesos sin ajustar. (ej. Año X respecto al X-1).
-*   **Variación Real**: El delta deflactado ajustado por el nivel inflacionario emitido por el Instituto Nacional de Estadística y Censos (INDEC). IPC (Índice de Precios al Consumidor) de la región NEA (Noreste Argentino).
-*   **YTD (Year-to-Date)**: Al consultar un año no cerrado (ej. Agosto 2026), el backend recorta los datos del año previo para compararlos únicamente desde Enero a Agosto de 2025. Esto es crucial para que las variaciones nominales y reales no den negativas irreales ("cayó -30% vs todo el año pasado").
-*   **RON Esperada vs Efectiva (Brecha)**: Se presupone por la "Ley de Presupuesto" que la provincia recibirá X por mes. La brecha es cuánto más, o menos, recibió de la nación en la realidad versus lo que se le dijo por ley que recibiría.
-*   **CBT (Canasta Básica Total)**: Monto medido por INDEC. El tablero `analisis-personal` lo usa para medir un índice de "Poder de Compra", es decir, cuántas CBT puede comprar un "Salario Promedio" público en un mes dado. Mide una mejora o empeoramiento real en el bolsillo del empleado público de la provincia a través del tiempo.
+### B. Consumo de API Seguro (`fetchWithAuth`)
+El frontend realiza peticiones HTTP asíncronas utilizando la función auxiliar [`fetchWithAuth`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/src/lib/api.ts):
+1. Recupera el token del usuario desde el `localStorage` (`copa_token`).
+2. Agrega automáticamente la cabecera `Authorization: Bearer <token>` a cada solicitud.
+3. Intercepta las respuestas con código de estado **401 Unauthorized**: si el token ha expirado o es inválido, limpia el `localStorage` y redirige inmediatamente al usuario a la página de login (`/login`).
 
 ---
 
-*FIN DEL DOCUMENTO*
+## 3. Autenticación y Autorización
+
+El acceso a las secciones ejecutivas del tablero está protegido mediante un esquema de **JSON Web Tokens (JWT)**:
+
+1. **Autenticación (Login)**:
+   - El usuario envía sus credenciales al endpoint `/api/auth/login`.
+   - El backend busca el usuario en la tabla `public.usuarios_tableros` verificando que esté activo (`activo = true`) y tenga el permiso correspondiente (`tablero_acceso = 'coparticipacion'`).
+2. **Seguridad y Cifrado de Contraseñas**:
+   - Las contraseñas se almacenan y validan utilizando **Bcrypt**.
+   - **Lógica de Migración Gradual**: Si la base de datos contiene una contraseña en formato de texto plano y el login coincide, la API valida el acceso y, de forma transparente, genera un Hash de Bcrypt seguro, actualizando el registro en la base de datos (`UPDATE public.usuarios_tableros SET password_hash = $1 WHERE id_usuario = $2`).
+3. **Generación de Token**:
+   - Tras el login exitoso, se genera un JWT firmado con la clave privada (`JWT_SECRET`) y con un tiempo de expiración preestablecido de **8 horas**.
+   - El token almacena el `id_usuario`, `username` y `role`.
+4. **Middleware de Protección**:
+   - Las rutas privadas del backend se protegen mediante el middleware [`auth.js`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/api/middleware/auth.js), que decodifica y valida la firma del JWT e inyecta la información del usuario en el objeto de petición (`req.user`).
+
+---
+
+## 4. Telemetría y Registro de Auditoría
+
+El sistema cuenta con un sistema de auditoría exhaustivo para registrar el uso del tablero:
+
+### A. Auditoría Automática (Middleware)
+El backend utiliza el middleware [`activityLogger`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/api/middleware/logger.js) en todas las peticiones:
+- Inyecta una función helper `req.logAction`.
+- Permite a los endpoints de la API registrar interacciones de forma automática en la tabla `public.coparticipacion_registros`.
+- Captura de forma segura:
+  - Identificador de usuario (`id_usuario`).
+  - Acción / Ruta solicitada (`GET /api/personal/masa-salarial`).
+  - Dirección IP del cliente (`ip_cliente`).
+  - Metadatos en formato JSON (parámetros de consulta, parámetros de ruta y cuerpo de peticiones POST/PUT).
+
+### B. Telemetría de Interfaz de Usuario
+Para las acciones que ocurren puramente en el cliente y no generan consultas a la base de datos (por ejemplo, alternar entre vistas, clics en filtros, descargas de reportes):
+- El frontend utiliza el Hook personalizado [`useAnalytics`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/src/hooks/useAnalytics.ts).
+- Este hook realiza una petición POST hacia `/api/analytics/log`.
+- Cuenta con lógica de **Deduplicación (dedupe)** de 1000 ms para evitar registros duplicados causados por clics múltiples rápidos o por el modo estricto de React.
+
+---
+
+## 5. Hosting y Control de Procesos (PM2)
+
+En entornos de producción, la ejecución y estabilidad de ambas aplicaciones (Frontend y API) se controlan de forma centralizada con el administrador de procesos **PM2** mediante el archivo de configuración [`ecosystem.config.js`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/ecosystem.config.js):
+
+- **`copa-web`** (Frontend):
+  - Directorio de trabajo: `apps/web`
+  - Comando: `npm start`
+  - Puerto asignado: **3006**
+- **`copa-api`** (Backend):
+  - Directorio de trabajo: `apps/api`
+  - Comando: `node index.js`
+  - Puerto asignado: **4000**
+
+PM2 se encarga de reiniciar las aplicaciones ante caídas del servidor, gestionar los registros de salida (`logs`) y facilitar los despliegues sin tiempo de inactividad.

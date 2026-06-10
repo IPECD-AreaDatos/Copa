@@ -2,79 +2,79 @@
 
 Este proyecto es un tablero de control ejecutivo, dinámico e interactivo diseñado para el Instituto de Estadística y Ciencia de Datos (IPECD) de la Provincia de Corrientes. 
 
-Permite visualizar la evolución de ingresos por Recursos de Origen Nacional (RON), el peso de la masa salarial del gobierno y la cobertura frente a los ingresos, tanto a nivel mensual como histórico (anual).
+Permite visualizar la evolución de ingresos por Recursos de Origen Nacional (RON) y Recursos de Origen Provincial (ROP), el impacto de la masa salarial del gobierno y su cobertura frente a los ingresos, tanto a nivel mensual como histórico (anual), además de la ejecución presupuestaria de gastos y auditoría de accesos.
+
+---
 
 ## 📊 Arquitectura del Proyecto
 
-El tablero funciona como una **Single Page Application (SPA)** muy ligera construida puramente con HTML, CSS, y Vanilla JavaScript. No requiere Node.js ni un servidor backend en el entorno de despliegue frontend.
+El tablero está estructurado bajo un esquema de **Monorepo** con dos aplicaciones principales:
 
-Los datos con los que se alimenta la interfaz provienen de un archivo estático llamado `dashboard_data.json` que reside en `/main`, el cual es generado por **scripts de Python (ETL)** conectándose periódicamente a una base de datos MySQL gubernamental y procesándolos con `pandas`.
+1. **Frontend (`apps/web`)**: Una aplicación moderna construida con **Next.js (v16)**, **React (v19)**, **TypeScript** y **Tailwind CSS**. Utiliza **Chart.js** (mediante `react-chartjs-2`) para la renderización de gráficos interactivos de coparticipación diaria, acumulados e históricos.
+2. **Backend / API (`apps/api`)**: Un servidor API RESTful construido en **Node.js** con **Express**. Se conecta directamente a bases de datos PostgreSQL para servir consultas dinámicas en tiempo real con soporte de autenticación basada en **JWT** y registro automático de telemetría/auditoría.
 
-Para un nivel más asiduo de detalles arquitectónicos sobre el pipeline de datos, lea la [Documentación de Arquitectura Interna](docs/ARCHITECTURE.md).
+Para un nivel más asiduo de detalles arquitectónicos, consulte la [Documentación de Arquitectura Interna](docs/ARCHITECTURE.md).
 
 ---
 
 ## 📂 Organización del Repositorio
 
-- `/assets` - Recursos estáticos centralizados (logos, imágenes).
-- `/backend` - Scripts de procesamiento de datos (ETL) y archivos de entrada (`inputs/`).
-- `/data` - Archivos JSON generados por los ETL que alimentan el dashboard.
-- `/frontend` - Interfaz de usuario organizada por módulos:
-    - `main/`: Dashboard principal.
-    - `monitor-mensual/`: Análisis histórico detallado mes a mes.
-    - `analisis-anual/`: Macroeconómico interanual y YTD.
-    - `analisis-personal/`: Estadísticas de empleo y masa salarial.
-    - `gasto/`: Análisis de ejecución presupuestaria.
-- `/docs` - Documentación técnica y glosario financiero.
+- **`apps/`** - Aplicaciones del monorepo:
+  - **[`apps/web`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web)**: Frontend en Next.js.
+  - **[`apps/api`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/api)**: Backend API en Express.
+- **`backend/`** - Recursos heredados y entradas manuales de datos en bruto:
+  - **[`backend/inputs`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/backend/inputs)**: Contiene archivos consolidados Excel/CSV (`presupuesto.xlsx`, `masa_salarial.xlsx`, `reca.xlsx`, `consolidado_copa_esperada.csv`).
+- **`docs/`** - Nueva documentación del sistema:
+  - **[`docs/ARCHITECTURE.md`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/docs/ARCHITECTURE.md)**: Arquitectura detallada y flujo de comunicación.
+  - **[`docs/DATABASE_SCHEMA.md`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/docs/DATABASE_SCHEMA.md)**: Estructura de tablas, vistas y bases de datos.
+  - **[`docs/MODULES.md`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/docs/MODULES.md)**: Detalle de las pantallas y lógica de negocio visual.
+  - **[`docs/API_REFERENCE.md`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/docs/API_REFERENCE.md)**: Referencia de rutas, payloads y telemetría de la API.
+  - **[`docs/GLOSSARY.md`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/docs/GLOSSARY.md)**: Glosario de términos financieros, ratios legales y fórmulas.
+- **`dev.ps1`** - Script de PowerShell para automatización del entorno local.
+- **`ecosystem.config.js`** - Archivo de configuración de PM2 para el despliegue en producción.
 
 ---
 
 ## 🛠 Instalación y Desarrollo Local
 
-### 1. Variables de Entorno (Credenciales Seguras)
-Copie el archivo `.env.example` en la raíz del proyecto y renómbrelo a `.env`. Complete los datos de conexión a la base de datos MySQL y PostgreSQL.
+### 1. Variables de Entorno
+Cree un archivo `.env` en la raíz del proyecto basándose en `.env.example` (o modifique el `.env` existente) completando las credenciales de PostgreSQL y la clave para JWT:
 
-```bash
-cp .env.example .env
+```ini
+PG_HOST=149.50.145.182
+PG_PORT=5432
+PG_USER=mi_usuario
+PG_PASSWORD=mi_password
+PG_DATABASE=datos_tablero
+JWT_SECRET=clave_secreta_jwt
+PORT=4000
 ```
 
-### 2. Dependencias del Motor de Datos (Python)
-Se recomienda usar un entorno virtual. Instale los paquetes necesarios:
+### 2. Levantar el Entorno Local
+Para iniciar tanto la API como el frontend Next.js simultáneamente en terminales independientes, ejecute el script de PowerShell provisto:
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # En Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+```powershell
+./dev.ps1
 ```
 
-### 3. Ejecución del Proceso ETL (Backend)
-Para actualizar los datos del tablero, ejecute los scripts desde la raíz:
+Esto levantará de forma automática:
+- **API**: [http://localhost:4000](http://localhost:4000)
+- **Web (Next.js)**: [http://localhost:3000](http://localhost:3000) (con redirección al Login si no hay sesión iniciada).
 
-```bash
-# Procesamiento de recursos (RON)
-python backend/etl_main.py
-
-# Procesamiento de personal
-python backend/etl_personal.py
-```
-Los archivos JSON resultantes se guardarán automáticamente en la carpeta `data/`.
-
-### 4. Inicialización del Tablero (Frontend)
-Debido a políticas de seguridad CORS, se debe ejecutar un servidor HTTP local.
-
-Vía Python:
-```bash
-python -m http.server 8000
-```
-Luego visite: `http://localhost:8000` (el cual redirigirá automáticamente al sistema de login).
+*Nota: Si se encuentra en un entorno de desarrollo no Windows, deberá ingresar en `apps/api` y ejecutar `node index.js`, y en `apps/web` ejecutar `npm run dev`.*
 
 ---
 
-## 🚀 Despliegue en Producción (Deployment)
+## 🚀 Despliegue en Producción (PM2)
 
-1. **Hostear el Frontend HTML/CSS/JS**: Como todo es HTML estático, puede alojarse gratuitamente y rapidísimo en **GitHub Pages**, **Vercel**, **Netlify**, o un bucket S3 de AWS.
-2. **Restricción de Acceso Público**: El Tablero Ejecutivo maneja montos provinciales, por lo cual la URL u Origen no deben estar públicos si no se cuenta con una capa de seguridad sólida (`/auth`) amarrada a un servidor real (`auth0`, Cognito, etc.) en vez del mock system actual provisto.
-3. **Automatización ETL (CI/CD)**: Para no tener que teclear diariamente el comando manual de Python, lo estándar es configurar un WorkFlow programado (Cronjob) en **GitHub Actions** o AWS Lambda. El Action se conectará a la BDD, correrá el script (guardando temporalmente las variables de MySQL .env seguras allí llamadas Secrets), commiteará internamente el nuevo `dashboard_data.json` pisando al viejo, y re-desplegará automáticamente la página.
+El proyecto está preparado para desplegarse mediante el administrador de procesos **PM2** utilizando el archivo `ecosystem.config.js`:
+
+```bash
+# Iniciar servicios en producción
+pm2 start ecosystem.config.js
+```
+
+En producción, el frontend estático compilado de Next.js escucha en el puerto **3006** y la API de Node.js en el puerto **4000**. Los rewrites de Next.js se encargan de enrutar las peticiones dinámicas de `/copa/copa-api/*` hacia el puerto **4000** del backend en forma transparente.
 
 ---
-Elaborado inicialmente por IPECD.
+Elaborado por el Instituto de Estadística y Ciencia de Datos (IPECD) de la Provincia de Corrientes.
