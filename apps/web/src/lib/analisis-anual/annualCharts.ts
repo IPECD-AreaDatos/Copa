@@ -93,7 +93,7 @@ export function monthlyAnnualOptions(): ChartOptions<"bar"> {
             const label = ctx.dataset.label || "";
             const y = ctx.parsed.y;
             if (y !== null && !Number.isNaN(y)) {
-              return `${label}: ${formatBillions(y)}`;
+              return `${label}: ${formatMillions(y)}`;
             }
             return "";
           },
@@ -103,7 +103,7 @@ export function monthlyAnnualOptions(): ChartOptions<"bar"> {
             if (valCurr > 0 && valPrev > 0) {
               const diff = valCurr - valPrev;
               const sign = diff > 0 ? "+" : "";
-              return `\nVar. Nominal: ${sign}${formatBillions(diff)}`;
+              return `\nVar. Nominal: ${sign}${formatMillions(diff)}`;
             }
             return "";
           },
@@ -119,7 +119,7 @@ export function monthlyAnnualOptions(): ChartOptions<"bar"> {
         grid: { color: "rgba(0,0,0,0.05)" },
         ticks: {
           color: "#64748b",
-          callback: (val) => formatBillions(Number(val)),
+          callback: (val) => formatMillions(Number(val)),
         },
       },
     },
@@ -226,7 +226,7 @@ export function copaVsAnnualOptions(): ChartOptions<"bar" | "line"> {
             const label = ctx.dataset.label || "";
             const y = ctx.parsed.y;
             if (y !== null && !Number.isNaN(y)) {
-              return `${label}: ${formatBillions(Number(y))}`;
+              return `${label}: ${formatMillions(Number(y))}`;
             }
             return "";
           },
@@ -245,7 +245,7 @@ export function copaVsAnnualOptions(): ChartOptions<"bar" | "line"> {
           font: { size: 11 },
           color: "#64748b",
           maxTicksLimit: 6,
-          callback: (value) => formatBillions(Number(value)),
+          callback: (value) => formatMillions(Number(value)),
         },
       },
       x: {

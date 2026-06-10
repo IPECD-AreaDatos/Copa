@@ -273,7 +273,7 @@ export default function GastoDashboard() {
       <section className="chart-container heatmap-section" style={{ marginBottom: "3rem" }}>
         <div
           className="info-tooltip"
-          data-tooltip="Mapa de calor del ratio acumulado / Crédito Vigente. Tocá una jurisdicción para ocultarla."
+          data-tooltip="Mapa de calor que muestra la relación entre el crédito comprometido acumulado y el crédito vigente, según partida y jurisdicción. Los colores representan distintos niveles de ejecución presupuestaria."
         >?</div>
         <div className="section-header">
           <div>
@@ -373,7 +373,7 @@ export default function GastoDashboard() {
                       <td
                         key={c.j}
                         className="heatmap-cell"
-                        style={{ backgroundColor: c.color }}
+                        style={{ backgroundColor: c.color, color: c.textColor }}
                         title={c.title}
                         onClick={() => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
                       >
@@ -393,7 +393,7 @@ export default function GastoDashboard() {
 
       {/* 2. TABLA COMPOSICIÓN */}
       <section className="chart-container" style={{ marginBottom: "3rem" }}>
-        <div className="info-tooltip" data-tooltip="Composición del Gasto por partida con Crédito Vigente, Comprometido y Ordenado.">?</div>
+        <div className="info-tooltip" data-tooltip="Muestra la composición del gasto por partida presupuestaria, incluyendo crédito vigente, crédito comprometido y gasto ordenado para el mes seleccionado. También se presentan los porcentajes que representan el comprometido y ordenado sobre el crédito vigente -.">?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">{table?.title ?? "Composición del Gasto"}</h2>
@@ -567,7 +567,7 @@ export default function GastoDashboard() {
 
       {/* 3. AVANCE DE EJECUCIÓN */}
       <section className="chart-container full-width-chart" style={{ marginBottom: "3rem" }}>
-        <div className="info-tooltip" data-tooltip="Comprometido y Ordenado vs Crédito Vigente. Línea roja = ejecución teórica.">?</div>
+        <div className="info-tooltip" data-tooltip="Muestra el porcentaje de crédito comprometido y ordenado respecto al crédito vigente para cada partida presupuestaria. La línea de referencia representa el nivel de ejecución teórico acumulado según la cantidad de meses transcurridos">?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">Avance de Ejecución por Partida (Acumulado)</h2>
@@ -705,7 +705,7 @@ export default function GastoDashboard() {
 
       {/* 4. CASCADA */}
       <section className="chart-container full-width-chart" style={{ marginBottom: "3rem" }}>
-        <div className="info-tooltip" data-tooltip="Barras flotantes de ejecución mensual vs techos teóricos (1/12).">?</div>
+        <div className="info-tooltip" data-tooltip="Permite observar el avance mensual acumulado de la ejecución presupuestaria respecto a los techos teóricos de ejecución esperado para cada mes.">?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">Ejecución Acumulada Gráfico Cascada</h2>
