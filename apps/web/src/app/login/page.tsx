@@ -59,9 +59,20 @@ export default function LoginPage() {
       <div className="login-card-wrapper">
         <div className="login-card">
           <div className="logo-container">
-            <div className="logo">R</div>
+            <img
+              src="/copa/assets/logo-provincia.png"
+              alt="Logo Provincia de Corrientes"
+              style={{
+                width: '150px',
+                height: '150px',
+                objectFit: 'contain',
+                margin: '0 auto 20px',
+                display: 'block',
+                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.35))'
+              }}
+            />
             <h1>Bienvenido</h1>
-            <p className="subtitle">Sistema de Análisis de RON</p>
+            <p className="subtitle">Tablero de Control - Recursos de Origen Nacional (RON)</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -109,7 +120,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="footer-text">© 2026 Sistema de Recursos de Origen Nacional (RON)</p>
+          <p className="footer-text">© 2026 Instituto de Modernización e Innovación - Corrientes</p>
         </div>
       </div>
 
@@ -181,32 +192,19 @@ export default function LoginPage() {
         }
 
         .login-card {
-          background: rgba(27, 40, 57, 0.85);
+          background: rgba(20, 30, 45, 0.85);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(52, 211, 153, 0.2);
+          border: 1px solid rgba(52, 211, 153, 0.25);
           border-radius: 24px;
           padding: 48px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         .logo-container {
           text-align: center;
           margin-bottom: 32px;
         }
-        .logo {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto 16px;
-          background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-          border-radius: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 36px;
-          font-weight: 700;
-          color: #0f1419;
-          box-shadow: 0 10px 30px rgba(52, 211, 153, 0.3);
-        }
+
 
         h1 {
           font-size: 28px;
@@ -217,6 +215,10 @@ export default function LoginPage() {
           color: #94a3b8;
           font-size: 14px;
           margin-bottom: 32px;
+          line-height: 1.5;
+          max-width: 320px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         .form-group {

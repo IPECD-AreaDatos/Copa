@@ -8,9 +8,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tablero Ejecutivo Provincial",
+  title: "IMI - Tablero de Control RON",
   description:
     "Tablero de control de Recursos de Origen Nacional (RON) y empleo — IPECD Corrientes",
+  icons: {
+    icon: "/copa/assets/logo-provincia.png",
+  },
 };
 
 export default function RootLayout({
