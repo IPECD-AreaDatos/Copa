@@ -1147,6 +1147,11 @@ footer.app-footer {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.heatmap-cell.is-empty {
+  pointer-events: none;
+  border-color: transparent;
+}
+
 .table-container {
   border-radius: 12px;
   padding: 0;

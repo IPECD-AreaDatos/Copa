@@ -48,16 +48,39 @@ function interpolateColor(c1: number[], c2: number[], t: number) {
 }
 
 export function heatmapColor(ratio: number) {
-  if (ratio <= 0) {
-    return { bg: "#64748b", text: "#ffffff" }; // Gris para 0%
+  const pct = Math.round(ratio * 100);
+  if (pct <= 0) {
+    return { bg: "transparent", text: "transparent" }; // Transparent for 0%
   }
-  if (ratio <= 0.45) {
-    return { bg: "#10b981", text: "#ffffff" }; // Verde
+
+  const C_VERDE_OSC = [64, 123, 51];  // #407B33 a los 25%
+  const C_VERDE_CLA = [93, 155, 79];  // #5d9b4f a los 45%
+  const C_AMARILLO = [250, 207, 50];  // #facf32 a los 60%
+  const C_NARANJA = [255, 162, 0];    // #FFA200 a los 75%
+  const C_ROJO = [199, 6, 1];         // #C70601 a los 90%
+  const C_ROJO_OSC = [144, 0, 0];     // #900000 a los 100%
+
+  if (pct <= 25) {
+    return { bg: "#407B33", text: "#ffffff" }; // Arranca directamente desde el verde oscuro
   }
-  if (ratio <= 0.75) {
-    return { bg: "#eab308", text: "#1e293b" }; // Amarillo (con texto oscuro para legibilidad)
+  if (pct <= 45) {
+    const t = (pct - 25) / (45 - 25);
+    return { bg: interpolateColor(C_VERDE_OSC, C_VERDE_CLA, t), text: "#ffffff" };
   }
-  return { bg: "#ef4444", text: "#ffffff" }; // Rojo
+  if (pct <= 60) {
+    const t = (pct - 45) / (60 - 45);
+    return { bg: interpolateColor(C_VERDE_CLA, C_AMARILLO, t), text: "#ffffff" };
+  }
+  if (pct <= 75) {
+    const t = (pct - 60) / (75 - 60);
+    return { bg: interpolateColor(C_AMARILLO, C_NARANJA, t), text: "#ffffff" };
+  }
+  if (pct <= 90) {
+    const t = (pct - 75) / (90 - 75);
+    return { bg: interpolateColor(C_NARANJA, C_ROJO, t), text: "#ffffff" };
+  }
+  const t = Math.min(1, (pct - 90) / 10);
+  return { bg: interpolateColor(C_ROJO, C_ROJO_OSC, t), text: "#ffffff" };
 }
 
 export type HeatmapInput = {
@@ -91,7 +114,7 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
     if (rowYear === currentYear) {
       if (d.estado === estado) estadoAcum[key] = (estadoAcum[key] || 0) + d.monto;
     }
-    
+
     // El crédito vigente lo tomamos siempre del último mes reportado para ese año
     if (d.estado === "Credito Vigente" && d.periodo === ultimoPeriodo) vigente[key] = (vigente[key] || 0) + d.monto;
   });
@@ -162,8 +185,8 @@ export function computeCompositionTable(inp: TableInput) {
 
   const matchPeriodo = (d: GastoRow) =>
     !inp.periodoSel ||
-    inp.periodoSel.length === 0 ||
-    inp.periodoSel.length === allPeriodos.length
+      inp.periodoSel.length === 0 ||
+      inp.periodoSel.length === allPeriodos.length
       ? true
       : inp.periodoSel.includes(d.periodo);
 
@@ -275,8 +298,8 @@ export function computeRatioChartData(inp: RatioInput): {
 
   const matchPeriodo = (d: GastoRow) =>
     !inp.periodoSel ||
-    inp.periodoSel.length === 0 ||
-    inp.periodoSel.length === allPeriodos.length
+      inp.periodoSel.length === 0 ||
+      inp.periodoSel.length === allPeriodos.length
       ? true
       : inp.periodoSel.includes(d.periodo);
 

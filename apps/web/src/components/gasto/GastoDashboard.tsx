@@ -372,12 +372,12 @@ export default function GastoDashboard() {
                     {row.cells.map((c) => (
                       <td
                         key={c.j}
-                        className="heatmap-cell"
+                        className={`heatmap-cell ${c.pct <= 0 ? "is-empty" : ""}`}
                         style={{ backgroundColor: c.color, color: c.textColor }}
                         title={c.title}
-                        onClick={() => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
+                        onClick={c.pct <= 0 ? undefined : () => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
                       >
-                        {formatPctNoDecimals(c.pct)}
+                        {c.pct <= 0 ? "" : formatPctNoDecimals(c.pct)}
                       </td>
                     ))}
                   </tr>
