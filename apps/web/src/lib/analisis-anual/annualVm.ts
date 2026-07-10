@@ -26,6 +26,9 @@ export type AnnualKpiBundle = {
     var_nom?: number;
     var_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     ipc_used_for_calc?: number;
     avg_ipc_used?: number;
     esperada?: number;
@@ -40,6 +43,9 @@ export type AnnualKpiBundle = {
     var_real?: number;
     diff_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     esperada_prov?: number;
     brecha_abs_prov?: number;
     brecha_pct_prov?: number;
@@ -55,6 +61,9 @@ export type AnnualKpiBundle = {
     var_nom?: number;
     var_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
   };
   masa_salarial: {
     current?: number;
@@ -65,6 +74,9 @@ export type AnnualKpiBundle = {
     var_nom?: number;
     var_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     is_incomplete?: boolean;
   };
   recaudacion_provincial?: {

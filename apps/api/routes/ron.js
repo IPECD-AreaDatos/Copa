@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const gastosDb = require('../db');
 const authMiddleware = require('../middleware/auth');
+const { createInflationResolver } = require('../services/inflation-resolver');
 const fs = require('fs');
 const path = require('path');
 const annualPath = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
@@ -65,6 +66,67 @@ function buildMasaCumulativeSerie(labels, masaByPeriodo, year, scale) {
     });
 }
 
+function getAnnualInflation(resolver, year, maxMonth) {
+    const results = [];
+    for (let month = 1; month <= maxMonth; month++) {
+        results.push(resolver.resolveYearOverYear(`${year}-${String(month).padStart(2, '0')}`));
+    }
+    if (results.some((result) => result.yoyRate === null)) {
+        return { yoyRate: null, source: 'unavailable', isProjected: false, remPublishedAt: null };
+    }
+    const isProjected = results.some((result) => result.isProjected);
+    return {
+        yoyRate: results.reduce((sum, result) => sum + result.yoyRate, 0) / results.length,
+        source: isProjected ? 'rem_bcra' : 'official',
+        isProjected,
+        remPublishedAt: isProjected ? results.find((result) => result.remPublishedAt)?.remPublishedAt ?? null : null,
+    };
+}
+
+function applyAnnualInflation(kpi, resolver, year, maxMonth) {
+    const inflation = getAnnualInflation(resolver, year, maxMonth);
+    const meta = resolver.toApiMeta(inflation);
+    const ipcPct = inflation.yoyRate === null ? null : inflation.yoyRate * 100;
+    const calculateReal = (current, previous) => (
+        inflation.yoyRate !== null && Number(previous) > 0
+            ? ((Number(current) / Number(previous)) / (1 + inflation.yoyRate) - 1) * 100
+            : 0
+    );
+
+    kpi.recaudacion = {
+        ...kpi.recaudacion,
+        var_real: calculateReal(kpi.recaudacion.current, kpi.recaudacion.prev),
+        ipc_used_for_calc: ipcPct,
+        ...meta,
+    };
+    if (kpi.rop) {
+        kpi.rop = {
+            ...kpi.rop,
+            var_real: calculateReal(kpi.rop.disponible_current, kpi.rop.disponible_prev),
+            diff_real: inflation.yoyRate === null ? undefined : kpi.rop.disponible_current - kpi.rop.disponible_prev * (1 + inflation.yoyRate),
+            ...meta,
+        };
+    }
+    if (kpi.distribucion_municipal) {
+        const muni = kpi.distribucion_municipal;
+        kpi.distribucion_municipal = {
+            ...muni,
+            var_real: calculateReal(muni.current, muni.prev),
+            diff_real: inflation.yoyRate === null ? undefined : muni.current - muni.prev * (1 + inflation.yoyRate),
+            ipc_used_for_calc: ipcPct,
+            ...meta,
+        };
+    }
+    if (kpi.masa_salarial) {
+        kpi.masa_salarial = {
+            ...kpi.masa_salarial,
+            var_real: calculateReal(kpi.masa_salarial.current, kpi.masa_salarial.prev),
+            ipc_used_for_calc: ipcPct,
+            ...meta,
+        };
+    }
+}
+
 /**
  * Adaptador de Compatibilidad para el Monitor Anual.
  * Genera la estructura de _data_ipce_v1.json dinámicamente desde SQL.
@@ -72,6 +134,7 @@ function buildMasaCumulativeSerie(labels, masaByPeriodo, year, scale) {
 router.get('/annual-monitor', authMiddleware, async (req, res) => {
     try {
         const masaByPeriodo = await getMasaSalarialByPeriodo();
+        const inflationResolver = await createInflationResolver();
         const annual = getAnnualMonitorBase();
 
         const SCALE = 1000000;
@@ -117,6 +180,8 @@ router.get('/annual-monitor', authMiddleware, async (req, res) => {
                 row.charts.copa_vs_salario.salario_target =
                     buildMasaCumulativeSerie(labels, masaByPeriodo, year, SCALE);
             }
+
+            applyAnnualInflation(row.kpi, inflationResolver, year, maxMonth);
         });
 
         const years = Object.keys(data)
