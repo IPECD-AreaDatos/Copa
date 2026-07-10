@@ -212,6 +212,12 @@ export default function AnalisisAnualDashboard() {
         </div>
       </header>
 
+      {periodRow.kpi.recaudacion.ipc_projected && (
+        <p className="source-text" style={{ padding: "0 3%", textAlign: "left", marginTop: "0.5rem" }}>
+          Inflación promedio estimada con REM (BCRA), publicación {periodRow.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.
+        </p>
+      )}
+
       {/* 1. SECCIÓN: RON */}
       <section className="section-group" style={{ marginTop: "1rem" }}>
         <div className="hero-grid-flex">

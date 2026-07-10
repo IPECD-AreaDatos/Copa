@@ -250,6 +250,12 @@ export default function MonitorMensualDashboard() {
         </div>
       </header>
 
+      {chosen.kpi.recaudacion.ipc_projected && (
+        <p className="source-text" style={{ padding: "0 3%", textAlign: "left", marginTop: "0.5rem" }}>
+          Inflación estimada con REM (BCRA), publicación {chosen.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.
+        </p>
+      )}
+
       {/* SECCIÓN: RESUMEN TOTAL */}
       <section className="section-group">
         <div className="hero-grid-flex" style={{ marginTop: "1rem" }}>

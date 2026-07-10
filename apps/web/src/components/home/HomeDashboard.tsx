@@ -31,7 +31,12 @@ type MainJson = {
     string,
     {
       kpi: {
-        recaudacion: { bruta_current: number; ipc_missing: boolean };
+        recaudacion: {
+          bruta_current: number;
+          ipc_missing: boolean;
+          ipc_projected?: boolean;
+          ipc_rem_published_at?: string | null;
+        };
         rop?: { bruta_current: number };
         resumen: { total_recursos_brutos_var_real: number | null };
         masa_salarial: {
@@ -39,6 +44,8 @@ type MainJson = {
           var_real: number | null;
           is_incomplete: boolean;
           ipc_missing: boolean;
+          ipc_projected?: boolean;
+          ipc_rem_published_at?: string | null;
           current: number;
         };
         distribucion_municipal?: { current: number };
@@ -49,7 +56,7 @@ type MainJson = {
     labels: string[];
     total_var_interanual?: number[];
     copa_var_interanual?: number[];
-    ipc_var_interanual: number[];
+    ipc_var_interanual: (number | null)[];
   };
 };
 
@@ -354,7 +361,10 @@ export default function HomeDashboard() {
   }, []);
 
   useEffect(() => {
-    fetchWithAuth("/copa/copa-api/api/dashboard/home")
+    fetchWithAuth("/copa/copa-api/api/dashboard/home", {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -417,6 +427,9 @@ export default function HomeDashboard() {
       copa: { ...copa, subtitleColor: subStyleIncomplete, periodLabelFinal },
       cobertura,
       masa: { ...masa, subtitleColor: subStyleIncomplete, periodLabelFinal },
+      ipcProjectionNote: row.kpi.recaudacion.ipc_projected
+        ? `Inflación estimada con REM (BCRA), publicación ${row.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.`
+        : null,
     };
   }, [mainData, currentPeriodId]);
 
@@ -499,6 +512,12 @@ export default function HomeDashboard() {
           </select>
         </div>
       </header>
+
+      {kpis?.ipcProjectionNote && (
+        <p className="source-text" style={{ padding: "0 3%", textAlign: "left", marginTop: "0.5rem" }}>
+          {kpis.ipcProjectionNote}
+        </p>
+      )}
 
       <section className="section-group">
         <div className="hero-grid-flex">
