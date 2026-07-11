@@ -40,3 +40,6 @@ yarn-error.log*
 Icon?
 .Spotlight-V100
 .Trashes
+
+# AWS Credentials
+/Credenciales-AWS/
