@@ -38,8 +38,12 @@ const getEnvValue = (key: string): string => {
   return "";
 };
 
+const basePath = getEnvValue("NEXT_PUBLIC_BASE_PATH") || "/copa";
+const apiPort = getEnvValue("PORT") || "4000";
+const apiDestination = `http://localhost:${apiPort}/:path*`;
+
 const nextConfig: NextConfig = {
-  basePath: '/copa',
+  basePath: basePath,
   env: {
     ARA_WEB_API_PUBLIC_BASE_URL: getEnvValue("ARA_WEB_API_PUBLIC_BASE_URL"),
     ARA_WIDGET_TENANT_ROUTES_JSON: getEnvValue("ARA_WIDGET_TENANT_ROUTES_JSON"),
@@ -52,13 +56,13 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/copa/copa-api/:path*',
-        destination: 'http://localhost:4000/:path*',
+        source: `${basePath}/copa-api/:path*`,
+        destination: apiDestination,
         basePath: false,
       },
       {
         source: '/copa-api/:path*',
-        destination: 'http://localhost:4000/:path*',
+        destination: apiDestination,
         basePath: false,
       },
     ];
