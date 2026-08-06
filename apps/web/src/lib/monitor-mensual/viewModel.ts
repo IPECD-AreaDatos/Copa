@@ -394,10 +394,12 @@ export function buildMonitorViewModel(
   const diffNomNet = kpi.recaudacion.diff_nom ?? 0;
   const diffSign = diffNomNet >= 0 ? "+" : "-";
 
+  const isJune = monthName.toLowerCase() === "junio" || periodId.endsWith("-06");
+
   let masaVarNomPct = "";
   let masaVarNomPctClass = "";
   let masaVarNomAbs = "";
-  if (isIncomplete) {
+  if (isIncomplete || isJune) {
     masaVarNomPct = "Sin datos";
     masaVarNomPctClass = "kpi-value text-secondary";
     masaVarNomAbs = " - ";
@@ -414,8 +416,8 @@ export function buildMonitorViewModel(
   let masaRealPctClass = "";
   let masaRealAbs = "--";
   let masaRealAbsClass = "";
-  if (isIncomplete || isIpcNeaMissingMasa) {
-    masaRealPct = isIpcNeaMissingMasa ? "Sin IPC completo" : "Sin datos";
+  if (isIncomplete || isIpcNeaMissingMasa || isJune) {
+    masaRealPct = (isIpcNeaMissingMasa && !isJune) ? "Sin IPC completo" : "Sin datos";
     masaRealPctClass = "kpi-value text-secondary text-missing";
   } else {
     masaRealPct = formatPercentage(kpi.masa_salarial.var_real ?? 0);
@@ -512,16 +514,16 @@ export function buildMonitorViewModel(
       realAbsClass: isIpcNacionMissing ? "" : recaudacionRealAbsClass,
     },
     masa: {
-      current: isIncomplete ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
-      prev: formatMillions(kpi.masa_salarial.prev),
-      cobCurr: `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
-      cobPrev: `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
+      current: (isIncomplete || isJune) ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
+      prev: isJune ? "Sin datos" : formatMillions(kpi.masa_salarial.prev),
+      cobCurr: isJune ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
+      cobPrev: isJune ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
       varNomPct: masaVarNomPct,
       varNomPctClass: masaVarNomPctClass,
-      varNomAbs: masaVarNomAbs,
+      varNomAbs: isJune ? " - " : masaVarNomAbs,
       realPct: masaRealPct,
       realPctClass: masaRealPctClass,
-      realAbs: masaRealAbs,
+      realAbs: isJune ? " - " : masaRealAbs,
       realAbsClass: masaRealAbsClass,
     },
     presupuesto,

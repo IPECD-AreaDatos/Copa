@@ -603,7 +603,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.currentYear}`}</div>
             <div className="kpi-value">{vm.masa.current}</div>
             <div className="kpi-sub">
-              <strong style={{ color: "#10b981" }}>{vm.masa.cobCurr}</strong>
+              <strong style={{ color: vm.masa.cobCurr === "Sin datos" ? "#64748b" : "#10b981" }}>{vm.masa.cobCurr}</strong>
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.prev)}` }}>
@@ -623,7 +623,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               <strong>{vm.masa.cobPrev}</strong>
             </div>
           </article>
-          {!vm.isIncomplete && (
+          {(!vm.isIncomplete || vm.monthName.toLowerCase() === "junio" || periodId.endsWith("-06")) && (
             <>
               <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.varNomPct)}` }}>
                 <div
@@ -637,7 +637,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
                   ?
                 </div>
                 <div className="kpi-label">Variación Nominal Masa Salarial</div>
-                <div className={vm.masa.varNomPctClass} style={{ color: "#10b981" }}>{vm.masa.varNomPct}</div>
+                <div className={vm.masa.varNomPctClass} style={{ color: vm.masa.varNomPct === "Sin datos" ? "#64748b" : "#10b981" }}>{vm.masa.varNomPct}</div>
                 <div className="kpi-sub">
                   <strong>{vm.masa.varNomAbs}</strong> Interanual
                 </div>
