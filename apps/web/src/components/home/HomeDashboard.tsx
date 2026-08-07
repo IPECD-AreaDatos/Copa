@@ -401,11 +401,14 @@ export default function HomeDashboard() {
     const cobertura = fmtPct(kpiCobertura, { coverage: true })!;
 
     const isIpcNeaMissingMasa = masaData.ipc_missing;
+    const isJune = periodLabel.toLowerCase() === "junio" || currentPeriodId.endsWith("-06");
     const kpiMasaReal =
-      masaData.is_incomplete || isIpcNeaMissingMasa ? null : masaData.var_real;
+      masaData.is_incomplete || isIpcNeaMissingMasa || isJune ? null : masaData.var_real;
 
     let masa: ReturnType<typeof fmtPct> | ReturnType<typeof fmtMissing>;
-    if (kpiMasaReal === null || kpiMasaReal === undefined) {
+    if (isJune) {
+      masa = fmtMissing(null);
+    } else if (kpiMasaReal === null || kpiMasaReal === undefined) {
       masa = fmtMissing(isIpcNeaMissingMasa ? "IPC" : null);
     } else {
       masa = fmtPct(kpiMasaReal)!;
