@@ -2,9 +2,9 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const router = express.Router();
-const db_datalake = require('../db_datalake'); // Para IPC
 const db_copa = require('../db');            // Para RON y Gastos (Datos frescos)
 const authMiddleware = require('../middleware/auth');
+const { createInflationResolver } = require('../services/inflation-resolver');
 
 // Solo para las tarjetas de "presupuesto/esperado" del monitor mensual.
 // El resto (recaudado/variaciones) se calcula 100% desde BD.
@@ -52,33 +52,8 @@ router.get('/home', async (req, res) => {
             LIMIT 12
         `);
 
-        // 2. Obtener IPC desde la DB datalake
-        // IPC mensual (NIVEL GENERAL - TOTAL PAÍS): un valor por año/mes.
-        // La tabla `ipc` tiene múltiples series (categorías/divisiones), por eso filtramos.
-        const ipcResult = await db_datalake.query(`
-            SELECT 
-                EXTRACT(YEAR FROM fecha)::int as anio, 
-                EXTRACT(MONTH FROM fecha)::int as mes, 
-                MAX(valor) as ipc_valor
-            FROM ipc
-            WHERE id_region = 1
-              AND id_categoria = 1
-              AND id_division = 1
-              AND id_subdivision = 1
-            GROUP BY 1, 2
-            ORDER BY 1 DESC, 2 DESC
-        `);
-        const ipcMap = ipcResult.rows.reduce((acc, row) => {
-            const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = parseFloat(row.ipc_valor);
-            return acc;
-        }, {});
-
-        // Fallback de IPC (Variaciones interanuales del JSON original)
-        const ipcFallbackVar = {
-            "2026-05": 33.4022, "2026-04": 32.3734, "2026-03": 32.6067, 
-            "2026-02": 33.0514, "2026-01": 32.4118, "2025-12": 31.5487
-        };
+        // IPC oficial; si falta un mes, el resolver encadena REM dinámicamente.
+        const inflationResolver = await createInflationResolver();
 
         // 3. Obtener ROP (Recursos de Origen Provincial)
         const ropResult = await db_copa.query(`
@@ -159,10 +134,10 @@ router.get('/home', async (req, res) => {
 
         ronRowsAsc.forEach((row, idx) => {
             const periodId = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
-            const ipcCurr = ipcMap[periodId];
             const prevYear = row.anio - 1;
-            const ipcPrev = ipcMap[`${prevYear}-${String(row.mes).padStart(2, '0')}`];
-            let vIpc = (ipcCurr > 0 && ipcPrev > 0) ? (ipcCurr / ipcPrev) - 1 : (ipcFallbackVar[periodId] / 100 || null);
+            const inflation = inflationResolver.resolveYearOverYear(periodId);
+            const vIpc = inflation.yoyRate;
+            const ipcMeta = inflationResolver.toApiMeta(inflation);
 
             const masaValue = masaMap[periodId] || 0;
             const masaPrevValue = masaMap[`${prevYear}-${String(row.mes).padStart(2, '0')}`] || 0;
@@ -197,7 +172,7 @@ router.get('/home', async (req, res) => {
                 kpi: {
                     recaudacion: { 
                         bruta_current: ronBruto / 1000000, 
-                        ipc_missing: vIpc === null 
+                        ...ipcMeta
                     },
                     rop: {
                         bruta_current: (ropData.curr || 0) / 1000000
@@ -211,7 +186,7 @@ router.get('/home', async (req, res) => {
                         cobertura_current: totalBruto > 0 ? (masaValue / totalBruto) * 100 : 0,
                         var_real: varRealMasa !== null ? varRealMasa * 100 : 0,
                         is_incomplete: isIncomplete,
-                        ipc_missing: vIpc === null
+                        ...ipcMeta
                     },
                     distribucion_municipal: { 
                         current: (ronNeto * RON_MUNI_RATIO + ropData.curr * ROP_MUNI_RATIO) / 1000000 
@@ -233,12 +208,13 @@ router.get('/home', async (req, res) => {
             const vNom = row.ron_bruto_anterior > 0 ? (row.ron_bruto / row.ron_bruto_anterior) - 1 : 0;
             totalVarInteranual.push(vNom * 100);
 
-            const ipcCurr = ipcMap[`${row.anio}-${mesPad}`];
-            const ipcPrev = ipcMap[`${row.anio - 1}-${mesPad}`];
-            let vIpc = (ipcCurr > 0 && ipcPrev > 0) ? (ipcCurr / ipcPrev) - 1 : (ipcFallbackVar[periodId] / 100 || 0);
-            ipcVarInteranual.push(vIpc * 100);
+            const vIpc = inflationResolver.resolveYearOverYear(periodId).yoyRate;
+            ipcVarInteranual.push(vIpc === null ? null : vIpc * 100);
         });
 
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.json({
             meta: { 
                 default_period_id: defaultId, 
@@ -289,31 +265,8 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             ORDER BY curr.anio DESC, curr.mes DESC
         `);
 
-        // 2. Obtener IPC (db_datalake)
-        // IPC mensual (NIVEL GENERAL - TOTAL PAÍS): un valor por año/mes.
-        const ipcResult = await db_datalake.query(`
-            SELECT 
-                EXTRACT(YEAR FROM fecha)::int as anio, 
-                EXTRACT(MONTH FROM fecha)::int as mes, 
-                MAX(valor) as ipc_valor
-            FROM ipc
-            WHERE id_region = 1
-              AND id_categoria = 1
-              AND id_division = 1
-              AND id_subdivision = 1
-            GROUP BY 1, 2
-        `);
-        const ipcMap = ipcResult.rows.reduce((acc, row) => {
-            const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = parseFloat(row.ipc_valor);
-            return acc;
-        }, {});
-
-        // Fallback de IPC (Variaciones interanuales del JSON original)
-        const ipcFallbackVar = {
-            "2026-05": 33.4022, "2026-04": 32.3734, "2026-03": 32.6067, 
-            "2026-02": 33.0514, "2026-01": 32.4118, "2025-12": 31.5487
-        };
+        // IPC oficial; si falta un mes, el resolver encadena REM dinámicamente.
+        const inflationResolver = await createInflationResolver();
 
         // 3. Obtener ROP (Recursos de Origen Provincial)
         const ropResult = await db_copa.query(`
@@ -418,10 +371,10 @@ router.get('/monthly', authMiddleware, async (req, res) => {
         ronRowsAsc.forEach((row) => {
             const mPadded = String(row.mes).padStart(2, '0');
             const periodId = `${row.anio}-${mPadded}`;
-            const ipcCurr = ipcMap[periodId];
             const prevYear = row.anio - 1;
-            const ipcPrev = ipcMap[`${prevYear}-${mPadded}`];
-            let vIpc = (ipcCurr > 0 && ipcPrev > 0) ? (ipcCurr / ipcPrev) - 1 : (ipcFallbackVar[periodId] / 100 || null);
+            const inflation = inflationResolver.resolveYearOverYear(periodId);
+            const vIpc = inflation.yoyRate;
+            const ipcMeta = inflationResolver.toApiMeta(inflation);
 
             const masaValue = masaMap[periodId] || 0;
             const masaPrevValue = masaMap[`${prevYear}-${mPadded}`] || 0;
@@ -612,7 +565,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 var_real: vRealMuni !== null ? vRealMuni * 100 : 0,
                 diff_nom: diffNomMuni,
                 diff_real: diffRealMuni !== null ? diffRealMuni : undefined,
-                ipc_missing: vIpc === null,
+                ...ipcMeta,
                 ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
             };
 
@@ -644,7 +597,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_nom: vNomRon * 100,
                         var_real: vRealRon !== null ? vRealRon * 100 : 0,
                         diff_nom: ronDispoM - ronDispoPrevM,
-                        ipc_missing: vIpc === null,
+                        ...ipcMeta,
                         ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
                         esperada: refKpi?.recaudacion?.esperada,
                     },
@@ -657,7 +610,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_real: vRealRop !== null ? vRealRop * 100 : 0,
                         diff_nom: ropDispoM - ropDispoPrevM,
                         diff_real: vIpc !== null ? ropDispoM - ropDispoPrevM * (1 + vIpc) : undefined,
-                        ipc_missing: vIpc === null,
+                        ...ipcMeta,
                         esperada_prov: esperadaProv,
                         brecha_abs_prov: brechaAbsProv,
                         brecha_pct_prov: brechaPctProv,
@@ -670,7 +623,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_nom: masaPrevValue > 0 ? ((masaValue / masaPrevValue) - 1) * 100 : 0,
                         var_real: vRealMasa !== null ? vRealMasa * 100 : 0,
                         diff_nom: (masaValue - masaPrevValue) / 1000000,
-                        ipc_missing: vIpc === null,
+                        ...ipcMeta,
                         is_incomplete: isMasaIncomplete
                     },
                     distribucion_municipal: {

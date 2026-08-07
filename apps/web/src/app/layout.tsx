@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import AraChat from "@/components/chat/AraChat";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} h-full`}>
       <body className={`${inter.className} min-h-screen antialiased`}>
         {children}
+        <AraChat />
       </body>
     </html>
   );

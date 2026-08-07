@@ -72,6 +72,9 @@ type KpiShape = {
     var_real?: number;
     diff_nom?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     ipc_used_for_calc?: number;
     esperada?: number;
   };
@@ -85,6 +88,9 @@ type KpiShape = {
     diff_nom?: number;
     diff_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     esperada_prov?: number;
     brecha_abs_prov?: number;
     brecha_pct_prov?: number;
@@ -105,6 +111,9 @@ type KpiShape = {
     var_real?: number;
     diff_real?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
   };
   masa_salarial: {
     current?: number;
@@ -115,6 +124,9 @@ type KpiShape = {
     var_real?: number;
     diff_nom?: number;
     ipc_missing?: boolean;
+    ipc_projected?: boolean;
+    ipc_source?: "official" | "rem_bcra" | "unavailable";
+    ipc_rem_published_at?: string | null;
     is_incomplete?: boolean;
   };
 };
