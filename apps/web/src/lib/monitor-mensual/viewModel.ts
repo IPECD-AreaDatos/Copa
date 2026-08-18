@@ -413,8 +413,8 @@ export function buildMonitorViewModel(
   let masaVarNomAbs = "";
   if (isIncomplete || isJune) {
     masaVarNomPct = "Sin datos";
-    masaVarNomPctClass = "kpi-value text-secondary";
-    masaVarNomAbs = " - ";
+    masaVarNomPctClass = "kpi-value text-secondary text-missing";
+    masaVarNomAbs = "—";
   } else {
     const masaDiffSign = (kpi.masa_salarial.diff_nom ?? 0) >= 0 ? "+" : "-";
     masaVarNomAbs = masaDiffSign + formatMillions(Math.abs(kpi.masa_salarial.diff_nom ?? 0));
@@ -426,7 +426,7 @@ export function buildMonitorViewModel(
 
   let masaRealPct = "";
   let masaRealPctClass = "";
-  let masaRealAbs = "--";
+  let masaRealAbs = "—";
   let masaRealAbsClass = "";
   if (isIncomplete || isJune) {
     masaRealPct = "Sin datos";
@@ -531,14 +531,14 @@ export function buildMonitorViewModel(
     masa: {
       current: (isIncomplete || isJune) ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
       prev: isJune ? "Sin datos" : formatMillions(kpi.masa_salarial.prev),
-      cobCurr: isJune ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
+      cobCurr: (isIncomplete || isJune) ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
       cobPrev: isJune ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
       varNomPct: masaVarNomPct,
       varNomPctClass: masaVarNomPctClass,
-      varNomAbs: isJune ? " - " : masaVarNomAbs,
+      varNomAbs: masaVarNomAbs,
       realPct: masaRealPct,
       realPctClass: masaRealPctClass,
-      realAbs: isJune ? " - " : masaRealAbs,
+      realAbs: masaRealAbs,
       realAbsClass: masaRealAbsClass,
     },
     presupuesto,

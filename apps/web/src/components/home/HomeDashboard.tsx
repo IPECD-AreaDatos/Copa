@@ -40,7 +40,7 @@ type MainJson = {
         rop?: { bruta_current: number };
         resumen: { total_recursos_brutos_var_real: number | null };
         masa_salarial: {
-          cobertura_current: number;
+          cobertura_current: number | null;
           var_real: number | null;
           is_incomplete: boolean;
           ipc_missing: boolean;
@@ -83,7 +83,7 @@ function fmtMissing(reason?: string | null) {
   if (reason === "IPC") {
     return { text: "Sin IPC completo", className: "text-secondary text-missing" };
   }
-  return { text: "Sin datos", className: "text-secondary" };
+  return { text: "Sin datos", className: "text-secondary text-missing" };
 }
 
 function KpiCard({
@@ -391,8 +391,9 @@ export default function HomeDashboard() {
     const year = currentPeriodId.split("-")[0];
     const periodLabel = periodObj?.label ?? "Periodo";
 
-    const isPeriodIncomplete = row.kpi.masa_salarial.is_incomplete;
-    const periodStatus = isPeriodIncomplete ? " (incompleto)" : "";
+    const masaData = row.kpi.masa_salarial;
+    const isMasaIncomplete = masaData.is_incomplete || !(masaData.current > 0);
+    const periodStatus = isMasaIncomplete ? " (incompleto)" : "";
     const periodLabelFinal = `${periodLabel} ${year}${periodStatus}`;
 
     const resumen = row.kpi.resumen;
@@ -406,17 +407,18 @@ export default function HomeDashboard() {
       copa = fmtPct(kpiTotalReal)!;
     }
 
-    const masaData = row.kpi.masa_salarial;
     const kpiCobertura = masaData.cobertura_current;
-    const cobertura = fmtPct(kpiCobertura, { coverage: true })!;
+    const cobertura = isMasaIncomplete || kpiCobertura === null
+      ? fmtMissing(null)
+      : fmtPct(kpiCobertura, { coverage: true })!;
 
     const isIpcNeaMissingMasa = masaData.ipc_missing;
     const isJune = periodLabel.toLowerCase() === "junio" || currentPeriodId.endsWith("-06");
     const kpiMasaReal =
-      masaData.is_incomplete || isIpcNeaMissingMasa || isJune ? null : masaData.var_real;
+      isMasaIncomplete || isIpcNeaMissingMasa || isJune ? null : masaData.var_real;
 
     let masa: ReturnType<typeof fmtPct> | ReturnType<typeof fmtMissing>;
-    if (isJune) {
+    if (isMasaIncomplete || isJune) {
       masa = fmtMissing(null);
     } else if (kpiMasaReal === null || kpiMasaReal === undefined) {
       masa = fmtMissing(isIpcNeaMissingMasa ? "IPC" : null);
@@ -424,7 +426,7 @@ export default function HomeDashboard() {
       masa = fmtPct(kpiMasaReal)!;
     }
 
-    const subStyleIncomplete = isPeriodIncomplete ? "#ef4444" : "#1e293b";
+    const subStyleIncomplete = isMasaIncomplete ? "#ef4444" : "#1e293b";
 
     return {
       copa: { ...copa, subtitleColor: subStyleIncomplete, periodLabelFinal },

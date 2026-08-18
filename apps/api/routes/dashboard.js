@@ -132,7 +132,7 @@ router.get('/home', async (req, res) => {
         }
         const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
 
-        ronRowsAsc.forEach((row, idx) => {
+        ronRowsAsc.forEach((row) => {
             const periodId = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
             const prevYear = row.anio - 1;
             const inflation = inflationResolver.resolveYearOverYear(periodId);
@@ -154,9 +154,11 @@ router.get('/home', async (req, res) => {
                 varRealTotalBruto = ((totalBrutoCurr / totalBrutoPrev) / (1 + vIpc)) - 1;
             }
 
+            const isMasaIncomplete = masaValue <= 0;
+
             // Variación Real Masa Salarial
             let varRealMasa = null;
-            if (masaPrevValue > 0 && vIpc !== null) {
+            if (!isMasaIncomplete && masaPrevValue > 0 && vIpc !== null) {
                 varRealMasa = ((masaValue / masaPrevValue) / (1 + vIpc)) - 1;
             }
 
@@ -164,9 +166,6 @@ router.get('/home', async (req, res) => {
             const ropDisponible = ropData.curr * ROP_DISPO_RATIO;
             const totalDisponible = ronDisponible + ropDisponible;
             const totalBruto = totalBrutoCurr;
-
-            // Periodos después del default se consideran incompletos (ej: Mayo 2026)
-            const isIncomplete = defaultIndex >= 0 ? idx > defaultIndex : false;
 
             data[periodId] = {
                 kpi: {
@@ -183,9 +182,11 @@ router.get('/home', async (req, res) => {
                     masa_salarial: {
                         current: masaValue / 1000000,
                         // Cobertura Salarial (Inicio) debe usar recursos brutos (RON+ROP) como en la versión web y el gráfico
-                        cobertura_current: totalBruto > 0 ? (masaValue / totalBruto) * 100 : 0,
-                        var_real: varRealMasa !== null ? varRealMasa * 100 : 0,
-                        is_incomplete: isIncomplete,
+                        cobertura_current: !isMasaIncomplete && totalBruto > 0
+                            ? (masaValue / totalBruto) * 100
+                            : null,
+                        var_real: varRealMasa !== null ? varRealMasa * 100 : null,
+                        is_incomplete: isMasaIncomplete,
                         ...ipcMeta
                     },
                     distribucion_municipal: { 

@@ -595,7 +595,9 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               ?
             </div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.currentYear}`}</div>
-            <div className="kpi-value">{vm.masa.current}</div>
+            <div className={`kpi-value ${vm.masa.current === "Sin datos" ? "text-secondary text-missing" : ""}`.trim()}>
+              {vm.masa.current}
+            </div>
             <div className="kpi-sub">
               <strong style={{ color: vm.masa.cobCurr === "Sin datos" ? "#64748b" : "#10b981" }}>{vm.masa.cobCurr}</strong>
             </div>
@@ -612,7 +614,12 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               ?
             </div>
             <div className="kpi-label">{`Masa Salarial ${vm.monthName} ${vm.prevYear}`}</div>
-            <div className="kpi-value" style={{ color: "#64748b" }}>{vm.masa.prev}</div>
+            <div
+              className={`kpi-value ${vm.masa.prev === "Sin datos" ? "text-secondary text-missing" : ""}`.trim()}
+              style={{ color: "#64748b" }}
+            >
+              {vm.masa.prev}
+            </div>
             <div className="kpi-sub">
               <strong>{vm.masa.cobPrev}</strong>
             </div>
