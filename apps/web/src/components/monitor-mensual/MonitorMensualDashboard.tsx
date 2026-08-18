@@ -340,9 +340,7 @@ El RON disponible surge de restar al RON neto el 19% que se redistribuye a los m
               <span>RON Bruta: <strong>{vm.recaudacion.brutaPrev}</strong></span>
             </div>
           </article>
-          {!vm.isIncomplete && (
-            <>
-              <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.varNomPct)}` }}>
+          <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.varNomPct)}` }}>
                 <div
                   className="info-tooltip"
                   data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) para el mismo periodo del año anterior al seleccionado.
@@ -358,8 +356,8 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
                 <div className="kpi-sub">
                   <strong>{vm.recaudacion.varNomAbs}</strong> Interanual
                 </div>
-              </article>
-              <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
+          </article>
+          <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
                 <div
                   className="info-tooltip"
                   data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales del período seleccionado respecto al mismo período del año anterior.
@@ -375,9 +373,7 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
                 <div className="kpi-sub">
                   <strong>{vm.recaudacion.realAbs}</strong> * Ajustado por inflación
                 </div>
-              </article>
-            </>
-          )}
+          </article>
         </div>
         <p className="source-text" style={{ padding: "0 3%", textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
 
@@ -422,9 +418,7 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
                 ROP Bruta: <strong>{vm.rop.brutaPrev}</strong>
               </div>
             </article>
-            {!vm.isIncomplete && (
-              <>
-                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.varNomPct)}` }}>
+            <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.varNomPct)}` }}>
                   <div
                     className="info-tooltip"
                     data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial, en términos nominales, del período seleccionado respecto al mismo período del año anterior.
@@ -440,8 +434,8 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
                   <div className="kpi-sub">
                     <strong>{vm.rop.varNomAbs}</strong> Interanual
                   </div>
-                </article>
-                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
+            </article>
+            <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
                   <div
                     className="info-tooltip"
                     data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial ,en términos reales, del período seleccionado respecto al mismo período del año anterior.
@@ -457,9 +451,7 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
                   <div className="kpi-sub">
                     <strong>{vm.rop.realAbs}</strong> * Ajustado por inflación
                   </div>
-                </article>
-              </>
-            )}
+            </article>
           </div>
           <p className="source-text" style={{ padding: "0 3%", textAlign: "left" }}>Fuente: Ministerio de Economía de la Provincia</p>
 
@@ -493,26 +485,22 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
                 <span>Orig. Prov.: <strong>{vm.muni.breakdownPrevProv}</strong></span>
               </div>
             </article>
-            {!vm.isIncomplete && (
-              <>
-                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.varNomPct)}` }}>
+            <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.varNomPct)}` }}>
                   <div className="info-tooltip" data-tooltip="Variación nominal interanual de la distribución municipal.">?</div>
                   <div className="kpi-label">Variación Nominal</div>
                   <div className={vm.muni.varNomClass}>{vm.muni.varNomPct}</div>
                   <div className="kpi-sub">
                     <strong>{vm.muni.varNomAbs}</strong> Interanual
                   </div>
-                </article>
-                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.realPct)}` }}>
+            </article>
+            <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.realPct)}` }}>
                   <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
                   <div className="kpi-label">Variación Real</div>
                   <div className={vm.muni.realPctClass}>{vm.muni.realPct}</div>
                   <div className="kpi-sub">
                     <strong>{vm.muni.realAbs}</strong> * Ajustado por inflación
                   </div>
-                </article>
-              </>
-            )}
+            </article>
           </div>
           <p className="source-text" style={{ padding: "0 3%", textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
         </section>
@@ -629,9 +617,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               <strong>{vm.masa.cobPrev}</strong>
             </div>
           </article>
-          {(!vm.isIncomplete || vm.monthName.toLowerCase() === "junio" || periodId.endsWith("-06")) && (
-            <>
-              <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.varNomPct)}` }}>
+          <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.varNomPct)}` }}>
                 <div
                   className="info-tooltip"
                   data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos nominales del período seleccionado respecto al mismo período del año anterior.
@@ -647,8 +633,8 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
                 <div className="kpi-sub">
                   <strong>{vm.masa.varNomAbs}</strong> Interanual
                 </div>
-              </article>
-              <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
+          </article>
+          <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
                 <div
                   className="info-tooltip"
                   data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
@@ -664,9 +650,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
                 <div className="kpi-sub">
                   <strong>{vm.masa.realAbs}</strong> * Ajustado por inflación
                 </div>
-              </article>
-            </>
-          )}
+          </article>
         </div>
         <p className="source-text" style={{ padding: "0 3%", textAlign: "left" }}>Fuente: Contaduría General de la Provincia de Corrientes</p>
       </section>

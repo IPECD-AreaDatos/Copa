@@ -428,8 +428,11 @@ export function buildMonitorViewModel(
   let masaRealPctClass = "";
   let masaRealAbs = "--";
   let masaRealAbsClass = "";
-  if (isIncomplete || isIpcNeaMissingMasa || isJune) {
-    masaRealPct = (isIpcNeaMissingMasa && !isJune) ? "Sin IPC completo" : "Sin datos";
+  if (isIncomplete || isJune) {
+    masaRealPct = "Sin datos";
+    masaRealPctClass = "kpi-value text-secondary text-missing";
+  } else if (isIpcNeaMissingMasa) {
+    masaRealPct = "Sin IPC completo";
     masaRealPctClass = "kpi-value text-secondary text-missing";
   } else {
     masaRealPct = formatPercentage(kpi.masa_salarial.var_real ?? 0);
