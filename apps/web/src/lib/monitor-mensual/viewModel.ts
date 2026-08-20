@@ -447,13 +447,13 @@ export function buildMonitorViewModel(
     }
   }
 
-  const showPresupuestoSection =
-    (periodId.startsWith("2026") || periodId.startsWith("2025")) && isPeriodComplete;
+  const expectedRon = kpi.recaudacion.esperada;
+  const showPresupuestoSection = isPeriodComplete && (expectedRon ?? 0) > 0;
 
   let presupuesto: MonitorViewModel["presupuesto"];
   if (showPresupuestoSection) {
     const bruta = kpi.recaudacion.bruta_current ?? 0;
-    const esperada = kpi.recaudacion.esperada ?? 0;
+    const esperada = expectedRon ?? 0;
     const diffAbs = bruta - esperada;
     const diffPct = esperada > 0 ? (bruta / esperada - 1) * 100 : 0;
     const pctSign = diffPct > 0 ? "+" : "";
@@ -468,13 +468,13 @@ export function buildMonitorViewModel(
       esperada: formatMillions(esperada),
     };
 
-    if (kpi.rop) {
+    if (kpi.rop && (kpi.rop.esperada_prov ?? 0) > 0) {
       const recaProvCurr = kpi.rop.bruta_current ?? 0;
       const esperadaProv = kpi.rop.esperada_prov ?? 0;
-      const diffAbsProv = kpi.rop.brecha_abs_prov ?? 0;
-      const diffPctProv = kpi.rop.brecha_pct_prov ?? 0;
+      const diffAbsProv = kpi.rop.brecha_abs_prov ?? recaProvCurr - esperadaProv;
+      const diffPctProv = kpi.rop.brecha_pct_prov ?? ((recaProvCurr / esperadaProv) - 1) * 100;
       const pctSignProv = diffPctProv > 0 ? "+" : "";
-      const absSignProv = diffAbsProv > 0 ? "+" : "";
+      const absSignProv = diffAbsProv > 0 ? "+" : diffAbsProv < 0 ? "-" : "";
 
       presupuesto.rop = {
         diffAbs: absSignProv + formatMillions(Math.abs(diffAbsProv)),

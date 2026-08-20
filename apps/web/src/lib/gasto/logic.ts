@@ -43,44 +43,22 @@ export function formatPeriodo(isoStr: string) {
   return m.charAt(0).toUpperCase() + m.slice(1) + " " + parts[0];
 }
 
-function interpolateColor(c1: number[], c2: number[], t: number) {
-  return `rgb(${Math.round(c1[0] + (c2[0] - c1[0]) * t)},${Math.round(c1[1] + (c2[1] - c1[1]) * t)},${Math.round(c1[2] + (c2[2] - c1[2]) * t)})`;
-}
+export function executionPaceColor(actualRatio: number, expectedRatio: number) {
+  const pace = expectedRatio > 0 ? actualRatio / expectedRatio : 0;
 
-export function heatmapColor(ratio: number) {
-  const pct = Math.round(ratio * 100);
-  if (pct <= 0) {
-    return { bg: "transparent", text: "transparent" }; // Transparent for 0%
+  if (pace < 0.65) {
+    return { bg: "#c70601", text: "#ffffff", pace, status: "Subejecución alta" };
   }
-
-  const C_VERDE_OSC = [64, 123, 51];  // #407B33 a los 25%
-  const C_VERDE_CLA = [93, 155, 79];  // #5d9b4f a los 45%
-  const C_AMARILLO = [250, 207, 50];  // #facf32 a los 60%
-  const C_NARANJA = [255, 162, 0];    // #FFA200 a los 75%
-  const C_ROJO = [199, 6, 1];         // #C70601 a los 90%
-  const C_ROJO_OSC = [144, 0, 0];     // #900000 a los 100%
-
-  if (pct <= 25) {
-    return { bg: "#407B33", text: "#ffffff" }; // Arranca directamente desde el verde oscuro
+  if (pace < 0.85) {
+    return { bg: "#f59e0b", text: "#1f2937", pace, status: "Subejecución moderada" };
   }
-  if (pct <= 45) {
-    const t = (pct - 25) / (45 - 25);
-    return { bg: interpolateColor(C_VERDE_OSC, C_VERDE_CLA, t), text: "#ffffff" };
+  if (pace <= 1.15) {
+    return { bg: "#407b33", text: "#ffffff", pace, status: "En línea con el avance temporal" };
   }
-  if (pct <= 60) {
-    const t = (pct - 45) / (60 - 45);
-    return { bg: interpolateColor(C_VERDE_CLA, C_AMARILLO, t), text: "#ffffff" };
+  if (pace <= 1.35) {
+    return { bg: "#f97316", text: "#ffffff", pace, status: "Adelanto moderado" };
   }
-  if (pct <= 75) {
-    const t = (pct - 60) / (75 - 60);
-    return { bg: interpolateColor(C_AMARILLO, C_NARANJA, t), text: "#ffffff" };
-  }
-  if (pct <= 90) {
-    const t = (pct - 75) / (90 - 75);
-    return { bg: interpolateColor(C_NARANJA, C_ROJO, t), text: "#ffffff" };
-  }
-  const t = Math.min(1, (pct - 90) / 10);
-  return { bg: interpolateColor(C_ROJO, C_ROJO_OSC, t), text: "#ffffff" };
+  return { bg: "#900000", text: "#ffffff", pace, status: "Adelanto alto" };
 }
 
 export type HeatmapInput = {
@@ -94,6 +72,8 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
   const periodos = [...new Set(rawData.map((d) => d.periodo))].sort();
   const ultimoPeriodo = periodos.length > 0 ? periodos[periodos.length - 1] : "";
   const currentYear = ultimoPeriodo.split("-")[0]; // Extraemos el año fiscal actual (ej: "2026")
+  const cutoffMonth = Number(ultimoPeriodo.split("-")[1]) || 12;
+  const expectedRatio = cutoffMonth / 12;
 
   const matchFuente = (d: GastoRow) => {
     if (!fuenteFilter || fuenteFilter.length === 0 || fuenteFilter.length === FUENTE_VALUES.length)
@@ -122,7 +102,7 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
   const jurisVistasEnBD = new Set(filteredRows.map((d) => (d.jurisdiccion || "").trim()));
   const jurisdicciones = ORDEN_JURISDICCIONES.filter((j) => jurisVistasEnBD.has(j));
 
-  let visibleJuris = jurisdicciones.filter((j) => {
+  const visibleJuris = jurisdicciones.filter((j) => {
     if (jurisGroup === "TODAS") return true;
     const isMin = j.includes("MINISTERIO");
     if (jurisGroup === "MINISTERIOS") return isMin;
@@ -149,8 +129,18 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
       const vig = vigente[key] || 0;
       const ratio = vig > 0 ? comp / vig : 0;
       const pct = Math.round(ratio * 100);
-      const colorInfo = heatmapColor(ratio);
-      return { j, pct, color: colorInfo.bg, textColor: colorInfo.text, title: `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}` };
+      const colorInfo = executionPaceColor(ratio, expectedRatio);
+      const pacePct = Math.round(colorInfo.pace * 100);
+      return {
+        j,
+        pct,
+        hasBudget: vig > 0,
+        color: vig > 0 ? colorInfo.bg : "transparent",
+        textColor: vig > 0 ? colorInfo.text : "transparent",
+        title: vig > 0
+          ? `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}\nAvance teórico al corte: ${formatPctNoDecimals(expectedRatio * 100)}\nRitmo relativo: ${formatPctNoDecimals(pacePct)} — ${colorInfo.status}`
+          : `${p}\n${j}\nSin crédito vigente para el filtro seleccionado`,
+      };
     });
     return { partida: p, code, cells };
   });
@@ -159,8 +149,9 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
     ultimoPeriodo,
     visibleJuris,
     rows,
+    expectedPct: expectedRatio * 100,
     heatmapTitle: ultimoPeriodo
-      ? `Mapa de Calor de Compromiso por Jurisdicción Acumulado hasta ${formatPeriodo(ultimoPeriodo)}`
+      ? `Mapa de Calor de ${estado} por Jurisdicción Acumulado hasta ${formatPeriodo(ultimoPeriodo)}`
       : "Mapa de Calor",
     shortName: (j: string) => SHORT_JURISDICCIONES[j] || j,
   };
@@ -510,10 +501,14 @@ export function computeWaterfall(inp: WaterfallInput): {
     return rows.reduce((s, d) => s + d.monto, 0);
   });
 
-  const floatingBars = monthlyData.map((monto, idx) => {
-    const base = idx / 12;
-    const height = creditoVigente > 0 ? monto / creditoVigente : 0;
-    return [base, base + height] as [number, number];
+  let accumulatedAmount = 0;
+  const cumulativeRatios: number[] = [];
+  const floatingBars = monthlyData.map((monto) => {
+    const base = creditoVigente > 0 ? accumulatedAmount / creditoVigente : 0;
+    accumulatedAmount += monto;
+    const accumulated = creditoVigente > 0 ? accumulatedAmount / creditoVigente : 0;
+    cumulativeRatios.push(accumulated);
+    return [base, accumulated] as [number, number];
   });
 
   const hasData = periodoKeys.map((pk) =>
@@ -539,9 +534,9 @@ export function computeWaterfall(inp: WaterfallInput): {
     });
   }
 
-  const barColors = floatingBars.map((bar, idx) => {
+  const barColors = floatingBars.map((_, idx) => {
     if (!hasData[idx]) return "rgba(0,0,0,0)";
-    return bar[1] > ((idx + 1) / 12) * 1.05 ? "#f97316" : "#10b981";
+    return executionPaceColor(cumulativeRatios[idx], (idx + 1) / 12).bg;
   });
 
   const fmtARS = new Intl.NumberFormat("es-AR", {
@@ -579,10 +574,13 @@ export function computeWaterfall(inp: WaterfallInput): {
             if (!raw || !Array.isArray(raw)) return "Sin datos";
             const idx = ctx.dataIndex;
             const monto = monthlyData[idx];
-            const height = raw[1] - raw[0];
+            const expectedRatio = (idx + 1) / 12;
+            const pace = executionPaceColor(raw[1], expectedRatio);
             return [
               `${inp.estado} del mes: ${fmtARS.format(monto)}`,
-              `Ejecutado: ${formatPctOneDecimal(height * 100)} del Crédito Vigente`,
+              `Ejecución acumulada: ${formatPctOneDecimal(raw[1] * 100)} del Crédito Vigente`,
+              `Avance teórico: ${formatPctOneDecimal(expectedRatio * 100)}`,
+              `Ritmo relativo: ${formatPctOneDecimal(pace.pace * 100)} — ${pace.status}`,
             ];
           },
         },
@@ -605,7 +603,7 @@ export function computeWaterfall(inp: WaterfallInput): {
       },
       y: {
         min: 0,
-        max: 1,
+        suggestedMax: Math.max(1, ...cumulativeRatios) * 1.05,
         ticks: {
           callback: (v) => {
             const n = Math.round(Number(v) * 12);

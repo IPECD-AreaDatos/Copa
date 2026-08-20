@@ -23,6 +23,7 @@ import {
 } from "@/lib/monitor-mensual/viewModel";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
+import { describeInflationSource, withInflationSource } from "@/lib/inflationSource";
 
 function useViewportFlags() {
   const [wide768, setWide768] = useState(false);
@@ -196,7 +197,7 @@ export default function MonitorMensualDashboard() {
       }
       setPeriodId(next);
     },
-    [periodMeta, defaultIndex],
+    [periodMeta, defaultIndex, logAction],
   );
 
   if (error) {
@@ -252,7 +253,7 @@ export default function MonitorMensualDashboard() {
 
       {chosen.kpi.recaudacion.ipc_projected && (
         <p className="source-text" style={{ padding: "0 3%", textAlign: "left", marginTop: "0.5rem" }}>
-          Inflación estimada con REM (BCRA), publicación {chosen.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.
+          {describeInflationSource(chosen.kpi.recaudacion)}
         </p>
       )}
 
@@ -360,11 +361,11 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
                 <div
                   className="info-tooltip"
-                  data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales del período seleccionado respecto al mismo período del año anterior.
+                  data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales del período seleccionado respecto al mismo período del año anterior.
 
 Para ello, primero se ajustan (deflactan) los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) utilizando el IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
 
-El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`, chosen.kpi.recaudacion)}
                 >
                   ?
                 </div>
@@ -438,11 +439,11 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
                   <div
                     className="info-tooltip"
-                    data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial ,en términos reales, del período seleccionado respecto al mismo período del año anterior.
+                    data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de los ingresos provinciales disponibles provenientes de la Recaudación provincial, en términos reales, del período seleccionado respecto al mismo período del año anterior.
 
 Para ello, primero se ajustan (deflactan) los ingresos provinciales disponibles provenientes de la Recaudación provincial utilizando el IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
 
-La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`}
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`, chosen.kpi.rop)}
                   >
                     ?
                   </div>
@@ -494,7 +495,13 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
                   </div>
             </article>
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.realPct)}` }}>
-                  <div className="info-tooltip" data-tooltip="Variación real interanual (IPC NEA).">?</div>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={withInflationSource(
+                      "Variación real interanual de la distribución municipal, ajustada por el IPC general del total país.",
+                      chosen.kpi.distribucion_municipal,
+                    )}
+                  >?</div>
                   <div className="kpi-label">Variación Real</div>
                   <div className={vm.muni.realPctClass}>{vm.muni.realPct}</div>
                   <div className="kpi-sub">
@@ -507,7 +514,7 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
       )}
 
       {/* SECCIÓN: PRESUPUESTO */}
-      {vm.showPresupuestoSection && vm.presupuesto && !vm.isIncomplete && (
+      {vm.showPresupuestoSection && vm.presupuesto && (
         <section className="section-group" style={{ marginTop: "2rem" }}>
           <div className="section-header-block">
             <h2 className="dashboard-title" style={{ textAlign: "left", fontSize: "1.5rem", margin: 0 }}>Desempeño Frente a Presupuesto</h2>
@@ -516,7 +523,7 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuesto.diffAbs)}` }}>
               <div
                 className="info-tooltip"
-                data-tooltip={`Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir (según Presupuesto 2026) y lo que efectivamente percibió (RON Bruto). Valores positivos indican ingresos mayores a lo presupuestado.
+                data-tooltip={`Muestra la diferencia nominal en millones de pesos entre lo que la provincia esperaba recibir según el Presupuesto ${vm.currentYear} y lo que efectivamente percibió (RON Bruto). Valores positivos indican ingresos mayores a lo presupuestado.
 
 El RON bruto incluye el total recibido de los Recursos de Origen Nacional, es decir el total que recibe la provincia para redistribuir a los municipios, aquellos con afectación específica y de libre disponibilidad.`}
               >
@@ -644,11 +651,11 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
                 <div
                   className="info-tooltip"
-                  data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
+                  data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
 
 Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del nivel Nacional, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
 
-La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del Estado.`, chosen.kpi.masa_salarial)}
                 >
                   ?
                 </div>
@@ -704,9 +711,9 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
             <div className="chart-container">
               <div
                 className="info-tooltip"
-                data-tooltip={`Muestra la evolución de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales de los últimos 3 meses, comparando los datos actuales contra el año anterior. Los Recursos de Origen Nacional (RON) disponibles se deflactan a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
+                data-tooltip={withInflationSource(`Muestra la evolución de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) en términos reales de los últimos 3 meses, comparando los datos actuales contra el año anterior. Los Recursos de Origen Nacional (RON) disponibles se deflactan a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
 
-El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+El valor de los Recursos de Origen Nacional disponibles surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. La fuente indicada corresponde al período seleccionado; la serie conserva la fuente disponible para cada mes.`, chosen.kpi.recaudacion)}
               >
                 ?
               </div>
@@ -720,9 +727,9 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
             <div className="chart-container">
               <div
                 className="info-tooltip"
-                data-tooltip={`Muestra la evolución de la masa salarial real de los últimos 3 meses, comparando los datos actuales contra el año anterior. La masa salarial se deflacta a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
+                data-tooltip={withInflationSource(`Muestra la evolución de la masa salarial real de los últimos 3 meses, comparando los datos actuales contra el año anterior. La masa salarial se deflacta a partir del IPC general del nivel Nacional, a fin de poder observar la evolución del poder adquisitivo de los recursos.
 
-La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del estado.`}
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del Estado. La fuente indicada corresponde al período seleccionado; la serie conserva la fuente disponible para cada mes.`, chosen.kpi.masa_salarial)}
               >
                 ?
               </div>

@@ -2,7 +2,6 @@
 
 import "@/lib/chart/registerChartJs";
 
-import type { ChartData } from "chart.js";
 import { Bar, Chart } from "react-chartjs-2";
 import {
   useCallback,
@@ -25,6 +24,7 @@ import {
 import { buildAnnualVm } from "@/lib/analisis-anual/annualVm";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
+import { describeInflationSource, withInflationSource } from "@/lib/inflationSource";
 
 type AnnualMeta = {
   annual_monitor: {
@@ -167,7 +167,7 @@ export default function AnalisisAnualDashboard() {
       }
       setYearId(v);
     },
-    [periods],
+    [periods, logAction],
   );
 
   if (err) {
@@ -185,6 +185,12 @@ export default function AnalisisAnualDashboard() {
       </div>
     );
   }
+
+  const budgetThroughMonth =
+    periodRow.kpi.meta?.budget_through_month ?? periodRow.kpi.meta?.max_month ?? 12;
+  const budgetCutoffLabel = new Date(iterYear, budgetThroughMonth - 1, 1).toLocaleString("es-AR", {
+    month: "long",
+  });
 
   return (
     <div className="annual-dashboard">
@@ -214,7 +220,7 @@ export default function AnalisisAnualDashboard() {
 
       {periodRow.kpi.recaudacion.ipc_projected && (
         <p className="source-text" style={{ padding: "0 3%", textAlign: "left", marginTop: "0.5rem" }}>
-          Inflación promedio estimada con REM (BCRA), publicación {periodRow.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.
+          {describeInflationSource(periodRow.kpi.recaudacion)}
         </p>
       )}
 
@@ -279,11 +285,11 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.recaudacion.realPct)}` }}>
             <div
               className="info-tooltip"
-              data-tooltip={`Muestra la variación absoluta, en pesos en términos reales, entre los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) anuales totales del período seleccionado y los del año anterior.
+              data-tooltip={withInflationSource(`Muestra la variación absoluta, en pesos en términos reales, entre los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) anuales totales del período seleccionado y los del año anterior.
 
 Primero se deflactan los valores nominales mediante el IPC general del nivel Nacional, con el objetivo de expresarlos en términos reales. Luego, se calcula la diferencia entre el período seleccionado y el año anterior, a fin de obtener la variación absoluta en el poder de compra de los recursos.
 
-El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir  incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
+El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`, periodRow.kpi.recaudacion)}
             >
               ?
             </div>
@@ -346,11 +352,11 @@ La Recaudación provincial disponible incluye lo recaudado en conceptos de impue
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.rop.realPct)}` }}>
               <div
                 className="info-tooltip"
-                data-tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales anuales disponibles provenientes de la Recaudación provincial ,en términos reales, respecto al año anterior. 
+                data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de los ingresos provinciales anuales disponibles provenientes de la Recaudación provincial, en términos reales, respecto al año anterior.
 
 Para ello, primero se ajustan (deflactan) los ingresos provinciales disponibles provenientes de la Recaudación provincial utilizando IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.
 
-La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios. `}
+La Recaudación provincial disponible incluye lo recaudado en conceptos de impuestos inmobiliario rural, sellos, ingresos brutos directos e ingresos brutos convenio multilateral menos el 19% correspondiente a los municipios.`, periodRow.kpi.rop)}
               >
                 ?
               </div>
@@ -414,9 +420,9 @@ El indicador compara el monto distribuido en el período elegido con el registra
             <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.muni.realPct)}` }}>
               <div
                 className="info-tooltip"
-                data-tooltip={`Muestra la variación porcentual interanual  de la distribución municipal ,en términos reales, respecto al año anterior. 
+                data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de la distribución municipal, en términos reales, respecto al año anterior.
 
-Para ello, primero se ajustan (deflactan) los montos en concepto de distribución municipal utilizando IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.`}
+Para ello, primero se ajustan (deflactan) los montos en concepto de distribución municipal utilizando IPC general del nivel Nacional, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.`, periodRow.kpi.distribucion_municipal)}
               >
                 ?
               </div>
@@ -487,11 +493,11 @@ La masa salarial total incluye los conceptos de salarios,  plus y bonos para los
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.realPct)}` }}>
             <div
               className="info-tooltip"
-              data-tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en el año en términos reales del período seleccionado respecto al mismo período del año anterior.
+              data-tooltip={withInflationSource(`Muestra la variación porcentual interanual de la masa salarial total liquidada en el año en términos reales del período seleccionado respecto al mismo período del año anterior.
 
 Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del nivel Nacional, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
 
-La masa salarial total incluye los conceptos de salarios,  plus y bonos para los 3 poderes del estado.`}
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del Estado.`, periodRow.kpi.masa_salarial)}
             >
               ?
             </div>
@@ -548,38 +554,64 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
         </div>
       </section>
 
-      {/* 6. SECCIÓN: PRESUPUESTO (oculta por ahora) */}
-      {/* 
-      {vm.presupuestoProv && (
+      {/* 6. SECCIÓN: PRESUPUESTO */}
+      {(vm.presupuestoRon || vm.presupuestoProv) && (
         <section className="section-group" style={{ marginTop: "2rem" }}>
           <div className="section-header-block">
-            <h2>Desempeño Frente a Presupuesto Anual</h2>
+            <h2>Desempeño Frente a Presupuesto Acumulado</h2>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-              Análisis comparativo de la RON neta efectiva acumulada frente a los fondos presupuestados acumulados del año.
+              Comparación entre lo recaudado y lo presupuestado de enero a {budgetCutoffLabel} de {iterYear}.
             </p>
           </div>
-          <div className="hero-grid-flex">
-            <article className="kpi-card" style={{ borderTop: "4px solid #10b981" }}>
-              <div className="kpi-label">ROP: DIFERENCIA NOMINAL ACUMULADA</div>
-              <div className={vm.presupuestoProv.diffAbsClass}>{vm.presupuestoProv.diffAbs}</div>
-              <div className="kpi-sub" style={{ display: "flex", gap: "8px", fontSize: "0.85rem", flexWrap: "wrap" }}>
-                <span>Recaudado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoProv.recaudado}</strong></span>
-                <span>Presupuestado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoProv.esperada}</strong></span>
-              </div>
-            </article>
-            <article className="kpi-card" style={{ borderTop: "4px solid #10b981" }}>
-              <div className="info-tooltip" data-tooltip="Refleja qué porcentaje del presupuesto esperado acumulado de Recaudación Provincial para el año fue efectivamente cubierto por la recaudación real.">?</div>
-              <div className="kpi-label">ROP: DIFERENCIA PORCENTUAL ACUMULADA</div>
-              <div className={vm.presupuestoProv.diffPctClass}>{vm.presupuestoProv.diffPct}</div>
-              <div className="kpi-sub">
-                <span style={{ color: "var(--text-secondary)", marginLeft: "5px" }}>Brecha Porcentual respecto al monto presupuestado acumulado provincial</span>
-              </div>
-            </article>
+          <div className="budget-grid">
+            {vm.presupuestoRon && (
+              <>
+                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuestoRon.diffAbs)}` }}>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Diferencia nominal acumulada entre el RON bruto efectivamente recibido y el RON presupuestado para el mismo tramo enero-${budgetCutoffLabel}. Valores positivos indican ingresos superiores al presupuesto.`}
+                  >?</div>
+                  <div className="kpi-label">RON: DIFERENCIA NOMINAL ACUMULADA</div>
+                  <div className={vm.presupuestoRon.diffAbsClass}>{vm.presupuestoRon.diffAbs}</div>
+                  <div className="kpi-sub" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px", fontSize: "0.85rem" }}>
+                    <span>Recaudado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoRon.recaudado}</strong></span>
+                    <span>Presupuestado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoRon.esperada}</strong></span>
+                  </div>
+                </article>
+                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuestoRon.diffPct)}` }}>
+                  <div className="info-tooltip" data-tooltip={`Brecha porcentual del RON bruto respecto del presupuesto acumulado para el mismo tramo enero-${budgetCutoffLabel}.`}>?</div>
+                  <div className="kpi-label">RON: DIFERENCIA PORCENTUAL ACUMULADA</div>
+                  <div className={vm.presupuestoRon.diffPctClass}>{vm.presupuestoRon.diffPct}</div>
+                  <div className="kpi-sub">Brecha respecto al presupuesto acumulado</div>
+                </article>
+              </>
+            )}
+            {vm.presupuestoProv && (
+              <>
+                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuestoProv.diffAbs)}` }}>
+                  <div
+                    className="info-tooltip"
+                    data-tooltip={`Diferencia nominal acumulada entre la ROP bruta efectivamente recaudada y la ROP presupuestada para el mismo tramo enero-${budgetCutoffLabel}. Valores positivos indican ingresos superiores al presupuesto.`}
+                  >?</div>
+                  <div className="kpi-label">ROP: DIFERENCIA NOMINAL ACUMULADA</div>
+                  <div className={vm.presupuestoProv.diffAbsClass}>{vm.presupuestoProv.diffAbs}</div>
+                  <div className="kpi-sub" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px", fontSize: "0.85rem" }}>
+                    <span>Recaudado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoProv.recaudado}</strong></span>
+                    <span>Presupuestado: <strong style={{ color: "#0f172a" }}>{vm.presupuestoProv.esperada}</strong></span>
+                  </div>
+                </article>
+                <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.presupuestoProv.diffPct)}` }}>
+                  <div className="info-tooltip" data-tooltip={`Brecha porcentual de la ROP bruta respecto del presupuesto acumulado para el mismo tramo enero-${budgetCutoffLabel}.`}>?</div>
+                  <div className="kpi-label">ROP: DIFERENCIA PORCENTUAL ACUMULADA</div>
+                  <div className={vm.presupuestoProv.diffPctClass}>{vm.presupuestoProv.diffPct}</div>
+                  <div className="kpi-sub">Brecha respecto al presupuesto provincial acumulado</div>
+                </article>
+              </>
+            )}
           </div>
           <p className="source-text" style={{ padding: "0 3%" }}>Fuente: Ministerio de Economía de la Provincia</p>
         </section>
       )}
-      */}
 
       {/* 7. SECCIÓN: BRECHA (si hay datos) */}
       {brechaBundle && (

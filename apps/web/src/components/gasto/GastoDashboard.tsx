@@ -3,7 +3,7 @@
 import "@/lib/chart/registerChartJs";
 import type { ChartData } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
 
@@ -273,12 +273,15 @@ export default function GastoDashboard() {
       <section className="chart-container heatmap-section" style={{ marginBottom: "3rem" }}>
         <div
           className="info-tooltip"
-          data-tooltip="Mapa de calor que muestra la relación entre el crédito comprometido acumulado y el crédito vigente, según partida y jurisdicción. Los colores representan distintos niveles de ejecución presupuestaria."
+          data-tooltip="Mapa de calor de ejecución acumulada respecto al crédito vigente. El color compara la ejecución real con el avance teórico del año al último mes informado: verde dentro de ±15% del ritmo esperado; amarillo o naranja para desvíos moderados; rojo para desvíos altos, tanto por subejecución como por adelanto."
         >?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">{heatmap?.heatmapTitle ?? "Mapa de Calor de Ejecución"}</h2>
-            <p className="section-subtitle">Ratio acumulado / Crédito Vigente por partida y organismo</p>
+            <p className="section-subtitle">
+              Ratio acumulado / Crédito Vigente por partida y organismo
+              {heatmap ? ` · avance teórico al corte: ${formatPctNoDecimals(heatmap.expectedPct)}` : ""}
+            </p>
           </div>
         </div>
         <div className="section-filters gasto-filters">
@@ -372,12 +375,12 @@ export default function GastoDashboard() {
                     {row.cells.map((c) => (
                       <td
                         key={c.j}
-                        className={`heatmap-cell ${c.pct <= 0 ? "is-empty" : ""}`}
+                        className={`heatmap-cell ${!c.hasBudget ? "is-empty" : ""}`}
                         style={{ backgroundColor: c.color, color: c.textColor }}
                         title={c.title}
-                        onClick={c.pct <= 0 ? undefined : () => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
+                        onClick={!c.hasBudget ? undefined : () => logAction("Gasto", "Interacción con Heatmap", { jurisdiccion: c.j, partida: row.partida })}
                       >
-                        {c.pct <= 0 ? "" : formatPctNoDecimals(c.pct)}
+                        {!c.hasBudget ? "" : formatPctNoDecimals(c.pct)}
                       </td>
                     ))}
                   </tr>
@@ -705,7 +708,7 @@ export default function GastoDashboard() {
 
       {/* 4. CASCADA */}
       <section className="chart-container full-width-chart" style={{ marginBottom: "3rem" }}>
-        <div className="info-tooltip" data-tooltip="Permite observar el avance mensual acumulado de la ejecución presupuestaria respecto a los techos teóricos de ejecución esperado para cada mes.">?</div>
+        <div className="info-tooltip" data-tooltip="Permite observar el avance mensual acumulado de la ejecución presupuestaria respecto al ritmo teórico del año. Los colores evalúan el acumulado de cada mes contra su avance esperado: verde dentro de ±15%; amarillo o naranja para desvíos moderados; rojo para desvíos altos.">?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">Ejecución Acumulada Gráfico Cascada</h2>

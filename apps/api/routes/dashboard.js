@@ -1,25 +1,9 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const router = express.Router();
 const db_copa = require('../db');            // Para RON y Gastos (Datos frescos)
 const authMiddleware = require('../middleware/auth');
 const { createInflationResolver } = require('../services/inflation-resolver');
-
-// Solo para las tarjetas de "presupuesto/esperado" del monitor mensual.
-// El resto (recaudado/variaciones) se calcula 100% desde BD.
-let ipceRefCache = null;
-function getIpceReferenceKpi(periodId) {
-  if (ipceRefCache === null) {
-    try {
-      const p = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
-      ipceRefCache = JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch {
-      ipceRefCache = { data: {} };
-    }
-  }
-  return ipceRefCache?.data?.[periodId]?.kpi;
-}
+const { getMonthlyBudget } = require('../services/budget-resolver');
 
 /**
  * GET /api/dashboard/home
@@ -525,11 +509,11 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const ropDispoM = ropDispo / 1000000;
             const ropDispoPrevM = ropDispoPrev / 1000000;
 
-            // Solo para las tarjetas de presupuesto/esperado/brechas del front.
+            // El presupuesto mensual se resuelve desde la fuente presupuestaria completa.
             // El resto de KPIs (recaudado/variaciones/municipal) se calcula 100% desde BD.
-            const refKpi = getIpceReferenceKpi(periodId);
+            const budget = getMonthlyBudget(periodId);
             const ropBrutaCurrentM = ropData.curr / 1000000;
-            const esperadaProv = refKpi?.rop?.esperada_prov;
+            const esperadaProv = budget?.rop;
             const brechaAbsProv = typeof esperadaProv === 'number'
                 ? ropBrutaCurrentM - esperadaProv
                 : undefined;
@@ -600,7 +584,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         diff_nom: ronDispoM - ronDispoPrevM,
                         ...ipcMeta,
                         ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
-                        esperada: refKpi?.recaudacion?.esperada,
+                        esperada: budget?.ron,
                     },
                     rop: {
                         bruta_current: ropBrutaCurrentM,

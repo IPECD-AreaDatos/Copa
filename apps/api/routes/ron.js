@@ -3,6 +3,7 @@ const router = express.Router();
 const gastosDb = require('../db');
 const authMiddleware = require('../middleware/auth');
 const { createInflationResolver } = require('../services/inflation-resolver');
+const { getAnnualBudget } = require('../services/budget-resolver');
 const fs = require('fs');
 const path = require('path');
 const annualPath = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
@@ -147,6 +148,21 @@ router.get('/annual-monitor', authMiddleware, async (req, res) => {
 
             const year = parseInt(yearId, 10);
             const maxMonth = Number(row.kpi.meta.max_month || 12);
+            const budget = getAnnualBudget(year, maxMonth);
+
+            if (budget) {
+                row.kpi.meta.budget_through_month = budget.throughMonth;
+                row.kpi.recaudacion.esperada = budget.ron;
+
+                if (row.kpi.rop) {
+                    const ropCurrent = Number(row.kpi.rop.bruta_current ?? 0);
+                    row.kpi.rop.esperada_prov = budget.rop;
+                    row.kpi.rop.brecha_abs_prov = ropCurrent - budget.rop;
+                    row.kpi.rop.brecha_pct_prov = budget.rop > 0
+                        ? ((ropCurrent / budget.rop) - 1) * 100
+                        : undefined;
+                }
+            }
 
             const masaCurr = buildMasaAcumuladaHastaMes(masaByPeriodo, year, maxMonth, SCALE);
             const masaPrevFromDb = buildMasaAcumuladaHastaMes(masaByPeriodo, year - 1, maxMonth, SCALE);

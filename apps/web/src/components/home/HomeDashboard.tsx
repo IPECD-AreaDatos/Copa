@@ -14,6 +14,7 @@ import {
 import type { ChartOptions } from "chart.js";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
+import { describeInflationSource, withInflationSource } from "@/lib/inflationSource";
 
 type Period = {
   id: string;
@@ -35,6 +36,7 @@ type MainJson = {
           bruta_current: number;
           ipc_missing: boolean;
           ipc_projected?: boolean;
+          ipc_source?: "official" | "rem_bcra" | "unavailable";
           ipc_rem_published_at?: string | null;
         };
         rop?: { bruta_current: number };
@@ -45,6 +47,7 @@ type MainJson = {
           is_incomplete: boolean;
           ipc_missing: boolean;
           ipc_projected?: boolean;
+          ipc_source?: "official" | "rem_bcra" | "unavailable";
           ipc_rem_published_at?: string | null;
           current: number;
         };
@@ -433,7 +436,7 @@ export default function HomeDashboard() {
       cobertura,
       masa: { ...masa, subtitleColor: subStyleIncomplete, periodLabelFinal },
       ipcProjectionNote: row.kpi.recaudacion.ipc_projected
-        ? `Inflación estimada con REM (BCRA), publicación ${row.kpi.recaudacion.ipc_rem_published_at ?? "vigente"}.`
+        ? describeInflationSource(row.kpi.recaudacion)
         : null,
     };
   }, [mainData, currentPeriodId]);
@@ -464,7 +467,7 @@ export default function HomeDashboard() {
         e.target.style.color = "";
       }
     },
-    [],
+    [logAction],
   );
 
   const periodOptions = useMemo(() => {
@@ -527,8 +530,11 @@ export default function HomeDashboard() {
       <section className="section-group">
         <div className="hero-grid-flex">
           <KpiCard
-            tooltip={`Muestra la variación porcentual interanual de los ingresos provinciales totales provenientes tanto de los Recursos de Origen Nacional disponibles (RON) como de los Recursos de Origen Provincial (ROP) en términos reales del período seleccionado respecto al mismo período del año anterior. 
-Para ello, primero se ajustan (deflactan) los ingresos provenientes de los Recursos de Origen Nacional y Recursos de Origen Provincial utilizando el IPC nivel general del total País, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.`}
+            tooltip={withInflationSource(
+              `Muestra la variación porcentual interanual de los ingresos provinciales totales provenientes tanto de los Recursos de Origen Nacional disponibles (RON) como de los Recursos de Origen Provincial (ROP) en términos reales del período seleccionado respecto al mismo período del año anterior.
+Para ello, primero se ajustan (deflactan) los ingresos provenientes de los Recursos de Origen Nacional y Recursos de Origen Provincial utilizando el IPC nivel general del total país, con el objetivo de eliminar el efecto de la inflación. Luego, se calcula la variación entre el período elegido y el mismo período del año anterior. De esta manera, el indicador refleja si hubo un aumento o una disminución en el poder de compra de esos recursos.`,
+              mainData?.data[currentPeriodId]?.kpi.recaudacion,
+            )}
             label="VARIACIÓN REAL RECURSOS TOTALES"
             value={kpis?.copa.text ?? "Loading..."}
             valueClassName={kpis?.copa.className ?? ""}
@@ -553,9 +559,9 @@ El valor de Recursos totales incluye todos los ingresos provenientes de Recursos
             valueClassName={kpis?.cobertura.className ?? ""}
           />
           <KpiCard
-            tooltip={`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
-Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del NEA, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
-La masa salarial total incluye los conceptos de salarios,  plus y bonos para los 3 poderes del estado.`}
+            tooltip={withInflationSource(`Muestra la variación porcentual interanual de la masa salarial total liquidada en términos reales del período seleccionado respecto al mismo período del año anterior.
+Para ello, la masa salarial liquidada se ajusta por inflación utilizando el IPC general del total país, con el objetivo de obtener su valor real. Luego se compara el período seleccionado con el mismo período del año previo. De esta manera, el indicador permite analizar la evolución de la masa salarial en términos de poder adquisitivo.
+La masa salarial total incluye los conceptos de salarios, plus y bonos para los 3 poderes del Estado.`, mainData?.data[currentPeriodId]?.kpi.masa_salarial)}
             label="VARIACIÓN REAL MASA SALARIAL"
             value={kpis?.masa.text ?? "Loading..."}
             valueClassName={kpis?.masa.className ?? ""}
@@ -580,7 +586,10 @@ La masa salarial total incluye los conceptos de salarios,  plus y bonos para los
           <div className="chart-container" style={{ marginBottom: 0 }}>
             <div
               className="info-tooltip"
-              data-tooltip="Permite comparar la evolución de la variación interanual de los ingresos provinciales tanto los provenientes de los Recursos de Origen Nacional como los de Recursos de Origen Provincial.  y el IPC nivel general del total país."
+              data-tooltip={withInflationSource(
+                "Permite comparar la evolución de la variación interanual de los ingresos provinciales provenientes de RON y ROP con el IPC nivel general del total país. La fuente indicada corresponde al período seleccionado; cada punto histórico conserva la fuente disponible para ese mes.",
+                mainData?.data[currentPeriodId]?.kpi.recaudacion,
+              )}
             >
               ?
             </div>

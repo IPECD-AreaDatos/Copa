@@ -12,6 +12,7 @@ export type AnnualKpiBundle = {
     periodo?: string;
     max_month?: number;
     is_complete?: boolean;
+    budget_through_month?: number;
   };
   recaudacion: {
     disponible_current?: number;
@@ -155,6 +156,14 @@ export type AnnualVm = {
     realAbsClass: string;
     showRealAbs: boolean;
   };
+  presupuestoRon?: {
+    diffAbs: string;
+    diffAbsClass: string;
+    diffPct: string;
+    diffPctClass: string;
+    recaudado: string;
+    esperada: string;
+  };
   presupuestoProv?: {
     diffAbs: string;
     diffAbsClass: string;
@@ -164,6 +173,23 @@ export type AnnualVm = {
     esperada: string;
   };
 };
+
+function buildBudgetComparison(actual: number, expected: number) {
+  if (!(expected > 0)) return undefined;
+
+  const diffAbs = actual - expected;
+  const diffPct = ((actual / expected) - 1) * 100;
+  const absSign = diffAbs > 0 ? "+" : diffAbs < 0 ? "-" : "";
+
+  return {
+    diffAbs: absSign + formatMillions(Math.abs(diffAbs)),
+    diffAbsClass: `kpi-value ${diffAbs >= 0 ? "text-success" : "text-danger"}`,
+    diffPct: formatPercentage(diffPct),
+    diffPctClass: `kpi-value ${diffPct >= 0 ? "text-success" : "text-danger"}`,
+    recaudado: formatMillions(actual),
+    esperada: formatMillions(expected),
+  };
+}
 
 export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm {
   const prevYear = iterYear - 1;
@@ -322,6 +348,11 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
     masaRealAbsClass = diffReal >= 0 ? "text-success" : "text-danger";
   }
 
+  const presupuestoRon = buildBudgetComparison(
+    kpi.recaudacion.bruta_current ?? 0,
+    kpi.recaudacion.esperada ?? 0,
+  );
+
   let presupuestoProv: AnnualVm["presupuestoProv"];
   const pProv = kpi.recaudacion_provincial ?? (kpi.rop
     ? {
@@ -332,22 +363,10 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
       }
     : undefined);
 
-  if (pProv && pProv.esperada_prov != null) {
+  if (pProv && (pProv.esperada_prov ?? 0) > 0) {
     const recaProvCurr = pProv.current ?? 0;
     const esperadaProv = pProv.esperada_prov ?? 0;
-    const diffAbsProv = pProv.brecha_abs_prov ?? 0;
-    const diffPctProv = pProv.brecha_pct_prov ?? 0;
-    const pctSignProv = diffPctProv > 0 ? "+" : "";
-    const absSignProv = diffAbsProv > 0 ? "+" : "";
-
-    presupuestoProv = {
-      diffAbs: absSignProv + formatMillions(Math.abs(diffAbsProv)),
-      diffAbsClass: `kpi-value ${diffAbsProv >= 0 ? "text-success" : "text-danger"}`,
-      diffPct: pctSignProv + formatPercentage(diffPctProv).replace("+", ""),
-      diffPctClass: `kpi-value ${diffPctProv >= 0 ? "text-success" : "text-danger"}`,
-      recaudado: formatMillions(recaProvCurr),
-      esperada: formatMillions(esperadaProv),
-    };
+    presupuestoProv = buildBudgetComparison(recaProvCurr, esperadaProv);
   }
 
   return {
@@ -394,6 +413,7 @@ export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm 
       realAbsClass: masaRealAbsClass,
       showRealAbs: true,
     },
+    presupuestoRon,
     presupuestoProv,
   };
 }
