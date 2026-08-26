@@ -416,12 +416,11 @@ export default function HomeDashboard() {
       : fmtPct(kpiCobertura, { coverage: true })!;
 
     const isIpcNeaMissingMasa = masaData.ipc_missing;
-    const isJune = periodLabel.toLowerCase() === "junio" || currentPeriodId.endsWith("-06");
     const kpiMasaReal =
-      isMasaIncomplete || isIpcNeaMissingMasa || isJune ? null : masaData.var_real;
+      isMasaIncomplete || isIpcNeaMissingMasa ? null : masaData.var_real;
 
     let masa: ReturnType<typeof fmtPct> | ReturnType<typeof fmtMissing>;
-    if (isMasaIncomplete || isJune) {
+    if (isMasaIncomplete) {
       masa = fmtMissing(null);
     } else if (kpiMasaReal === null || kpiMasaReal === undefined) {
       masa = fmtMissing(isIpcNeaMissingMasa ? "IPC" : null);

@@ -406,12 +406,10 @@ export function buildMonitorViewModel(
   const diffNomNet = kpi.recaudacion.diff_nom ?? 0;
   const diffSign = diffNomNet >= 0 ? "+" : "-";
 
-  const isJune = monthName.toLowerCase() === "junio" || periodId.endsWith("-06");
-
   let masaVarNomPct = "";
   let masaVarNomPctClass = "";
   let masaVarNomAbs = "";
-  if (isIncomplete || isJune) {
+  if (isIncomplete) {
     masaVarNomPct = "Sin datos";
     masaVarNomPctClass = "kpi-value text-secondary text-missing";
     masaVarNomAbs = "—";
@@ -428,7 +426,7 @@ export function buildMonitorViewModel(
   let masaRealPctClass = "";
   let masaRealAbs = "—";
   let masaRealAbsClass = "";
-  if (isIncomplete || isJune) {
+  if (isIncomplete) {
     masaRealPct = "Sin datos";
     masaRealPctClass = "kpi-value text-secondary text-missing";
   } else if (isIpcNeaMissingMasa) {
@@ -529,10 +527,10 @@ export function buildMonitorViewModel(
       realAbsClass: isIpcNacionMissing ? "" : recaudacionRealAbsClass,
     },
     masa: {
-      current: (isIncomplete || isJune) ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
-      prev: isJune ? "Sin datos" : formatMillions(kpi.masa_salarial.prev),
-      cobCurr: (isIncomplete || isJune) ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
-      cobPrev: isJune ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
+      current: isIncomplete ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
+      prev: formatMillions(kpi.masa_salarial.prev),
+      cobCurr: isIncomplete ? "Sin datos" : `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_current ?? 0)}%`,
+      cobPrev: `Cobertura: ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kpi.masa_salarial.cobertura_prev ?? 0)}%`,
       varNomPct: masaVarNomPct,
       varNomPctClass: masaVarNomPctClass,
       varNomAbs: masaVarNomAbs,
