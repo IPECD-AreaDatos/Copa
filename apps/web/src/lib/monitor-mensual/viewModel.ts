@@ -128,6 +128,7 @@ type KpiShape = {
     ipc_source?: "official" | "rem_bcra" | "unavailable";
     ipc_rem_published_at?: string | null;
     is_incomplete?: boolean;
+    is_variation_incomplete?: boolean;
   };
 };
 
@@ -262,6 +263,8 @@ export function buildMonitorViewModel(
   const monthName = periodLabel.split(" ")[0] || "";
 
   const isIncomplete = !!kpi.masa_salarial.is_incomplete;
+  const areSalaryVariationsIncomplete =
+    isIncomplete || !!kpi.masa_salarial.is_variation_incomplete;
 
   const emptyGrid = isMobileLayout ? undefined : "";
   const grid = isIncomplete
@@ -409,7 +412,7 @@ export function buildMonitorViewModel(
   let masaVarNomPct = "";
   let masaVarNomPctClass = "";
   let masaVarNomAbs = "";
-  if (isIncomplete) {
+  if (areSalaryVariationsIncomplete) {
     masaVarNomPct = "Sin datos";
     masaVarNomPctClass = "kpi-value text-secondary text-missing";
     masaVarNomAbs = "—";
@@ -426,7 +429,7 @@ export function buildMonitorViewModel(
   let masaRealPctClass = "";
   let masaRealAbs = "—";
   let masaRealAbsClass = "";
-  if (isIncomplete) {
+  if (areSalaryVariationsIncomplete) {
     masaRealPct = "Sin datos";
     masaRealPctClass = "kpi-value text-secondary text-missing";
   } else if (isIpcNeaMissingMasa) {

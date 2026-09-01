@@ -421,8 +421,9 @@ router.get('/monthly', authMiddleware, async (req, res) => {
 
             const isMasaIncomplete = masaValue === 0;
 
-            // Sólo para la línea objetivo del gráfico: el dato mensual se acepta cuando alcanza
-            // al menos el 90% del promedio de los 12 meses calendario anteriores.
+            // La línea objetivo del gráfico y las variaciones salariales comparten la regla:
+            // el dato mensual se acepta cuando alcanza al menos el 90% del promedio de los
+            // 12 meses calendario anteriores. Sólo el gráfico aplica fallback al mes anterior.
             const salaryTarget = resolveMonthlySalaryTarget(periodId, masaMap);
             const masaPesosObjetivo = salaryTarget.value;
             const salarySourceMonth = salaryTarget.sourcePeriodId
@@ -596,7 +597,8 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         var_real: vRealMasa !== null ? vRealMasa * 100 : 0,
                         diff_nom: (masaValue - masaPrevValue) / 1000000,
                         ...ipcMeta,
-                        is_incomplete: isMasaIncomplete
+                        is_incomplete: isMasaIncomplete,
+                        is_variation_incomplete: !salaryTarget.isCurrentComplete
                     },
                     distribucion_municipal: {
                         ...muniKpi
