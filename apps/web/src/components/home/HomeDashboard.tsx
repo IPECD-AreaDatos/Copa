@@ -21,6 +21,7 @@ type Period = {
   label: string;
   year: number;
   month: number;
+  incomplete?: boolean;
 };
 
 type MainJson = {
@@ -391,12 +392,16 @@ export default function HomeDashboard() {
     const row = mainData.data[currentPeriodId];
     const periods = mainData.meta.available_periods;
     const periodObj = periods.find((p) => p.id === currentPeriodId);
+    const periodIndex = periods.findIndex((p) => p.id === currentPeriodId);
     const year = currentPeriodId.split("-")[0];
     const periodLabel = periodObj?.label ?? "Periodo";
 
     const masaData = row.kpi.masa_salarial;
     const isMasaIncomplete = masaData.is_incomplete || !(masaData.current > 0);
-    const periodStatus = isMasaIncomplete ? " (incompleto)" : "";
+    const isPeriodIncomplete = periodObj?.incomplete
+      ?? (defaultPeriodIndex >= 0 && periodIndex > defaultPeriodIndex);
+    const hideSalaryKpis = isPeriodIncomplete || isMasaIncomplete;
+    const periodStatus = hideSalaryKpis ? " (incompleto)" : "";
     const periodLabelFinal = `${periodLabel} ${year}${periodStatus}`;
 
     const resumen = row.kpi.resumen;
@@ -411,16 +416,16 @@ export default function HomeDashboard() {
     }
 
     const kpiCobertura = masaData.cobertura_current;
-    const cobertura = isMasaIncomplete || kpiCobertura === null
+    const cobertura = hideSalaryKpis || kpiCobertura === null
       ? fmtMissing(null)
       : fmtPct(kpiCobertura, { coverage: true })!;
 
     const isIpcNeaMissingMasa = masaData.ipc_missing;
     const kpiMasaReal =
-      isMasaIncomplete || isIpcNeaMissingMasa ? null : masaData.var_real;
+      hideSalaryKpis || isIpcNeaMissingMasa ? null : masaData.var_real;
 
     let masa: ReturnType<typeof fmtPct> | ReturnType<typeof fmtMissing>;
-    if (isMasaIncomplete) {
+    if (hideSalaryKpis) {
       masa = fmtMissing(null);
     } else if (kpiMasaReal === null || kpiMasaReal === undefined) {
       masa = fmtMissing(isIpcNeaMissingMasa ? "IPC" : null);
@@ -428,7 +433,7 @@ export default function HomeDashboard() {
       masa = fmtPct(kpiMasaReal)!;
     }
 
-    const subStyleIncomplete = isMasaIncomplete ? "#ef4444" : "#1e293b";
+    const subStyleIncomplete = hideSalaryKpis ? "#ef4444" : "#1e293b";
 
     return {
       copa: { ...copa, subtitleColor: subStyleIncomplete, periodLabelFinal },
@@ -438,7 +443,7 @@ export default function HomeDashboard() {
         ? describeInflationSource(row.kpi.recaudacion)
         : null,
     };
-  }, [mainData, currentPeriodId]);
+  }, [mainData, currentPeriodId, defaultPeriodIndex]);
 
   const executiveData = useMemo(() => {
     if (!mainData) return null;

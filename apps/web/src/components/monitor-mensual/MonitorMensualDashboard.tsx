@@ -679,7 +679,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               className="info-tooltip"
               data-tooltip={`Compara la recaudación diaria de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) acumulada día a día con el monto objetivo correspondiente a la masa salarial total del período seleccionado. Además, en el último día del mes se suman los recursos de origen provincial (ROP) disponibles.
 
-El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. En caso de no disponerse del dato actualizado de la masa salarial del mes en curso, se utiliza como referencia la masa salarial correspondiente al mes anterior.
+El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. El dato del mes se considera completo cuando alcanza al menos el 90% del promedio de los 12 meses calendario anteriores. Si no alcanza ese umbral, la línea utiliza como referencia la masa salarial del mes anterior.
 
 El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
             >

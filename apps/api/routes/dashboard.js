@@ -4,6 +4,7 @@ const db_copa = require('../db');            // Para RON y Gastos (Datos frescos
 const authMiddleware = require('../middleware/auth');
 const { createInflationResolver } = require('../services/inflation-resolver');
 const { getMonthlyBudget } = require('../services/budget-resolver');
+const { resolveMonthlySalaryTarget } = require('../services/salary-target-resolver');
 
 /**
  * GET /api/dashboard/home
@@ -115,6 +116,9 @@ router.get('/home', async (req, res) => {
             defaultId = available_periods[available_periods.length - 1].id;
         }
         const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
+        available_periods.forEach((p, idx) => {
+            p.incomplete = defaultIndex >= 0 && idx > defaultIndex;
+        });
 
         ronRowsAsc.forEach((row) => {
             const periodId = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
@@ -417,32 +421,15 @@ router.get('/monthly', authMiddleware, async (req, res) => {
 
             const isMasaIncomplete = masaValue === 0;
 
-            let prevCalMonth = row.mes - 1;
-            let prevCalYear = row.anio;
-            if (prevCalMonth < 1) {
-                prevCalMonth = 12;
-                prevCalYear--;
-            }
-            const prevCalPeriodKey = `${prevCalYear}-${String(prevCalMonth).padStart(2, '0')}`;
-            const rawMasaPrevCal = masaMap[prevCalPeriodKey];
-
-            let masaPesosObjetivo = masaValue;
-            let salario_label_month = months[row.mes - 1];
-            let masa_objetivo_es_fallback = false;
-
-            if (isMasaIncomplete) {
-                if (rawMasaPrevCal != null && rawMasaPrevCal > 0) {
-                    masaPesosObjetivo = rawMasaPrevCal;
-                    salario_label_month = months[prevCalMonth - 1];
-                    masa_objetivo_es_fallback = true;
-                } else if (masaPrevValue > 0) {
-                    masaPesosObjetivo = masaPrevValue;
-                    salario_label_month = months[row.mes - 1];
-                    masa_objetivo_es_fallback = true;
-                } else {
-                    masaPesosObjetivo = 0;
-                }
-            }
+            // Sólo para la línea objetivo del gráfico: el dato mensual se acepta cuando alcanza
+            // al menos el 90% del promedio de los 12 meses calendario anteriores.
+            const salaryTarget = resolveMonthlySalaryTarget(periodId, masaMap);
+            const masaPesosObjetivo = salaryTarget.value;
+            const salarySourceMonth = salaryTarget.sourcePeriodId
+                ? Number(salaryTarget.sourcePeriodId.slice(5, 7))
+                : row.mes;
+            const salario_label_month = months[salarySourceMonth - 1];
+            const masa_objetivo_es_fallback = salaryTarget.isFallback;
 
             const copa_label = months[row.mes - 1];
 
