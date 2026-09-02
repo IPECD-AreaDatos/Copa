@@ -16,28 +16,57 @@ export function useDashboardSession(options: { required?: boolean } = { required
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("copa_user");
-    const token = localStorage.getItem("copa_token");
-    
-    if (!storedUser || !token) {
+    let cancelled = false;
+    const markReady = () => {
+      queueMicrotask(() => {
+        if (!cancelled) setReady(true);
+      });
+    };
+
+    let storedUser: string | null = null;
+    let token: string | null = null;
+
+    try {
+      storedUser = localStorage.getItem("copa_user");
+      token = localStorage.getItem("copa_token");
+    } catch {
+      // Safari puede bloquear el acceso al almacenamiento en ciertos modos.
+      markReady();
       if (options.required) {
         router.replace("/login");
-      } else {
-        setReady(true);
       }
-      return;
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (!storedUser || !token) {
+      markReady();
+      if (options.required) {
+        router.replace("/login");
+      }
+      return () => {
+        cancelled = true;
+      };
     }
     
     try {
-      setUser(JSON.parse(storedUser) as CopaUser);
-      setReady(true);
+      const parsedUser = JSON.parse(storedUser) as CopaUser;
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setUser(parsedUser);
+        setReady(true);
+      });
     } catch {
+      markReady();
       if (options.required) {
         router.replace("/login");
-      } else {
-        setReady(true);
       }
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [router, options.required]);
 
   const logout = useCallback(() => {
@@ -54,4 +83,3 @@ export function useDashboardSession(options: { required?: boolean } = { required
 
   return { user, displayName, logout, ready };
 }
-

@@ -459,6 +459,47 @@ main {
   animation: fadeIn 0.5s ease-out;
 }
 
+.route-status-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.route-status-card {
+  width: min(100%, 30rem);
+  padding: 2rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 1rem 3rem rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+
+.route-status-card h1 {
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.route-status-card p {
+  color: var(--text-secondary);
+}
+
+.route-status-link {
+  display: inline-flex;
+  margin-top: 1.25rem;
+  padding: 0.7rem 1rem;
+  border-radius: 0.65rem;
+  background: var(--brand-dark);
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.route-status-link:hover {
+  background: #0f766e;
+}
+
 /* Gasto needs more horizontal space for the heatmap */
 main:has(.heatmap-section) {
   max-width: 100%;
