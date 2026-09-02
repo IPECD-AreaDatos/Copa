@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
+const EXCEL_REFERENCE = require('../data/gasto_excel_reference.json');
 const {
     DEFAULT_LOOKBACK_MONTHS,
     DEFAULT_TOLERANCE,
@@ -11,9 +12,14 @@ const {
 const {
     ESTADO_LABELS,
     FUENTE_LABELS,
+    RUBRO_CASE_SQL,
     buildChapterRows,
     buildFilters,
     buildJurisdictionRows,
+    buildJurisdictionRubroRows,
+    buildJurisdictionSubpartidaRows,
+    buildMonthlyRubroRows,
+    buildRubroRows,
     buildSubpartidaRows,
     buildWhere,
     isSnapshotState,
@@ -146,7 +152,18 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
         const where = buildWhere(effectiveFilters);
         const from = `FROM copa_gastos_fte WHERE ${where.text}`;
 
-        const [chaptersResult, subpartidasResult, jurisdictionsResult, monthlyResult, coverageResult, optionsResult] = await Promise.all([
+        const [
+            chaptersResult,
+            subpartidasResult,
+            jurisdictionsResult,
+            monthlyResult,
+            coverageResult,
+            optionsResult,
+            rubrosResult,
+            jurisdictionRubrosResult,
+            monthlyRubrosResult,
+            jurisdictionSubpartidasResult,
+        ] = await Promise.all([
             db.query(`
                 SELECT partid,
                        SUM(val)::numeric AS total,
@@ -197,11 +214,56 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
                     ARRAY_AGG(DISTINCT partid ORDER BY partid) AS partidas
                 FROM copa_gastos_fte
             `),
+            db.query(`
+                SELECT ${RUBRO_CASE_SQL} AS rubro,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count,
+                       COUNT(DISTINCT partid)::int AS partidas,
+                       COUNT(DISTINCT sub_partid)::int AS subpartidas
+                ${from}
+                GROUP BY 1
+                ORDER BY 1
+            `, where.params),
+            db.query(`
+                SELECT jurisdiccion,
+                       ${RUBRO_CASE_SQL} AS rubro,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count,
+                       COUNT(DISTINCT partid)::int AS partidas,
+                       COUNT(DISTINCT sub_partid)::int AS subpartidas
+                ${from}
+                GROUP BY 1, 2
+                ORDER BY jurisdiccion, rubro
+            `, where.params),
+            db.query(`
+                SELECT mes,
+                       ${RUBRO_CASE_SQL} AS rubro,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count
+                ${from}
+                GROUP BY mes, rubro
+                ORDER BY mes, rubro
+            `, where.params),
+            db.query(`
+                SELECT jurisdiccion,
+                       partid,
+                       sub_partid,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count,
+                       COUNT(DISTINCT mes)::int AS months
+                ${from}
+                GROUP BY jurisdiccion, partid, sub_partid
+                ORDER BY jurisdiccion, ABS(SUM(val)) DESC, partid, sub_partid
+            `, where.params),
         ]);
 
         const chapterRows = buildChapterRows(chaptersResult.rows);
         const subpartidaRows = buildSubpartidaRows(subpartidasResult.rows, chapterRows);
         const jurisdictionRows = buildJurisdictionRows(jurisdictionsResult.rows);
+        const rubroRows = buildRubroRows(rubrosResult.rows);
+        const jurisdictionRubroRows = buildJurisdictionRubroRows(jurisdictionRubrosResult.rows);
+        const monthlyRubroRows = buildMonthlyRubroRows(monthlyRubrosResult.rows);
+        const jurisdictionSubpartidaRows = buildJurisdictionSubpartidaRows(jurisdictionSubpartidasResult.rows);
         const coverage = coverageResult.rows[0] || { raw_rows: 0, total: 0 };
         const optionRow = optionsResult.rows[0] || {};
         const availableJurisdictions = (optionRow.jurisdictions || []).map(mapJurisdiccion);
@@ -209,6 +271,11 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
         const unmappedJurisdictions = availableJurisdictions
             .filter((jurisdiccion) => !jurisdiccion.mapeada)
             .map((jurisdiccion) => jurisdiccion.codigo);
+        const selectedTotal = numberValue(coverage.total);
+        const rubroTotal = rubroRows.reduce((sum, row) => sum + row.total, 0);
+        const jurisdictionRubroTotal = jurisdictionRubroRows.reduce((sum, row) => sum + row.total, 0);
+        const chapterTotal = chapterRows.reduce((sum, row) => sum + row.total, 0);
+        const roundDifference = (left, right) => Number((left - right).toFixed(2));
 
         res.json({
             meta: {
@@ -233,11 +300,14 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
                 },
                 unmapped_jurisdictions: unmappedJurisdictions,
                 description_source: 'Catálogo de referencia generado a partir de los Excel de desglose recibidos; los códigos sin correspondencia se muestran por código.',
+                excel_reference_period: EXCEL_REFERENCE.periodo,
+                excel_reference_files: EXCEL_REFERENCE.archivos,
                 raw_rows: Number(coverage.raw_rows || 0),
                 grouped_rows: subpartidaRows.length,
+                jurisdiction_account_rows: jurisdictionSubpartidaRows.length,
                 response_at: new Date().toISOString(),
             },
-            total: numberValue(coverage.total),
+            total: selectedTotal,
             chapters: chapterRows,
             subpartidas: subpartidaRows,
             jurisdicciones: jurisdictionRows,
@@ -246,6 +316,16 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
                 total: numberValue(row.total),
                 filas: Number(row.row_count || 0),
             })),
+            rubros: rubroRows,
+            jurisdicciones_rubros: jurisdictionRubroRows,
+            monthly_rubros: monthlyRubroRows,
+            jurisdiccion_subpartidas: jurisdictionSubpartidaRows,
+            excel_reference: EXCEL_REFERENCE,
+            controles: {
+                total_vs_capitulos: roundDifference(selectedTotal, chapterTotal),
+                total_vs_rubros: roundDifference(selectedTotal, rubroTotal),
+                total_vs_jurisdicciones_rubros: roundDifference(selectedTotal, jurisdictionRubroTotal),
+            },
         });
     } catch (err) {
         if (err.statusCode === 400) {
