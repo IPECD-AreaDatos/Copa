@@ -730,6 +730,11 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               </div>
               <h3 className="chart-title">Masa Salarial Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
+              {!chosen.kpi.masa_salarial.is_complete && (
+                <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                  Masa Salarial {vm.monthName} {vm.currentYear}: Sin datos. Se conservan los períodos completos disponibles.
+                </p>
+              )}
               <div className="chart-wrapper">
                 {hasMasaRealData && chartMasaReal ? (
                   <Bar data={chartMasaReal!} options={optMasaReal} />
