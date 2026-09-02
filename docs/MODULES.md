@@ -97,6 +97,17 @@ El frontend del Tablero COPA está desarrollado en **Next.js** y organizado en s
 *   **Lógica de Acumulación Anual**:
     - La ejecución acumulada en gráficos y heatmaps se limita automáticamente al **año fiscal activo** (determinado dinámicamente por el último mes con registros en la base de datos). Esto evita mezclar montos de presupuestos de ejercicios anteriores.
 
+## 5.1 Módulo: Gastos desagregados
+*   **Ruta**: `/gastos-desagregados`
+*   **Componente**: [`GastosDesagregadosDashboard.tsx`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/src/components/gasto/GastosDesagregadosDashboard.tsx)
+*   **Fuente**: `copa_gastos_fte`.
+*   **Acceso**: Privado (Requiere Sesión activa).
+
+### Características Principales:
+*   **Desglose jerárquico**: Presenta la composición por capítulo (`partid`), cuenta presupuestaria (`sub_partid`) y jurisdicción.
+*   **Corte reproducible**: Permite seleccionar año, rango de meses, fuente, estado, jurisdicción y capítulo.
+*   **Control de cobertura**: Muestra las filas de origen, las cuentas agrupadas y la evolución mensual del alcance seleccionado.
+
 ---
 
 ## 6. Módulo: Uso del Tablero (Auditoría)

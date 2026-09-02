@@ -1251,3 +1251,340 @@ footer.app-footer {
 .heatmap-section .section-header {
   margin-bottom: 1rem;
 }
+
+/* Gastos desagregados */
+.desagregado-page {
+  width: 100%;
+}
+
+.desagregado-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.desagregado-heading .dashboard-title {
+  text-align: left;
+  margin-bottom: 0.4rem;
+}
+
+.desagregado-loading {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  padding-bottom: 0.35rem;
+}
+
+.desagregado-controls {
+  margin-bottom: 1.5rem;
+}
+
+.desagregado-controls .section-header {
+  margin-bottom: 1rem;
+}
+
+.desagregado-controls .sf-group {
+  min-width: 150px;
+}
+
+.desagregado-scope-note {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  margin-top: 0.85rem;
+}
+
+.desagregado-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.desagregado-kpi-grid .kpi-card {
+  min-width: 0;
+  min-height: 132px;
+}
+
+.desagregado-kpi-grid .kpi-value {
+  font-size: clamp(1.55rem, 2.5vw, 2.25rem);
+  white-space: nowrap;
+}
+
+.desagregado-card-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.desagregado-card-grid .chart-container {
+  margin-bottom: 1.5rem;
+}
+
+.desagregado-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.desagregado-bar-row {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.desagregado-bar-label,
+.desagregado-jurisdiction-heading,
+.desagregado-bar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.desagregado-bar-label {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.desagregado-bar-label span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desagregado-bar-label strong,
+.desagregado-jurisdiction-heading strong {
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.desagregado-bar-track {
+  height: 0.55rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.desagregado-bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-green), #0f766e);
+}
+
+.desagregado-bar-meta {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.desagregado-monthly-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 0.65rem;
+  min-height: 290px;
+  padding: 0.5rem 0.25rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.desagregado-month-column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+  height: 100%;
+}
+
+.desagregado-month-value {
+  color: var(--text-secondary);
+  font-family: ui-monospace, monospace;
+  font-size: 0.65rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  min-height: 2.2rem;
+}
+
+.desagregado-month-track {
+  display: flex;
+  align-items: flex-end;
+  width: min(2.3rem, 100%);
+  height: 205px;
+  border-radius: 0.55rem 0.55rem 0 0;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.desagregado-month-track span {
+  display: block;
+  width: 100%;
+  min-height: 0.25rem;
+  border-radius: 0.55rem 0.55rem 0 0;
+  background: linear-gradient(180deg, #0f766e, var(--brand-green));
+}
+
+.desagregado-month-label {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.desagregado-table-scroll {
+  overflow: auto;
+  max-width: 100%;
+  border-radius: 0.75rem;
+}
+
+.desagregado-detail-scroll {
+  max-height: 600px;
+}
+
+.desagregado-table {
+  min-width: 920px;
+}
+
+.desagregado-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+}
+
+.desagregado-table td:first-child {
+  display: table-cell;
+}
+
+.desagregado-table td,
+.desagregado-table th {
+  white-space: nowrap;
+}
+
+.desagregado-table td:nth-child(3) {
+  white-space: normal;
+  min-width: 280px;
+}
+
+.desagregado-unmapped,
+.desagregado-reference-note {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.desagregado-reference-note {
+  font-size: 0.72rem;
+}
+
+.desagregado-negative {
+  color: var(--accent-danger) !important;
+}
+
+.desagregado-search-wrap {
+  min-width: 220px;
+}
+
+.desagregado-search-wrap label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.35rem 2px;
+  text-transform: uppercase;
+}
+
+.desagregado-search {
+  margin: 0;
+  width: 100%;
+}
+
+.desagregado-jurisdiction-list {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.desagregado-jurisdiction-row {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.desagregado-jurisdiction-heading {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.desagregado-jurisdiction-heading span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desagregado-source-line {
+  margin-top: 0;
+}
+
+.desagregado-page-state {
+  margin-top: 2rem;
+}
+
+.desagregado-error {
+  color: var(--accent-danger);
+  margin-top: 0.75rem;
+}
+
+.desagregado-empty {
+  color: var(--text-secondary);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .desagregado-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .desagregado-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .desagregado-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .desagregado-heading .dashboard-title {
+    font-size: var(--text-2xl);
+  }
+
+  .desagregado-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desagregado-kpi-grid .kpi-card {
+    min-height: 115px;
+  }
+
+  .desagregado-controls .sf-group {
+    min-width: 100%;
+  }
+
+  .desagregado-monthly-chart {
+    min-height: 240px;
+  }
+
+  .desagregado-month-track {
+    height: 155px;
+  }
+
+  .desagregado-search-wrap {
+    width: 100%;
+  }
+}

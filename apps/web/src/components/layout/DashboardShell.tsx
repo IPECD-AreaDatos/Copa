@@ -103,6 +103,9 @@ export default function DashboardShell({
               <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
                 Gasto
               </Link>
+              <Link href="/gastos-desagregados" className={navClass("/gastos-desagregados")} onClick={() => setSidebarOpen(false)}>
+                Gastos desagregados
+              </Link>
               {username === "admin" && (
                 <Link
                   href="/auditoria"

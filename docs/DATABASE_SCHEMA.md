@@ -89,6 +89,22 @@ Registra las transacciones del presupuesto provincial, incluyendo los sueldos gu
     - Partida: que contenga `'GAST% EN PERSONAL%'` (ej. Gastos en Personal Permanente, Transitorio)
     - Fuentes de financiamiento: `10` y `14` (recursos del tesoro y coparticipación)
 
+#### Fuente detallada: `copa_gastos_fte`
+La vista **Gastos desagregados** utiliza esta tabla como fuente de mayor granularidad. Cada registro conserva las dimensiones operativas del presupuesto antes de agregarse para el navegador.
+
+| Campo | Tipo | Uso en el desglose |
+| :--- | :--- | :--- |
+| `mes`, `anio` | `INTEGER` | Corte temporal del registro. |
+| `jurisdiccion` | `INTEGER` | Código del organismo ejecutor. |
+| `codigo_fuente` | `INTEGER` | Fuente de financiamiento. |
+| `programa`, `sub_prof`, `py`, `a_obra` | `INTEGER` | Dimensiones operativas del programa, subprograma, proyecto y obra. |
+| `partid` | `INTEGER` | Capítulo presupuestario: 100, 200, 300, etc. |
+| `sub_partid` | `INTEGER` | Cuenta presupuestaria mostrada en el detalle. |
+| `tipo_de_g` | `VARCHAR` | Estado del registro, por ejemplo `Comprometido`, `Cred Ori` o `Cred Vig`. |
+| `val` | `NUMERIC` | Monto del gasto. |
+
+La API agrupa por capítulo, cuenta, jurisdicción y mes, conservando la cobertura de filas de origen. Las etiquetas de jurisdicción y las descripciones de cuentas se mantienen como catálogos de referencia mientras no exista una tabla de dimensiones oficial asociada.
+
 ---
 
 ### D. Vista: `v_gastos_agrupados`

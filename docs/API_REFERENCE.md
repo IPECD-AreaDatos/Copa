@@ -155,6 +155,18 @@ Authorization: Bearer <token_jwt_aqui>
 *   **Ruta**: `GET /api/gastos/filtros`
 *   **Descripción**: Devuelve las listas ordenadas de valores únicos de `jurisdicciones`, `partidas`, `fuentes` y `estados` presentes en la base de datos para rellenar los filtros dropdown.
 
+#### Gastos Desagregados
+*   **Ruta**: `GET /api/gastos/desagregados`
+*   **Fuente**: `copa_gastos_fte`.
+*   **Descripción**: Agrupa la base detallada por capítulo (`partid`), cuenta (`sub_partid`), jurisdicción y mes. Devuelve totales, participaciones, cobertura de filas y evolución mensual sin enviar el detalle crudo completo al navegador.
+*   **Parámetros opcionales**:
+    - `anio` (por defecto `2026`)
+    - `mesDesde` y `mesHasta` (por defecto `1` y `6`)
+    - `fuente` (por ejemplo `10`; admite una lista separada por comas)
+    - `estado` (por defecto `Comprometido`)
+    - `jurisdiccion`, `partid` y `subPartid` (códigos; admiten listas separadas por comas)
+*   **Nota de interpretación**: `Comprometido`, `Cred Ori` y `Cred Vig` son estados alternativos y la API exige seleccionar uno. `Comprometido` se suma en el rango de meses; `Cred Ori` y `Cred Vig` se resuelven como el último snapshot disponible dentro del rango para evitar duplicar presupuestos mensuales. Las descripciones de cuentas provienen de un catálogo de referencia construido con los Excel de desglose y los códigos sin correspondencia se conservan visibles.
+
 ---
 
 ### E. Telemetría y Logs

@@ -8,6 +8,19 @@ const {
     resolvePeriodCompleteness,
     resolveVariableCompleteness,
 } = require('../services/completeness-resolver');
+const {
+    ESTADO_LABELS,
+    FUENTE_LABELS,
+    buildChapterRows,
+    buildFilters,
+    buildJurisdictionRows,
+    buildSubpartidaRows,
+    buildWhere,
+    isSnapshotState,
+    mapJurisdiccion,
+    mapPartida,
+    numberValue,
+} = require('../services/gasto-desagregado');
 
 const GASTO_VARIABLES = ['credito_vigente', 'comprometido', 'ordenado'];
 
@@ -99,6 +112,147 @@ router.get('/filtros', authMiddleware, async (req, res) => {
     } catch (err) {
         console.error('Error al obtener filtros de gastos:', err.message);
         res.status(500).json({ message: 'Error al obtener opciones de filtros' });
+    }
+});
+
+/**
+ * Desglose de gastos por fuente, jurisdicción, partida y subpartida.
+ * La consulta trabaja sobre copa_gastos_fte en el grano de la base detallada
+ * y devuelve agregados para evitar enviar cientos de miles de filas al cliente.
+ */
+router.get('/desagregados', authMiddleware, async (req, res) => {
+    try {
+        const filters = buildFilters(req.query);
+        let effectiveFilters = filters;
+        let snapshotMonth = null;
+        const requestedWhere = buildWhere(filters);
+
+        if (isSnapshotState(filters)) {
+            const snapshotResult = await db.query(`
+                SELECT MAX(mes)::int AS snapshot_month
+                FROM copa_gastos_fte
+                WHERE ${requestedWhere.text}
+            `, requestedWhere.params);
+            snapshotMonth = snapshotResult.rows[0]?.snapshot_month ?? null;
+            if (snapshotMonth !== null) {
+                effectiveFilters = {
+                    ...filters,
+                    mesDesde: Number(snapshotMonth),
+                    mesHasta: Number(snapshotMonth),
+                };
+            }
+        }
+
+        const where = buildWhere(effectiveFilters);
+        const from = `FROM copa_gastos_fte WHERE ${where.text}`;
+
+        const [chaptersResult, subpartidasResult, jurisdictionsResult, monthlyResult, coverageResult, optionsResult] = await Promise.all([
+            db.query(`
+                SELECT partid,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count,
+                       COUNT(DISTINCT sub_partid)::int AS subpartidas
+                ${from}
+                GROUP BY partid
+                ORDER BY partid
+            `, where.params),
+            db.query(`
+                SELECT partid,
+                       sub_partid,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count,
+                       COUNT(DISTINCT jurisdiccion)::int AS jurisdicciones
+                ${from}
+                GROUP BY partid, sub_partid
+                ORDER BY partid, ABS(SUM(val)) DESC, sub_partid
+            `, where.params),
+            db.query(`
+                SELECT jurisdiccion,
+                       partid,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count
+                ${from}
+                GROUP BY jurisdiccion, partid
+                ORDER BY jurisdiccion, partid
+            `, where.params),
+            db.query(`
+                SELECT mes,
+                       SUM(val)::numeric AS total,
+                       COUNT(*)::int AS row_count
+                ${from}
+                GROUP BY mes
+                ORDER BY mes
+            `, where.params),
+            db.query(`
+                SELECT COUNT(*)::int AS raw_rows,
+                       COALESCE(SUM(val), 0)::numeric AS total
+                ${from}
+            `, where.params),
+            db.query(`
+                SELECT
+                    ARRAY_AGG(DISTINCT anio ORDER BY anio) AS years,
+                    ARRAY_AGG(DISTINCT codigo_fuente ORDER BY codigo_fuente) AS sources,
+                    ARRAY_AGG(DISTINCT tipo_de_g ORDER BY tipo_de_g) AS states,
+                    ARRAY_AGG(DISTINCT jurisdiccion ORDER BY jurisdiccion) AS jurisdictions,
+                    ARRAY_AGG(DISTINCT partid ORDER BY partid) AS partidas
+                FROM copa_gastos_fte
+            `),
+        ]);
+
+        const chapterRows = buildChapterRows(chaptersResult.rows);
+        const subpartidaRows = buildSubpartidaRows(subpartidasResult.rows, chapterRows);
+        const jurisdictionRows = buildJurisdictionRows(jurisdictionsResult.rows);
+        const coverage = coverageResult.rows[0] || { raw_rows: 0, total: 0 };
+        const optionRow = optionsResult.rows[0] || {};
+        const availableJurisdictions = (optionRow.jurisdictions || []).map(mapJurisdiccion);
+        const availablePartidas = (optionRow.partidas || []).map(mapPartida);
+        const unmappedJurisdictions = availableJurisdictions
+            .filter((jurisdiccion) => !jurisdiccion.mapeada)
+            .map((jurisdiccion) => jurisdiccion.codigo);
+
+        res.json({
+            meta: {
+                source_table: 'copa_gastos_fte',
+                grain: 'mes, año, jurisdicción, fuente, programa, subprofesional, proyecto, obra, partida, subpartida y estado',
+                requested: filters,
+                selected: effectiveFilters,
+                is_snapshot: isSnapshotState(filters),
+                snapshot_month: snapshotMonth === null ? null : Number(snapshotMonth),
+                available: {
+                    years: optionRow.years || [],
+                    fuentes: (optionRow.sources || []).map((codigo) => ({
+                        codigo: Number(codigo),
+                        nombre: FUENTE_LABELS[Number(codigo)] || `Fuente ${codigo}`,
+                    })),
+                    estados: (optionRow.states || []).map((estado) => ({
+                        codigo: estado,
+                        nombre: ESTADO_LABELS[estado] || estado,
+                    })),
+                    jurisdicciones: availableJurisdictions,
+                    partidas: availablePartidas,
+                },
+                unmapped_jurisdictions: unmappedJurisdictions,
+                description_source: 'Catálogo de referencia generado a partir de los Excel de desglose recibidos; los códigos sin correspondencia se muestran por código.',
+                raw_rows: Number(coverage.raw_rows || 0),
+                grouped_rows: subpartidaRows.length,
+                response_at: new Date().toISOString(),
+            },
+            total: numberValue(coverage.total),
+            chapters: chapterRows,
+            subpartidas: subpartidaRows,
+            jurisdicciones: jurisdictionRows,
+            monthly: monthlyResult.rows.map((row) => ({
+                mes: Number(row.mes),
+                total: numberValue(row.total),
+                filas: Number(row.row_count || 0),
+            })),
+        });
+    } catch (err) {
+        if (err.statusCode === 400) {
+            return res.status(400).json({ message: err.message });
+        }
+        console.error('Error al consultar gastos desagregados:', err.message);
+        return res.status(500).json({ message: 'Error al obtener el desglose de gastos' });
     }
 });
 
