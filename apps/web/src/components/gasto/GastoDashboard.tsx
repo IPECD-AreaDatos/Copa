@@ -12,6 +12,7 @@ import {
   computeHeatmap,
   computeRatioChartData,
   computeWaterfall,
+  EXECUTION_PACE_LEGEND,
   format1M,
   formatPctOneDecimal,
   formatPctNoDecimals,
@@ -391,9 +392,18 @@ export default function GastoDashboard() {
             <h2 className="section-title">{heatmap?.heatmapTitle ?? "Mapa de Calor de Ejecución"}</h2>
             <p className="section-subtitle">
               Ratio acumulado / Crédito Vigente por partida y organismo
-              {heatmap ? ` · avance teórico al corte: ${formatPctNoDecimals(heatmap.expectedPct)}` : ""}
+              {heatmap ? ` · avance teórico al corte: ${formatPctNoDecimals(heatmap.expectedPct)} · color: ritmo relativo` : ""}
             </p>
           </div>
+        </div>
+        <div className="heatmap-legend" aria-label="Escala de color del ritmo relativo al avance teórico">
+          <span className="heatmap-legend-intro">Color = ritmo vs. avance teórico:</span>
+          {EXECUTION_PACE_LEGEND.map((item) => (
+            <span key={item.label} className="heatmap-legend-item">
+              <i className="heatmap-legend-swatch" style={{ backgroundColor: item.color }} aria-hidden="true" />
+              {item.label}
+            </span>
+          ))}
         </div>
         <div className="section-filters gasto-filters">
           <div className="sf-group">

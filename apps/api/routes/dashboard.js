@@ -483,9 +483,9 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 chartLastDay = maxDayCurr;
             }
 
-            // La línea objetivo del gráfico y las variaciones salariales comparten la regla:
-            // el dato mensual se acepta cuando alcanza al menos el 90% del promedio de los
-            // 12 meses calendario anteriores. Sólo el gráfico aplica fallback al mes anterior.
+            // La línea objetivo del gráfico conserva la lógica histórica: si la masa del
+            // período no alcanza el umbral de completitud, usa el mes anterior como
+            // referencia explícita. Esto no habilita KPIs ni variaciones del período.
             const salaryTarget = resolveMonthlySalaryTarget(currentPeriodId, masaMap);
             const masaPesosObjetivo = salaryTarget.value;
             const salarySourceMonth = salaryTarget.sourcePeriodId
@@ -493,6 +493,9 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 : row.mes;
             const salario_label_month = months[salarySourceMonth - 1];
             const masa_objetivo_es_fallback = salaryTarget.isFallback;
+            const salario_line_label = masa_objetivo_es_fallback
+                ? `Masa Salarial Objetivo · referencia ${salario_label_month}`
+                : 'Masa Salarial Objetivo';
 
             const copa_label = months[row.mes - 1];
 
@@ -501,7 +504,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const salarioTarget = [];
             let accCopa = 0;
             let accRop = 0;
-            const ropDispoPesosMes = ropComplete ? ropValue * ROP_DISPO_RATIO : 0;
+            const ropDispoPesosMes = ropComplete ? ropValue * ROP_DISPO_RATIO : null;
 
             // Reparto diario del RON disponible mensual:
             // Para años anteriores a 2026 se excluye IVA_ley_23966 de la base que se reparte (ajuste coherente con el tablero deployado).
@@ -518,12 +521,12 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                     1000000 *
                     RON_DISPO_RATIO *
                     ronBrutoDispFactor;
-                if (d === maxDayCurr && maxDayCurr > 0) {
+                if (d === maxDayCurr && maxDayCurr > 0 && ropDispoPesosMes !== null) {
                     accRop += ropDispoPesosMes;
                 }
-                cumulativeCopa.push(accCopa / 1000000);
-                cumulativeRop.push(accRop / 1000000);
-                salarioTarget.push(masaPesosObjetivo / 1000000);
+                cumulativeCopa.push(ronComplete ? accCopa / 1000000 : null);
+                cumulativeRop.push(ropComplete ? accRop / 1000000 : null);
+                salarioTarget.push(masaPesosObjetivo > 0 ? masaPesosObjetivo / 1000000 : null);
             }
 
             // RON disponible: base puede excluir IVA_ley_23966 para años anteriores a 2026.
@@ -707,12 +710,13 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         labels: Array.from({length: cumulativeCopa.length}, (_, i) => String(i + 1)), 
                         cumulative_copa: cumulativeCopa, 
                         cumulative_rop: cumulativeRop,
-                        cumulative_neta: cumulativeCopa.map((v, i) => v + cumulativeRop[i]),
+                        cumulative_neta: cumulativeCopa.map((v, i) =>
+                            v !== null && cumulativeRop[i] !== null ? v + cumulativeRop[i] : null),
                         cumulative_esperada: salarioTarget,
                         salario_target: salarioTarget,
                         copa_label,
                         salario_label: salario_label_month,
-                        salario_line_label: 'Masa Salarial Objetivo',
+                        salario_line_label,
                         rop_dia_imputacion: maxDayCurr,
                         chart_last_day: chartLastDay,
                         chart_dias_mes: totalDaysInMonth,

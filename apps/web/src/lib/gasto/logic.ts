@@ -61,6 +61,19 @@ export function executionPaceColor(actualRatio: number, expectedRatio: number) {
   return { bg: "#900000", text: "#ffffff", pace, status: "Adelanto alto" };
 }
 
+/**
+ * Escala visible del heatmap. El porcentaje de cada celda sigue siendo
+ * ejecución acumulada / crédito vigente; el color representa ese porcentaje
+ * relativo al avance teórico del corte.
+ */
+export const EXECUTION_PACE_LEGEND = [
+  { label: "Muy por debajo (<65%)", color: "#c70601" },
+  { label: "Por debajo (65–85%)", color: "#f59e0b" },
+  { label: "En línea (85–115%)", color: "#407b33" },
+  { label: "Por encima (115–135%)", color: "#f97316" },
+  { label: "Muy por encima (>135%)", color: "#900000" },
+] as const;
+
 export type HeatmapInput = {
   rawData: GastoRow[];
   estado: string;

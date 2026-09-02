@@ -120,7 +120,7 @@ export default function MonitorMensualDashboard() {
   }, [vm, logAction]);
 
   const copaVsData = useMemo(() => {
-    if (!charts?.copa_vs_salario.is_complete) return undefined;
+    if (!charts?.copa_vs_salario) return undefined;
     return buildCopaVsSalarioMixed(charts.copa_vs_salario, isMobile768);
   }, [charts, isMobile768]);
 
@@ -657,19 +657,22 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               className="info-tooltip"
               data-tooltip={`Compara la recaudación diaria de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) acumulada día a día con el monto objetivo correspondiente a la masa salarial total del período seleccionado. Además, en el último día del mes se suman los recursos de origen provincial (ROP) disponibles.
 
-El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. El dato del mes se considera completo cuando alcanza al menos el 90% del promedio de los 12 meses calendario anteriores. Si cualquiera de las variables requeridas está incompleta, el gráfico se muestra como Sin datos.
+El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. El dato del mes se considera completo cuando alcanza al menos el 90% del promedio de los 12 meses calendario anteriores. El gráfico conserva la lógica histórica aun cuando la fecha esté incompleta: si la masa salarial del período no es completa, la línea se dibuja con la referencia del mes anterior y la leyenda lo indica. Esa referencia no reemplaza el dato actual ni habilita sus KPIs.
 
 El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
             >
               ?
             </div>
             <h3 className="chart-title" style={{ lineHeight: 1.35 }}>
-              {charts.copa_vs_salario.is_complete
-                && charts.copa_vs_salario.copa_label
-                && charts.copa_vs_salario.salario_label
+              {charts.copa_vs_salario.copa_label && charts.copa_vs_salario.salario_label
                 ? `Recursos Disponibles ${charts.copa_vs_salario.copa_label} vs Sueldos ${charts.copa_vs_salario.salario_label}`
                 : `Recursos Disponibles ${vm.monthName} vs Sueldos ${vm.monthName}`}
             </h3>
+            {charts.copa_vs_salario.masa_objetivo_es_fallback && charts.copa_vs_salario.salario_label && (
+              <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                La línea salarial usa la referencia de {charts.copa_vs_salario.salario_label} porque la carga de {charts.copa_vs_salario.copa_label ?? vm.monthName} está incompleta; no reemplaza los KPIs del período.
+              </p>
+            )}
             <div className="chart-wrapper">
               {copaVsData ? (
                 <Chart
@@ -677,9 +680,7 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
                   data={copaVsData as ChartData<"bar">}
                   options={copaVsOpts as Parameters<typeof Chart>[0]["options"]}
                 />
-              ) : (
-                <div className="chart-placeholder">Sin datos</div>
-              )}
+              ) : <div className="chart-placeholder">Sin datos</div>}
             </div>
             <p className="source-text" style={{ textAlign: "left" }}>
               Fuente: Ministerio de Economía de la Provincia (RON/ROP) y Contaduría General de la Provincia de Corrientes (Salarios)
