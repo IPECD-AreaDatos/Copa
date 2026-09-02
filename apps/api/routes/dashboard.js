@@ -5,6 +5,48 @@ const authMiddleware = require('../middleware/auth');
 const { createInflationResolver } = require('../services/inflation-resolver');
 const { getMonthlyBudget } = require('../services/budget-resolver');
 const { resolveMonthlySalaryTarget } = require('../services/salary-target-resolver');
+const {
+    resolvePeriodCompleteness,
+    resolveVariableCompleteness,
+} = require('../services/completeness-resolver');
+
+function periodId(year, month) {
+    return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+function nullableNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function mapValue(valueByPeriod, id) {
+    return Object.prototype.hasOwnProperty.call(valueByPeriod, id)
+        ? nullableNumber(valueByPeriod[id])
+        : null;
+}
+
+function createDashboardCompleteness({ ronByPeriod, ropByPeriod, salaryByPeriod }) {
+    const cache = new Map();
+
+    return (id) => {
+        if (cache.has(id)) return cache.get(id);
+
+        const variables = {
+            ron: resolveVariableCompleteness(id, ronByPeriod),
+            rop: resolveVariableCompleteness(id, ropByPeriod),
+            masa_salarial: resolveVariableCompleteness(id, salaryByPeriod),
+        };
+        const result = {
+            is_complete: resolvePeriodCompleteness(variables),
+            variables: Object.fromEntries(
+                Object.entries(variables).map(([name, value]) => [name, { is_complete: value.isComplete }]),
+            ),
+        };
+        cache.set(id, result);
+        return result;
+    };
+}
 
 /**
  * GET /api/dashboard/home
@@ -34,7 +76,6 @@ router.get('/home', async (req, res) => {
             FROM monthly_ron curr
             LEFT JOIN monthly_ron prev ON curr.anio = prev.anio + 1 AND curr.mes = prev.mes
             ORDER BY curr.anio DESC, curr.mes DESC
-            LIMIT 12
         `);
 
         // IPC oficial; si falta un mes, el resolver encadena REM dinámicamente.
@@ -49,16 +90,11 @@ router.get('/home', async (req, res) => {
                 FROM copa_reca_rop
                 GROUP BY 1, 2
             )
-            SELECT curr.*, prev.rop_bruta as rop_bruta_anterior
-            FROM monthly_rop curr
-            LEFT JOIN monthly_rop prev ON curr.anio = prev.anio + 1 AND curr.mes = prev.mes
+            SELECT * FROM monthly_rop
         `);
         const ropMap = ropResult.rows.reduce((acc, row) => {
             const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = { 
-                curr: parseFloat(row.rop_bruta || 0), 
-                prev: parseFloat(row.rop_bruta_anterior || 0) 
-            };
+            acc[`${row.anio}-${m}`] = nullableNumber(row.rop_bruta);
             return acc;
         }, {});
 
@@ -76,28 +112,32 @@ router.get('/home', async (req, res) => {
         `);
         const masaMap = masaResult.rows.reduce((acc, row) => {
             const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = parseFloat(row.masa_salarial || 0);
+            acc[`${row.anio}-${m}`] = nullableNumber(row.masa_salarial);
             return acc;
         }, {});
 
         const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         const data = {};
 
-        const ronRowsAsc = [...ronResult.rows].reverse();
-        const periodCompleteByNext = new Map();
-        ronRowsAsc.forEach((row) => {
-            const pid = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
-            const nm = row.mes === 12 ? 1 : row.mes + 1;
-            const ny = row.mes === 12 ? row.anio + 1 : row.anio;
-            const hasNext = ronRowsAsc.some(r => r.anio === ny && r.mes === nm && parseFloat(r.ron_bruto || 0) > 0);
-            periodCompleteByNext.set(pid, hasNext);
+        const ronRowsAllAsc = [...ronResult.rows].reverse();
+        const ronMap = ronRowsAllAsc.reduce((acc, row) => {
+            acc[periodId(row.anio, row.mes)] = nullableNumber(row.ron_bruto);
+            return acc;
+        }, {});
+        const resolveCompleteness = createDashboardCompleteness({
+            ronByPeriod: ronMap,
+            ropByPeriod: ropMap,
+            salaryByPeriod: masaMap,
         });
+        const ronRowsAsc = ronRowsAllAsc.slice(-12);
 
         const available_periods = ronRowsAsc.map((row) => ({
-            id: `${row.anio}-${String(row.mes).padStart(2, '0')}`,
+            id: periodId(row.anio, row.mes),
             label: months[row.mes - 1],
             month: row.mes,
-            year: row.anio
+            year: row.anio,
+            is_complete: resolveCompleteness(periodId(row.anio, row.mes)).is_complete,
+            incomplete: !resolveCompleteness(periodId(row.anio, row.mes)).is_complete,
         }));
 
         // Ratios Legales (fijos por norma)
@@ -109,76 +149,88 @@ router.get('/home', async (req, res) => {
         // Default = último mes completo
         let defaultId = null;
         ronRowsAsc.forEach((row) => {
-            const pid = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
-            if (periodCompleteByNext.get(pid)) defaultId = pid;
+            const pid = periodId(row.anio, row.mes);
+            if (resolveCompleteness(pid).is_complete) defaultId = pid;
         });
         if (!defaultId && available_periods.length > 0) {
             defaultId = available_periods[available_periods.length - 1].id;
         }
-        const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
-        available_periods.forEach((p, idx) => {
-            p.incomplete = defaultIndex >= 0 && idx > defaultIndex;
-        });
-
         ronRowsAsc.forEach((row) => {
-            const periodId = `${row.anio}-${String(row.mes).padStart(2, '0')}`;
-            const prevYear = row.anio - 1;
-            const inflation = inflationResolver.resolveYearOverYear(periodId);
+            const currentPeriodId = periodId(row.anio, row.mes);
+            const previousPeriodId = periodId(row.anio - 1, row.mes);
+            const completeness = resolveCompleteness(currentPeriodId);
+            const previousCompleteness = resolveCompleteness(previousPeriodId);
+            const inflation = inflationResolver.resolveYearOverYear(currentPeriodId);
             const vIpc = inflation.yoyRate;
             const ipcMeta = inflationResolver.toApiMeta(inflation);
 
-            const masaValue = masaMap[periodId] || 0;
-            const masaPrevValue = masaMap[`${prevYear}-${String(row.mes).padStart(2, '0')}`] || 0;
-            const ronBruto = parseFloat(row.ron_bruto || 0);
-            const ronBrutoPrev = parseFloat(row.ron_bruto_anterior || 0);
-            const ronNeto = parseFloat(row.ron_neto || 0);
-            const ropData = ropMap[periodId] || { curr: 0, prev: 0 };
+            const masaValue = mapValue(masaMap, currentPeriodId);
+            const masaPrevValue = mapValue(masaMap, previousPeriodId);
+            const ronBruto = nullableNumber(row.ron_bruto);
+            const ronBrutoPrev = nullableNumber(row.ron_bruto_anterior);
+            const ronNeto = nullableNumber(row.ron_neto);
+            const ropValue = mapValue(ropMap, currentPeriodId);
+            const ropPrevValue = mapValue(ropMap, previousPeriodId);
+
+            const ronComplete = completeness.variables.ron.is_complete;
+            const ropComplete = completeness.variables.rop.is_complete;
+            const salaryComplete = completeness.variables.masa_salarial.is_complete;
+            const ronPreviousComplete = previousCompleteness.variables.ron.is_complete;
+            const ropPreviousComplete = previousCompleteness.variables.rop.is_complete;
+            const salaryPreviousComplete = previousCompleteness.variables.masa_salarial.is_complete;
 
             // Variación Real Recursos Totales (RON + ROP), brutos, deflactado por IPC Nacional
             let varRealTotalBruto = null;
-            const totalBrutoCurr = ronBruto + (ropData.curr || 0);
-            const totalBrutoPrev = ronBrutoPrev + (ropData.prev || 0);
-            if (totalBrutoPrev > 0 && vIpc !== null) {
+            const totalBrutoCurr = ronComplete && ropComplete
+                ? ronBruto + ropValue
+                : null;
+            const totalBrutoPrev = ronPreviousComplete && ropPreviousComplete
+                ? ronBrutoPrev + ropPrevValue
+                : null;
+            if (totalBrutoCurr !== null && totalBrutoPrev > 0 && vIpc !== null) {
                 varRealTotalBruto = ((totalBrutoCurr / totalBrutoPrev) / (1 + vIpc)) - 1;
             }
 
-            const isMasaIncomplete = masaValue <= 0;
-
             // Variación Real Masa Salarial
             let varRealMasa = null;
-            if (!isMasaIncomplete && masaPrevValue > 0 && vIpc !== null) {
+            if (salaryComplete && salaryPreviousComplete && masaPrevValue > 0 && vIpc !== null) {
                 varRealMasa = ((masaValue / masaPrevValue) / (1 + vIpc)) - 1;
             }
 
-            const ronDisponible = ronNeto * RON_DISPO_RATIO;
-            const ropDisponible = ropData.curr * ROP_DISPO_RATIO;
-            const totalDisponible = ronDisponible + ropDisponible;
-            const totalBruto = totalBrutoCurr;
+            const ronDisponible = ronComplete ? ronNeto * RON_DISPO_RATIO : null;
+            const ropDisponible = ropComplete ? ropValue * ROP_DISPO_RATIO : null;
+            const municipalComplete = ronComplete && ropComplete;
 
-            data[periodId] = {
+            data[currentPeriodId] = {
+                completeness,
                 kpi: {
                     recaudacion: { 
-                        bruta_current: ronBruto / 1000000, 
+                        bruta_current: ronComplete ? ronBruto / 1000000 : null,
+                        is_complete: ronComplete,
                         ...ipcMeta
                     },
                     rop: {
-                        bruta_current: (ropData.curr || 0) / 1000000
+                        bruta_current: ropComplete ? ropValue / 1000000 : null,
+                        is_complete: ropComplete,
                     },
                     resumen: { 
-                        total_recursos_brutos_var_real: varRealTotalBruto !== null ? varRealTotalBruto * 100 : 0 
+                        total_recursos_brutos_var_real: varRealTotalBruto !== null ? varRealTotalBruto * 100 : null,
                     },
                     masa_salarial: {
-                        current: masaValue / 1000000,
+                        current: salaryComplete ? masaValue / 1000000 : null,
                         // Cobertura Salarial (Inicio) debe usar recursos brutos (RON+ROP) como en la versión web y el gráfico
-                        cobertura_current: !isMasaIncomplete && totalBruto > 0
-                            ? (masaValue / totalBruto) * 100
+                        cobertura_current: completeness.is_complete && totalBrutoCurr > 0
+                            ? (masaValue / totalBrutoCurr) * 100
                             : null,
                         var_real: varRealMasa !== null ? varRealMasa * 100 : null,
-                        is_incomplete: isMasaIncomplete,
+                        is_complete: salaryComplete,
                         ...ipcMeta
                     },
                     distribucion_municipal: { 
-                        current: (ronNeto * RON_MUNI_RATIO + ropData.curr * ROP_MUNI_RATIO) / 1000000 
+                        current: municipalComplete
+                            ? (ronNeto * RON_MUNI_RATIO + ropValue * ROP_MUNI_RATIO) / 1000000
+                            : null,
+                        is_complete: municipalComplete,
                     }
                 }
             };
@@ -189,15 +241,30 @@ router.get('/home', async (req, res) => {
         const totalVarInteranual = [];
         const ipcVarInteranual = [];
         
-        const chartRows = defaultIndex >= 0 ? ronRowsAsc.slice(0, defaultIndex + 1) : ronRowsAsc;
+        const chartRows = ronRowsAsc;
         chartRows.forEach(row => {
             const mesPad = String(row.mes).padStart(2, '0');
-            const periodId = `${row.anio}-${mesPad}`;
+            const currentPeriodId = `${row.anio}-${mesPad}`;
+            const previousPeriodId = `${row.anio - 1}-${mesPad}`;
+            const completeness = resolveCompleteness(currentPeriodId);
+            const previousCompleteness = resolveCompleteness(previousPeriodId);
             chartLabels.push(months[row.mes-1].substring(0,3) + " " + String(row.anio).slice(-2));
-            const vNom = row.ron_bruto_anterior > 0 ? (row.ron_bruto / row.ron_bruto_anterior) - 1 : 0;
-            totalVarInteranual.push(vNom * 100);
+            const ronCurrent = mapValue(ronMap, currentPeriodId);
+            const ronPrevious = mapValue(ronMap, previousPeriodId);
+            const ropCurrent = mapValue(ropMap, currentPeriodId);
+            const ropPrevious = mapValue(ropMap, previousPeriodId);
+            const totalInputsComplete = completeness.variables.ron.is_complete
+                && completeness.variables.rop.is_complete
+                && previousCompleteness.variables.ron.is_complete
+                && previousCompleteness.variables.rop.is_complete;
+            const totalCurrent = totalInputsComplete ? ronCurrent + ropCurrent : null;
+            const totalPrevious = totalInputsComplete ? ronPrevious + ropPrevious : null;
+            const vNom = totalCurrent !== null && totalPrevious > 0
+                ? (totalCurrent / totalPrevious) - 1
+                : null;
+            totalVarInteranual.push(vNom === null ? null : vNom * 100);
 
-            const vIpc = inflationResolver.resolveYearOverYear(periodId).yoyRate;
+            const vIpc = inflationResolver.resolveYearOverYear(currentPeriodId).yoyRate;
             ipcVarInteranual.push(vIpc === null ? null : vIpc * 100);
         });
 
@@ -266,16 +333,11 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 FROM copa_reca_rop
                 GROUP BY 1, 2
             )
-            SELECT curr.*, prev.rop_bruta as rop_bruta_anterior
-            FROM monthly_rop curr
-            LEFT JOIN monthly_rop prev ON curr.anio = prev.anio + 1 AND curr.mes = prev.mes
+            SELECT * FROM monthly_rop
         `);
         const ropMap = ropResult.rows.reduce((acc, row) => {
             const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = { 
-                curr: parseFloat(row.rop_bruta || 0), 
-                prev: parseFloat(row.rop_bruta_anterior || 0) 
-            };
+            acc[`${row.anio}-${m}`] = nullableNumber(row.rop_bruta);
             return acc;
         }, {});
 
@@ -293,7 +355,7 @@ router.get('/monthly', authMiddleware, async (req, res) => {
         `);
         const masaMap = masaResult.rows.reduce((acc, row) => {
             const m = String(row.mes).padStart(2, '0');
-            acc[`${row.anio}-${m}`] = parseFloat(row.masa_salarial || 0);
+            acc[`${row.anio}-${m}`] = nullableNumber(row.masa_salarial);
             return acc;
         }, {});
 
@@ -321,64 +383,63 @@ router.get('/monthly', authMiddleware, async (req, res) => {
 
         // Invertir para available_periods ASC (cronológico: más viejo → más nuevo)
         const ronRowsAsc = [...ronResult.rows].reverse();
-
-        // Igual que etl_main.py: un mes está "completo" si el mes calendario siguiente tiene al menos un día con RON diario > 0
-        const periodCompleteByNext = new Map();
-        ronRowsAsc.forEach((row) => {
-            const mP = String(row.mes).padStart(2, '0');
-            const pid = `${row.anio}-${mP}`;
-            const nm = row.mes === 12 ? 1 : row.mes + 1;
-            const ny = row.mes === 12 ? row.anio + 1 : row.anio;
-            const nextKey = `${ny}-${String(nm).padStart(2, '0')}`;
-            const nextDaily = dailyDataMap[nextKey] || {};
-            const hasNext = Object.values(nextDaily).some((v) => Number(v) > 0);
-            periodCompleteByNext.set(pid, hasNext);
+        const ronMap = ronRowsAsc.reduce((acc, row) => {
+            acc[periodId(row.anio, row.mes)] = nullableNumber(row.ron_bruto);
+            return acc;
+        }, {});
+        const resolveCompleteness = createDashboardCompleteness({
+            ronByPeriod: ronMap,
+            ropByPeriod: ropMap,
+            salaryByPeriod: masaMap,
         });
 
         const available_periods = ronRowsAsc.map((row) => ({
-            id: `${row.anio}-${String(row.mes).padStart(2, '0')}`,
+            id: periodId(row.anio, row.mes),
             label: months[row.mes - 1],
             year: row.anio,
             month: row.mes,
+            is_complete: resolveCompleteness(periodId(row.anio, row.mes)).is_complete,
+            incomplete: !resolveCompleteness(periodId(row.anio, row.mes)).is_complete,
         }));
 
         let defaultId = null;
         ronRowsAsc.forEach((row) => {
-            const mP = String(row.mes).padStart(2, '0');
-            const pid = `${row.anio}-${mP}`;
-            if (periodCompleteByNext.get(pid)) defaultId = pid;
+            const pid = periodId(row.anio, row.mes);
+            if (resolveCompleteness(pid).is_complete) defaultId = pid;
         });
         if (!defaultId && available_periods.length > 0) {
             defaultId = available_periods[available_periods.length - 1].id;
         }
 
-        const defaultIndex = available_periods.findIndex((p) => p.id === defaultId);
-        available_periods.forEach((p, idx) => {
-            p.incomplete = defaultIndex >= 0 && idx > defaultIndex;
-        });
-
         ronRowsAsc.forEach((row) => {
-            const mPadded = String(row.mes).padStart(2, '0');
-            const periodId = `${row.anio}-${mPadded}`;
-            const prevYear = row.anio - 1;
-            const inflation = inflationResolver.resolveYearOverYear(periodId);
+            const currentPeriodId = periodId(row.anio, row.mes);
+            const previousPeriodId = periodId(row.anio - 1, row.mes);
+            const completeness = resolveCompleteness(currentPeriodId);
+            const previousCompleteness = resolveCompleteness(previousPeriodId);
+            const inflation = inflationResolver.resolveYearOverYear(currentPeriodId);
             const vIpc = inflation.yoyRate;
             const ipcMeta = inflationResolver.toApiMeta(inflation);
 
-            const masaValue = masaMap[periodId] || 0;
-            const masaPrevValue = masaMap[`${prevYear}-${mPadded}`] || 0;
+            const masaValue = mapValue(masaMap, currentPeriodId);
+            const masaPrevValue = mapValue(masaMap, previousPeriodId);
+            const ronBruto = nullableNumber(row.ron_bruto);
+            const ronBrutoPrev = nullableNumber(row.ron_bruto_anterior);
+            const ronNeto = nullableNumber(row.ron_neto);
+            const ronNetoPrev = nullableNumber(row.ron_neto_anterior);
+            const ronIva = nullableNumber(row.ron_iva);
+            const ronIvaPrev = nullableNumber(row.ron_iva_anterior);
+            const ropValue = mapValue(ropMap, currentPeriodId);
+            const ropPrevValue = mapValue(ropMap, previousPeriodId);
 
-            const ronBruto = parseFloat(row.ron_bruto || 0);
-            const ronBrutoPrev = parseFloat(row.ron_bruto_anterior || 0);
-            const ronNeto = parseFloat(row.ron_neto || 0);
-            const ronNetoPrev = parseFloat(row.ron_neto_anterior || 0);
-            const ronIva = parseFloat(row.ron_iva || 0);
-            const ronIvaPrev = parseFloat(row.ron_iva_anterior || 0);
-            const ropData = ropMap[periodId] || { curr: 0, prev: 0 };
+            const ronComplete = completeness.variables.ron.is_complete;
+            const ropComplete = completeness.variables.rop.is_complete;
+            const salaryComplete = completeness.variables.masa_salarial.is_complete;
+            const ronPreviousComplete = previousCompleteness.variables.ron.is_complete;
+            const ropPreviousComplete = previousCompleteness.variables.rop.is_complete;
+            const salaryPreviousComplete = previousCompleteness.variables.masa_salarial.is_complete;
 
             // Ratios Legales (del JSON original)
             const RON_DISPO_RATIO = 0.877487;
-            const RON_MUNI_RATIO = 0.122513;
             const ROP_DISPO_RATIO = 0.812932;
             const ROP_MUNI_RATIO = 0.187068;
             // Ajuste fino para reproducir el tablero publicado:
@@ -387,14 +448,18 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const RON_IVA_RESIDUAL_RATIO = 0.005185194361665872;
 
             // Daily Chart
-            const dailyCurr = dailyDataMap[periodId] || {};
-            const prevPeriodId = `${row.anio - 1}-${String(row.mes).padStart(2, '0')}`;
-            const dailyPrev = dailyDataMap[prevPeriodId] || {};
+            const dailyCurr = dailyDataMap[currentPeriodId] || {};
+            const dailyPrev = dailyDataMap[previousPeriodId] || {};
             
             const daysSet = new Set([...Object.keys(dailyCurr), ...Object.keys(dailyPrev)].map(Number));
             const sortedDays = [...daysSet].sort((a, b) => a - b);
             
-            const dailyChart = { labels: [], data_curr: [], data_prev_nom: [] };
+            const dailyChart = {
+                labels: [],
+                data_curr: [],
+                data_prev_nom: [],
+                is_complete: ronComplete && ronPreviousComplete,
+            };
             sortedDays.forEach(d => {
                 dailyChart.labels.push(String(d));
                 dailyChart.data_curr.push(dailyCurr[d] || 0);
@@ -402,7 +467,6 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             });
 
             // Copa vs Salario (Acumulado) — alineado a backend/etl_main.py (pre migración Next)
-            const isCompletePeriod = !!periodCompleteByNext.get(periodId);
             const now = new Date();
             const isRunningMonth = row.anio === now.getFullYear() && row.mes === now.getMonth() + 1;
 
@@ -415,16 +479,14 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             const totalDaysInMonth = new Date(row.anio, row.mes, 0).getDate();
 
             let chartLastDay = totalDaysInMonth;
-            if ((isRunningMonth || !isCompletePeriod) && maxDayCurr > 0) {
+            if ((isRunningMonth || !ronComplete) && maxDayCurr > 0) {
                 chartLastDay = maxDayCurr;
             }
-
-            const isMasaIncomplete = masaValue === 0;
 
             // La línea objetivo del gráfico y las variaciones salariales comparten la regla:
             // el dato mensual se acepta cuando alcanza al menos el 90% del promedio de los
             // 12 meses calendario anteriores. Sólo el gráfico aplica fallback al mes anterior.
-            const salaryTarget = resolveMonthlySalaryTarget(periodId, masaMap);
+            const salaryTarget = resolveMonthlySalaryTarget(currentPeriodId, masaMap);
             const masaPesosObjetivo = salaryTarget.value;
             const salarySourceMonth = salaryTarget.sourcePeriodId
                 ? Number(salaryTarget.sourcePeriodId.slice(5, 7))
@@ -434,23 +496,22 @@ router.get('/monthly', authMiddleware, async (req, res) => {
 
             const copa_label = months[row.mes - 1];
 
-            const periodIndex = available_periods.findIndex((p) => p.id === periodId);
-            const isPeriodIncomplete = !!available_periods[periodIndex]?.incomplete;
-
             const cumulativeCopa = [];
             const cumulativeRop = [];
             const salarioTarget = [];
             let accCopa = 0;
             let accRop = 0;
-            const ropDispoPesosMes = ropData.curr * ROP_DISPO_RATIO;
+            const ropDispoPesosMes = ropComplete ? ropValue * ROP_DISPO_RATIO : 0;
 
             // Reparto diario del RON disponible mensual:
             // Para años anteriores a 2026 se excluye IVA_ley_23966 de la base que se reparte (ajuste coherente con el tablero deployado).
             const useExclIvaCurr = row.anio < 2026;
-            const ronNetoDispBaseCurr = useExclIvaCurr
+            const ronNetoDispBaseCurrRaw = useExclIvaCurr
                 ? ronNeto + ronIva * (1 - RON_IVA_RESIDUAL_RATIO)
                 : ronNeto;
-            const ronBrutoDispFactor = ronBruto > 0 ? ronNetoDispBaseCurr / ronBruto : 0;
+            const ronBrutoDispFactor = ronComplete && ronBruto > 0
+                ? ronNetoDispBaseCurrRaw / ronBruto
+                : 0;
             for (let d = 1; d <= chartLastDay; d++) {
                 accCopa +=
                     (dailyCurr[d] || 0) *
@@ -466,66 +527,76 @@ router.get('/monthly', authMiddleware, async (req, res) => {
             }
 
             // RON disponible: base puede excluir IVA_ley_23966 para años anteriores a 2026.
-            const useExclIvaPrev = prevYear < 2026;
-            const ronNetoDispBasePrev = useExclIvaPrev
+            const useExclIvaPrev = row.anio - 1 < 2026;
+            const ronNetoDispBasePrevRaw = useExclIvaPrev
                 ? ronNetoPrev + ronIvaPrev * (1 - RON_IVA_RESIDUAL_RATIO)
                 : ronNetoPrev;
 
-            const ronDispo = ronNetoDispBaseCurr * RON_DISPO_RATIO;
-            const ronDispoPrev = ronNetoDispBasePrev * RON_DISPO_RATIO;
+            const ronDispo = ronComplete ? ronNetoDispBaseCurrRaw * RON_DISPO_RATIO : null;
+            const ronDispoPrev = ronPreviousComplete ? ronNetoDispBasePrevRaw * RON_DISPO_RATIO : null;
 
-            let vNomRon = 0;
+            let vNomRon = null;
             let vRealRon = null;
-            if (ronDispoPrev > 0) {
+            if (ronDispo !== null && ronDispoPrev > 0) {
                 vNomRon = ronDispo / ronDispoPrev - 1;
                 if (vIpc !== null) {
                     vRealRon = ((1 + vNomRon) / (1 + vIpc)) - 1;
                 }
             }
 
-            const vNomRop = ropData.prev > 0 ? (ropData.curr / ropData.prev) - 1 : 0;
+            const vNomRop = ropComplete && ropPreviousComplete && ropPrevValue > 0
+                ? ropValue / ropPrevValue - 1
+                : null;
             let vRealRop = null;
-            if (ropData.prev > 0 && vIpc !== null) {
+            if (vNomRop !== null && vIpc !== null) {
                 vRealRop = ((1 + vNomRop) / (1 + vIpc)) - 1;
             }
 
-            const ropDispo = ropData.curr * ROP_DISPO_RATIO;
-            const ropDispoPrev = ropData.prev * ROP_DISPO_RATIO;
+            const ropDispo = ropComplete ? ropValue * ROP_DISPO_RATIO : null;
+            const ropDispoPrev = ropPreviousComplete ? ropPrevValue * ROP_DISPO_RATIO : null;
 
-            const ronDispoM = ronDispo / 1000000;
-            const ronDispoPrevM = ronDispoPrev / 1000000;
-            const ropDispoM = ropDispo / 1000000;
-            const ropDispoPrevM = ropDispoPrev / 1000000;
+            const ronDispoM = ronDispo === null ? null : ronDispo / 1000000;
+            const ronDispoPrevM = ronDispoPrev === null ? null : ronDispoPrev / 1000000;
+            const ropDispoM = ropDispo === null ? null : ropDispo / 1000000;
+            const ropDispoPrevM = ropDispoPrev === null ? null : ropDispoPrev / 1000000;
 
             // El presupuesto mensual se resuelve desde la fuente presupuestaria completa.
             // El resto de KPIs (recaudado/variaciones/municipal) se calcula 100% desde BD.
-            const budget = getMonthlyBudget(periodId);
-            const ropBrutaCurrentM = ropData.curr / 1000000;
+            const budget = getMonthlyBudget(currentPeriodId);
+            const ropBrutaCurrentM = ropComplete ? ropValue / 1000000 : null;
             const esperadaProv = budget?.rop;
-            const brechaAbsProv = typeof esperadaProv === 'number'
+            const brechaAbsProv = ropBrutaCurrentM !== null && typeof esperadaProv === 'number'
                 ? ropBrutaCurrentM - esperadaProv
-                : undefined;
-            const brechaPctProv = typeof esperadaProv === 'number'
+                : null;
+            const brechaPctProv = ropBrutaCurrentM !== null && typeof esperadaProv === 'number'
                 ? (esperadaProv > 0 ? ((ropBrutaCurrentM / esperadaProv) - 1) * 100 : 0)
-                : undefined;
+                : null;
 
             // Distribución municipal:
             // - Nacional (RON) = RON neto - RON disponible (según la base condicional usada para disponible).
             // - Provincial (ROP) = ROP bruta * ROP_MUNI_RATIO (constante).
-            const nacionCurrentM = ronNeto / 1000000 - ronDispoM;
-            const nacionPrevM = ronNetoPrev / 1000000 - ronDispoPrevM;
-            const provinciaCurrentM = (ropData.curr * ROP_MUNI_RATIO) / 1000000;
-            const provinciaPrevM = (ropData.prev * ROP_MUNI_RATIO) / 1000000;
-            const muniCurrentM = nacionCurrentM + provinciaCurrentM;
-            const muniPrevM = nacionPrevM + provinciaPrevM;
+            const municipalComplete = ronComplete && ropComplete;
+            const municipalPreviousComplete = ronPreviousComplete && ropPreviousComplete;
+            const nacionCurrentM = ronComplete ? ronNeto / 1000000 - ronDispoM : null;
+            const nacionPrevM = ronPreviousComplete ? ronNetoPrev / 1000000 - ronDispoPrevM : null;
+            const provinciaCurrentM = ropComplete ? (ropValue * ROP_MUNI_RATIO) / 1000000 : null;
+            const provinciaPrevM = ropPreviousComplete ? (ropPrevValue * ROP_MUNI_RATIO) / 1000000 : null;
+            const muniCurrentM = municipalComplete ? nacionCurrentM + provinciaCurrentM : null;
+            const muniPrevM = municipalPreviousComplete ? nacionPrevM + provinciaPrevM : null;
 
-            const vNomMuni = muniPrevM > 0 ? muniCurrentM / muniPrevM - 1 : 0;
-            const diffNomMuni = muniCurrentM - muniPrevM;
+            const vNomMuni = muniCurrentM !== null && muniPrevM > 0
+                ? muniCurrentM / muniPrevM - 1
+                : null;
+            const diffNomMuni = muniCurrentM !== null && muniPrevM !== null
+                ? muniCurrentM - muniPrevM
+                : null;
             let vRealMuni = null;
-            if (muniPrevM > 0 && vIpc !== null) {
+            if (muniCurrentM !== null && muniPrevM > 0 && vIpc !== null) {
                 vRealMuni = muniCurrentM / muniPrevM / (1 + vIpc) - 1;
             }
-            const diffRealMuni = vIpc !== null ? muniCurrentM - muniPrevM * (1 + vIpc) : null;
+            const diffRealMuni = muniCurrentM !== null && muniPrevM !== null && vIpc !== null
+                ? muniCurrentM - muniPrevM * (1 + vIpc)
+                : null;
 
             const muniKpi = {
                 current: muniCurrentM,
@@ -534,71 +605,97 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                 nacion_prev: nacionPrevM,
                 provincia_current: provinciaCurrentM,
                 provincia_prev: provinciaPrevM,
-                var_nom: vNomMuni * 100,
-                var_real: vRealMuni !== null ? vRealMuni * 100 : 0,
+                var_nom: vNomMuni !== null ? vNomMuni * 100 : null,
+                var_real: vRealMuni !== null ? vRealMuni * 100 : null,
                 diff_nom: diffNomMuni,
-                diff_real: diffRealMuni !== null ? diffRealMuni : undefined,
+                diff_real: diffRealMuni,
+                is_complete: municipalComplete,
                 ...ipcMeta,
                 ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
             };
 
             // Cobertura salarial: masa / (RON bruto + ROP bruto), igual que el JSON de referencia (no sobre recursos disponibles).
-            const totalBrutoPesos = ronBruto + ropData.curr;
-            const totalBrutoPrevPesos = ronBrutoPrev + ropData.prev;
+            const totalBrutoPesos = ronComplete && ropComplete ? ronBruto + ropValue : null;
+            const totalBrutoPrevPesos = ronPreviousComplete && ropPreviousComplete
+                ? ronBrutoPrev + ropPrevValue
+                : null;
 
             let vRealMasa = null;
-            if (masaPrevValue > 0 && vIpc !== null) {
+            if (salaryComplete && salaryPreviousComplete && masaPrevValue > 0 && vIpc !== null) {
                 vRealMasa = ((masaValue / masaPrevValue) / (1 + vIpc)) - 1;
             }
 
-            data[periodId] = {
+            data[currentPeriodId] = {
+                completeness,
                 kpi: {
-                    meta: { periodo: `${months[row.mes-1]} ${row.anio}` },
+                    meta: {
+                        periodo: `${months[row.mes-1]} ${row.anio}`,
+                        is_complete: completeness.is_complete,
+                    },
                     resumen: {
-                        total_disponible_current: ronDispoM + ropDispoM,
+                        total_disponible_current: ronDispoM !== null && ropDispoM !== null
+                            ? ronDispoM + ropDispoM
+                            : null,
                         ron_disponible: ronDispoM,
                         rop_disponible: ropDispoM,
-                        post_sueldos_current: (ronDispo + ropDispo - masaValue) / 1000000
+                        post_sueldos_current: completeness.is_complete
+                            ? (ronDispo + ropDispo - masaValue) / 1000000
+                            : null,
                     },
                     recaudacion: {
                         current: ronDispoM,
                         prev: ronDispoPrevM,
-                        bruta_current: ronBruto / 1000000,
-                        bruta_prev: ronBrutoPrev / 1000000,
-                        neta_current: ronNeto / 1000000,
-                        neta_prev: ronNetoPrev / 1000000,
-                        var_nom: vNomRon * 100,
-                        var_real: vRealRon !== null ? vRealRon * 100 : 0,
-                        diff_nom: ronDispoM - ronDispoPrevM,
+                        bruta_current: ronComplete ? ronBruto / 1000000 : null,
+                        bruta_prev: ronPreviousComplete ? ronBrutoPrev / 1000000 : null,
+                        neta_current: ronComplete ? ronNeto / 1000000 : null,
+                        neta_prev: ronPreviousComplete ? ronNetoPrev / 1000000 : null,
+                        var_nom: vNomRon !== null ? vNomRon * 100 : null,
+                        var_real: vRealRon !== null ? vRealRon * 100 : null,
+                        diff_nom: ronDispoM !== null && ronDispoPrevM !== null
+                            ? ronDispoM - ronDispoPrevM
+                            : null,
+                        is_complete: ronComplete,
                         ...ipcMeta,
                         ipc_used_for_calc: vIpc !== null ? vIpc * 100 : null,
                         esperada: budget?.ron,
                     },
                     rop: {
                         bruta_current: ropBrutaCurrentM,
-                        bruta_prev: ropData.prev / 1000000,
+                        bruta_prev: ropPreviousComplete ? ropPrevValue / 1000000 : null,
                         disponible_current: ropDispoM,
                         disponible_prev: ropDispoPrevM,
-                        var_nom: vNomRop * 100,
-                        var_real: vRealRop !== null ? vRealRop * 100 : 0,
-                        diff_nom: ropDispoM - ropDispoPrevM,
-                        diff_real: vIpc !== null ? ropDispoM - ropDispoPrevM * (1 + vIpc) : undefined,
+                        var_nom: vNomRop !== null ? vNomRop * 100 : null,
+                        var_real: vRealRop !== null ? vRealRop * 100 : null,
+                        diff_nom: ropDispoM !== null && ropDispoPrevM !== null
+                            ? ropDispoM - ropDispoPrevM
+                            : null,
+                        diff_real: ropDispoM !== null && ropDispoPrevM !== null && vIpc !== null
+                            ? ropDispoM - ropDispoPrevM * (1 + vIpc)
+                            : null,
+                        is_complete: ropComplete,
                         ...ipcMeta,
                         esperada_prov: esperadaProv,
                         brecha_abs_prov: brechaAbsProv,
                         brecha_pct_prov: brechaPctProv,
                     },
                     masa_salarial: {
-                        current: masaValue / 1000000,
-                        prev: masaPrevValue / 1000000,
-                        cobertura_current: totalBrutoPesos > 0 ? (masaValue / totalBrutoPesos) * 100 : 0,
-                        cobertura_prev: totalBrutoPrevPesos > 0 ? (masaPrevValue / totalBrutoPrevPesos) * 100 : 0,
-                        var_nom: masaPrevValue > 0 ? ((masaValue / masaPrevValue) - 1) * 100 : 0,
-                        var_real: vRealMasa !== null ? vRealMasa * 100 : 0,
-                        diff_nom: (masaValue - masaPrevValue) / 1000000,
+                        current: salaryComplete ? masaValue / 1000000 : null,
+                        prev: salaryPreviousComplete ? masaPrevValue / 1000000 : null,
+                        cobertura_current: completeness.is_complete && totalBrutoPesos > 0
+                            ? (masaValue / totalBrutoPesos) * 100
+                            : null,
+                        cobertura_prev: previousCompleteness.is_complete && totalBrutoPrevPesos > 0
+                            ? (masaPrevValue / totalBrutoPrevPesos) * 100
+                            : null,
+                        var_nom: salaryComplete && salaryPreviousComplete && masaPrevValue > 0
+                            ? ((masaValue / masaPrevValue) - 1) * 100
+                            : null,
+                        var_real: vRealMasa !== null ? vRealMasa * 100 : null,
+                        diff_nom: salaryComplete && salaryPreviousComplete
+                            ? (masaValue - masaPrevValue) / 1000000
+                            : null,
                         ...ipcMeta,
-                        is_incomplete: isMasaIncomplete,
-                        is_variation_incomplete: !salaryTarget.isCurrentComplete
+                        is_complete: salaryComplete,
                     },
                     distribucion_municipal: {
                         ...muniKpi
@@ -619,7 +716,8 @@ router.get('/monthly', authMiddleware, async (req, res) => {
                         rop_dia_imputacion: maxDayCurr,
                         chart_last_day: chartLastDay,
                         chart_dias_mes: totalDaysInMonth,
-                        periodo_incompleto: isPeriodIncomplete,
+                        is_complete: completeness.is_complete,
+                        periodo_incompleto: !completeness.is_complete,
                         masa_objetivo_es_fallback,
                     }
                 }

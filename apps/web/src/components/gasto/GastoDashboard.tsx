@@ -1,7 +1,7 @@
 "use client";
 
 import "@/lib/chart/registerChartJs";
-import type { ChartData } from "chart.js";
+import type { ActiveElement, ChartData, ChartEvent, ChartOptions } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { useEffect, useMemo, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -31,6 +31,26 @@ export type GastoRow = {
   monto: number;
 };
 
+type GastoVariable = "credito_vigente" | "comprometido" | "ordenado";
+
+type GastoCompleteness = {
+  meta: {
+    default_period_id: string | null;
+    comparison: string;
+    threshold_pct: number;
+  };
+  periods: Record<
+    string,
+    {
+      is_complete: boolean;
+      variables: Record<
+        GastoVariable,
+        { is_complete: boolean; observed_rows: number | null; minimum_rows: number | null }
+      >;
+    }
+  >;
+};
+
 const FUENTE_OPTS = [
   { label: "Todas las Fuentes", value: "TODAS" },
   { label: "10 - TESORO DE LA PROVINCIA", value: "10" },
@@ -47,8 +67,32 @@ function normalizeText(value: string) {
     .toLowerCase();
 }
 
+function gastoVariable(estado: string): GastoVariable {
+  return estado === "Ordenado" ? "ordenado" : "comprometido";
+}
+
+function isVariableComplete(
+  completeness: GastoCompleteness | null,
+  periodId: string,
+  variable: GastoVariable,
+) {
+  return completeness?.periods[periodId]?.variables[variable]?.is_complete === true;
+}
+
+function areVariablesComplete(
+  completeness: GastoCompleteness | null,
+  periodIds: string[],
+  variables: GastoVariable[],
+) {
+  return periodIds.length > 0
+    && periodIds.every((periodId) => variables.every(
+      (variable) => isVariableComplete(completeness, periodId, variable),
+    ));
+}
+
 export default function GastoDashboard() {
   const [rawData, setRawData] = useState<GastoRow[]>([]);
+  const [completeness, setCompleteness] = useState<GastoCompleteness | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const { logAction } = useAnalytics();
 
@@ -67,10 +111,13 @@ export default function GastoDashboard() {
   );
   const allPeriodosDesc = useMemo(() => [...allPeriodos].reverse(), [allPeriodos]);
   const lastPeriodo = allPeriodos.length ? allPeriodos[allPeriodos.length - 1] : "";
-  const currentYear = lastPeriodo ? lastPeriodo.split("-")[0] : "";
+  const defaultCompletePeriod = completeness?.meta.default_period_id || lastPeriodo;
+  const currentYear = defaultCompletePeriod ? defaultCompletePeriod.split("-")[0] : "";
   const currentYearPeriodos = useMemo(
-    () => allPeriodos.filter((p) => p.startsWith(`${currentYear}-`)),
-    [allPeriodos, currentYear],
+    () => allPeriodos.filter(
+      (p) => p.startsWith(`${currentYear}-`) && completeness?.periods[p]?.is_complete,
+    ),
+    [allPeriodos, completeness, currentYear],
   );
   // Table filters
   const [tblPeriodo, setTblPeriodo] = useState<string[]>([]);
@@ -94,21 +141,36 @@ export default function GastoDashboard() {
 
   useEffect(() => {
     let c = false;
-    fetchWithAuth("/copa/copa-api/api/gastos/all-data")
-      .then((r) => {
-        if (!r.ok) throw new Error("No se pudieron cargar los datos de gasto.");
-        return r.json() as Promise<GastoRow[]>;
+    Promise.all([
+      fetchWithAuth("/copa/copa-api/api/gastos/all-data"),
+      fetchWithAuth("/copa/copa-api/api/gastos/completeness"),
+    ])
+      .then(async ([dataResponse, completenessResponse]) => {
+        if (!dataResponse.ok || !completenessResponse.ok) {
+          throw new Error("No se pudieron cargar los datos de gasto.");
+        }
+        return Promise.all([
+          dataResponse.json() as Promise<GastoRow[]>,
+          completenessResponse.json() as Promise<GastoCompleteness>,
+        ]);
       })
-      .then((rows) => {
+      .then(([rows, completenessResult]) => {
         if (c) return;
         setRawData(rows);
+        setCompleteness(completenessResult);
 
         const periodos = [...new Set(rows.map((d) => d.periodo))].sort();
-        const last = periodos[periodos.length - 1] || "";
-        const year = last ? last.split("-")[0] : "";
-        const periodosAnio = year ? periodos.filter((p) => p.startsWith(`${year}-`)) : [];
+        const defaultPeriod = completenessResult.meta.default_period_id
+          || periodos[periodos.length - 1]
+          || "";
+        const year = defaultPeriod ? defaultPeriod.split("-")[0] : "";
+        const periodosAnio = year
+          ? periodos.filter(
+              (p) => p.startsWith(`${year}-`) && completenessResult.periods[p]?.is_complete,
+            )
+          : [];
 
-        setTblPeriodo((prev) => (prev.length === 0 && last ? [last] : prev));
+        setTblPeriodo((prev) => (prev.length === 0 && defaultPeriod ? [defaultPeriod] : prev));
         setAvPeriodo((prev) => (prev.length === 0 && periodosAnio.length ? periodosAnio : prev));
         setWfYear((prev) => (prev || year));
       })
@@ -122,10 +184,21 @@ export default function GastoDashboard() {
   }, [rawData]);
 
   const heatmap = useMemo(() => {
-    if (!rawData.length) return null;
+    if (!rawData.length || !completeness) return null;
     const fuenteFilter = hmFuente.includes("TODAS") ? null : hmFuente;
-    return computeHeatmap({ rawData, estado: hmEstado, jurisGroup: hmJurisGroup, fuenteFilter });
-  }, [rawData, hmEstado, hmJurisGroup, hmFuente]);
+    const requiredVariable = gastoVariable(hmEstado);
+    const latestUsablePeriod = allPeriodos.filter((periodId) =>
+      areVariablesComplete(completeness, [periodId], ["credito_vigente", requiredVariable]),
+    ).at(-1);
+    if (!latestUsablePeriod) return null;
+    const completeRawData = rawData.filter((row) => row.periodo <= latestUsablePeriod);
+    return computeHeatmap({
+      rawData: completeRawData,
+      estado: hmEstado,
+      jurisGroup: hmJurisGroup,
+      fuenteFilter,
+    });
+  }, [rawData, completeness, allPeriodos, hmEstado, hmJurisGroup, hmFuente]);
 
   const hmFuenteLabel = useMemo(() => {
     if (hmFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -151,9 +224,12 @@ export default function GastoDashboard() {
   }, [jurisEnBD, tblJurisSearch]);
 
   const tblPeriodoLabel = useMemo(() => {
-    if (tblPeriodo.length === 1) return tblPeriodo[0];
+    if (tblPeriodo.length === 1) {
+      const period = tblPeriodo[0];
+      return `${period}${completeness?.periods[period]?.is_complete ? "" : " (Incompleto)"}`;
+    }
     return `${tblPeriodo.length} períodos seleccionados`;
-  }, [tblPeriodo]);
+  }, [tblPeriodo, completeness]);
 
   const tblFuenteLabel = useMemo(() => {
     if (tblFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -171,12 +247,18 @@ export default function GastoDashboard() {
   }, [tblJuris]);
 
   const ratio = useMemo(() => {
-    if (!rawData.length) return null;
+    if (!rawData.length || !completeness) return null;
     const periodoSel = avPeriodo.length === 0 ? null : avPeriodo;
+    const selectedPeriods = periodoSel ?? allPeriodos;
+    if (!areVariablesComplete(
+      completeness,
+      selectedPeriods,
+      ["credito_vigente", "comprometido", "ordenado"],
+    )) return null;
     const fuenteSel = avFuente.includes("TODAS") || avFuente.length === 0 ? null : avFuente;
     const jurisSel = avJuris.includes("TODAS") || avJuris.length === 0 ? null : avJuris;
     return computeRatioChartData({ rawData, periodoSel, fuenteSel, jurisSel });
-  }, [rawData, avPeriodo, avFuente, avJuris]);
+  }, [rawData, completeness, allPeriodos, avPeriodo, avFuente, avJuris]);
 
   const filteredAvJuris = useMemo(() => {
     if (!avJurisSearch.trim()) return jurisEnBD;
@@ -185,9 +267,12 @@ export default function GastoDashboard() {
   }, [jurisEnBD, avJurisSearch]);
 
   const avPeriodoLabel = useMemo(() => {
-    if (avPeriodo.length === 1) return avPeriodo[0];
+    if (avPeriodo.length === 1) {
+      const period = avPeriodo[0];
+      return `${period}${completeness?.periods[period]?.is_complete ? "" : " (Incompleto)"}`;
+    }
     return `${avPeriodo.length} períodos seleccionados`;
-  }, [avPeriodo]);
+  }, [avPeriodo, completeness]);
 
   const avFuenteLabel = useMemo(() => {
     if (avFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -205,19 +290,45 @@ export default function GastoDashboard() {
   }, [avJuris]);
 
   const waterfall = useMemo(() => {
-    if (!rawData.length) return null;
+    if (!rawData.length || !completeness) return null;
     const jurisFilter = wfJuris.includes("TODAS") ? null : wfJuris;
     const partidaFilter = wfPartida.includes("TODAS") ? null : wfPartida;
     const fuenteFilter = wfFuente.includes("TODAS") ? null : wfFuente;
+    const variable = gastoVariable(wfEstado);
+    const allowedPeriods = new Set(
+      allPeriodos.filter((periodId) =>
+        areVariablesComplete(completeness, [periodId], ["credito_vigente", variable]),
+      ),
+    );
+    const completeRawData = rawData.filter((row) => allowedPeriods.has(row.periodo));
     return computeWaterfall({
-      rawData,
+      rawData: completeRawData,
       estado: wfEstado,
       year: wfYear || currentYear,
       jurisFilter,
       partidaFilter,
       fuente: fuenteFilter,
     });
-  }, [rawData, wfEstado, wfYear, wfJuris, wfPartida, wfFuente, currentYear]);
+  }, [rawData, completeness, allPeriodos, wfEstado, wfYear, wfJuris, wfPartida, wfFuente, currentYear]);
+
+  const tableCompleteness = useMemo(() => {
+    const selectedPeriods = tblPeriodo.length ? [...tblPeriodo].sort() : allPeriodos;
+    const maxPeriod = selectedPeriods.at(-1) || "";
+    return {
+      credito: isVariableComplete(completeness, maxPeriod, "credito_vigente"),
+      comprometido: areVariablesComplete(completeness, selectedPeriods, ["comprometido"]),
+      ordenado: areVariablesComplete(completeness, selectedPeriods, ["ordenado"]),
+    };
+  }, [completeness, tblPeriodo, allPeriodos]);
+
+  const waterfallIncompletePeriods = useMemo(() => {
+    const year = wfYear || currentYear;
+    const variable = gastoVariable(wfEstado);
+    return allPeriodos.filter(
+      (periodId) => periodId.startsWith(`${year}-`)
+        && !areVariablesComplete(completeness, [periodId], ["credito_vigente", variable]),
+    );
+  }, [allPeriodos, completeness, wfEstado, wfYear, currentYear]);
 
   const years = useMemo(
     () => [...new Set(allPeriodos.map((p) => p.split("-")[0]))].sort().reverse(),
@@ -259,7 +370,7 @@ export default function GastoDashboard() {
     );
   }
 
-  if (!rawData.length) {
+  if (!rawData.length || !completeness) {
     return (
       <div className="chart-container">
         <p style={{ color: "var(--text-secondary)" }}>Cargando datos de gasto…</p>
@@ -421,11 +532,11 @@ export default function GastoDashboard() {
                             setTblPeriodo([...new Set([...tblPeriodo, p])]);
                           } else {
                             const next = tblPeriodo.filter((v) => v !== p);
-                            setTblPeriodo(next.length ? next : [lastPeriodo]);
+                            setTblPeriodo(next.length ? next : [defaultCompletePeriod]);
                           }
                         }}
                       />
-                      {p}
+                      {p}{completeness.periods[p]?.is_complete ? "" : " (Incompleto)"}
                     </label>
                   );
                 })}
@@ -543,22 +654,38 @@ export default function GastoDashboard() {
                     />
                     {r.partida}
                   </td>
-                  <td className="numeric">{format1M(r.vigente)}</td>
-                  <td className="numeric">{format1M(r.comprometido)}</td>
-                  <td className="numeric">{format1M(r.ordenado)}</td>
-                  <td className="numeric">{formatPctOneDecimal(r.pesoComp)}</td>
-                  <td className="numeric">{formatPctOneDecimal(r.pesoOrd)}</td>
+                  <td className="numeric">{tableCompleteness.credito ? format1M(r.vigente) : "Sin datos"}</td>
+                  <td className="numeric">{tableCompleteness.comprometido ? format1M(r.comprometido) : "Sin datos"}</td>
+                  <td className="numeric">{tableCompleteness.ordenado ? format1M(r.ordenado) : "Sin datos"}</td>
+                  <td className="numeric">
+                    {tableCompleteness.credito && tableCompleteness.comprometido
+                      ? formatPctOneDecimal(r.pesoComp)
+                      : "Sin datos"}
+                  </td>
+                  <td className="numeric">
+                    {tableCompleteness.credito && tableCompleteness.ordenado
+                      ? formatPctOneDecimal(r.pesoOrd)
+                      : "Sin datos"}
+                  </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr>
                 <td>TOTAL</td>
-                <td className="numeric">{table ? format1M(table.tV) : ""}</td>
-                <td className="numeric">{table ? format1M(table.tC) : ""}</td>
-                <td className="numeric">{table ? format1M(table.tO) : ""}</td>
-                <td className="numeric">{table?.totalPesoComp}</td>
-                <td className="numeric">{table?.totalPesoOrd}</td>
+                <td className="numeric">{table && tableCompleteness.credito ? format1M(table.tV) : "Sin datos"}</td>
+                <td className="numeric">{table && tableCompleteness.comprometido ? format1M(table.tC) : "Sin datos"}</td>
+                <td className="numeric">{table && tableCompleteness.ordenado ? format1M(table.tO) : "Sin datos"}</td>
+                <td className="numeric">
+                  {table && tableCompleteness.credito && tableCompleteness.comprometido
+                    ? table.totalPesoComp
+                    : "Sin datos"}
+                </td>
+                <td className="numeric">
+                  {table && tableCompleteness.credito && tableCompleteness.ordenado
+                    ? table.totalPesoOrd
+                    : "Sin datos"}
+                </td>
               </tr>
             </tfoot>
           </table>
@@ -597,7 +724,7 @@ export default function GastoDashboard() {
                         }
                       }}
                     />
-                    {p}
+                    {p}{completeness.periods[p]?.is_complete ? "" : " (Incompleto)"}
                   </label>
                 ))}
               </div>
@@ -686,19 +813,21 @@ export default function GastoDashboard() {
           </div>
         </div>
         <div className="chart-wrapper" style={{ height: 400 }}>
-          {ratio && (
+          {ratio ? (
             <Chart
               type="bar"
               data={ratio.chartData as ChartData<"bar">}
               options={{
                 ...ratio.options,
-                onClick: (_: any, elements: any[]) => {
+                onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
                   if (elements.length > 0) {
                     logAction("Gasto", "Interacción con Gráfico Avance");
                   }
                 }
-              } as any}
+              } satisfies ChartOptions<"bar">}
             />
+          ) : (
+            <div className="chart-placeholder">Sin datos</div>
           )}
         </div>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
@@ -857,17 +986,22 @@ export default function GastoDashboard() {
               data={waterfall.chartData as ChartData<"bar">}
               options={{
                 ...waterfall.options,
-                onClick: (_: any, elements: any[]) => {
+                onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
                   if (elements.length > 0) {
                     logAction("Gasto", "Interacción con Gráfico Cascada");
                   }
                 }
-              } as any}
+              } satisfies ChartOptions<"bar">}
             />
           ) : (
-            <div className="chart-placeholder">Cargando gráfico…</div>
+            <div className="chart-placeholder">Sin datos</div>
           )}
         </div>
+        {waterfallIncompletePeriods.length > 0 && (
+          <p className="section-subtitle" style={{ marginTop: "0.75rem" }}>
+            Sin datos: {waterfallIncompletePeriods.join(", ")}.
+          </p>
+        )}
         <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "1rem" }}>
           Fuente: Ministerio de Hacienda y Finanzas de Corrientes.
         </p>

@@ -2,18 +2,16 @@
 
 import "@/lib/chart/registerChartJs";
 
-import type { ChartData } from "chart.js";
+import type { ActiveElement, ChartData, ChartEvent } from "chart.js";
 import { Bar, Chart } from "react-chartjs-2";
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 
 import {
   barComparisonOptions,
   buildBarComparison,
-  buildBrechaStacked,
   buildCopaVsSalarioMixed,
   buildDailyBarData,
   buildRealEvolutionSeries,
-  brechaOptions,
   copaVsSalarioOptions,
   dailyBarOptions,
 } from "@/lib/monitor-mensual/chartData";
@@ -61,7 +59,7 @@ export default function MonitorMensualDashboard() {
   const [data, setData] = useState<MonitorJson | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [periodId, setPeriodId] = useState<string>("");
-  const { isMobile768, isMobile640 } = useViewportFlags();
+  const { isMobile768 } = useViewportFlags();
   const { logAction } = useAnalytics();
 
   useEffect(() => {
@@ -94,28 +92,26 @@ export default function MonitorMensualDashboard() {
     };
   }, []);
 
-  const periodMeta = data?.meta.available_periods ?? [];
-  const defaultIndex = periodMeta.findIndex((p) => p.id === data?.meta.default_period_id);
-
+  const periodMeta = useMemo(() => data?.meta.available_periods ?? [], [data]);
   const chosen = data && periodId ? data.data[periodId] : undefined;
   const vm = useMemo(() => {
     if (!data || !chosen) return undefined;
-    return buildMonitorViewModel(data, periodId, chosen.kpi, isMobile640);
-  }, [data, periodId, chosen, isMobile640]);
+    return buildMonitorViewModel(data, periodId, chosen.kpi);
+  }, [data, periodId, chosen]);
 
   const charts = chosen?.charts;
 
   const dailyData = useMemo(() => {
-    if (!charts || !vm) return undefined;
+    if (!charts || !vm || !charts.daily.is_complete) return undefined;
     return buildDailyBarData(charts.daily, vm.monthName, vm.currentYear, vm.prevYear, isMobile768);
   }, [charts, vm, isMobile768]);
 
   const dailyOpts = useMemo(() => {
     if (!vm) return undefined;
-    const base = dailyBarOptions(vm.monthName);
+    const base = dailyBarOptions();
     return {
       ...base,
-      onClick: (_: any, elements: any[]) => {
+      onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
         if (elements.length > 0) {
           logAction("Análisis Mensual RON", "Interacción con Gráfico Diario");
         }
@@ -124,26 +120,11 @@ export default function MonitorMensualDashboard() {
   }, [vm, logAction]);
 
   const copaVsData = useMemo(() => {
-    if (!charts) return undefined;
+    if (!charts?.copa_vs_salario.is_complete) return undefined;
     return buildCopaVsSalarioMixed(charts.copa_vs_salario, isMobile768);
   }, [charts, isMobile768]);
 
   const copaVsOpts = useMemo(() => copaVsSalarioOptions(), []);
-
-  const brechaData = useMemo(() => {
-    if (!charts) return undefined;
-    return buildBrechaStacked(charts.copa_vs_salario);
-  }, [charts]);
-
-  const brechaOpts = useMemo(() => {
-    if (!charts) return undefined;
-    const dataCopa = charts.copa_vs_salario;
-    const neta = dataCopa.cumulative_neta;
-    const useNeta = neta?.some((v) => v != null);
-    const actualDataRaw = useNeta ? neta! : dataCopa.cumulative_copa;
-    const expectedData = dataCopa.cumulative_esperada ?? [];
-    return brechaOptions(expectedData, actualDataRaw ?? []);
-  }, [charts]);
 
   const realEvol = useMemo(() => {
     if (!data || !periodId) return undefined;
@@ -158,7 +139,6 @@ export default function MonitorMensualDashboard() {
       realEvol.copaCurrent,
       realEvol.copaPrevReal,
       "#10b981",
-      realEvol.barPeriods,
     );
   }, [realEvol]);
 
@@ -170,7 +150,6 @@ export default function MonitorMensualDashboard() {
       realEvol.masaCurrent,
       realEvol.masaPrevReal,
       "#3b82f6",
-      realEvol.barPeriods,
     );
   }, [realEvol]);
 
@@ -189,15 +168,15 @@ export default function MonitorMensualDashboard() {
       const next = e.target.value;
       logAction("Análisis Mensual RON", "Cambio de Período", { period_id: next });
       const idx = periodMeta.findIndex((p) => p.id === next);
-      const incomplete = periodMeta[idx]?.incomplete ?? (defaultIndex >= 0 && idx > defaultIndex);
+      const incomplete = periodMeta[idx]?.is_complete === false;
       if (incomplete) {
         alert(
-          "Atención: El periodo seleccionado aún cuenta con datos incompletos. Las variaciones y proyecciones pueden cambiar significativamente hasta el cierre definitivo.",
+          "Atención: el período tiene una o más variables incompletas. Los indicadores afectados se muestran como Sin datos.",
         );
       }
       setPeriodId(next);
     },
-    [periodMeta, defaultIndex, logAction],
+    [periodMeta, logAction],
   );
 
   if (error) {
@@ -238,8 +217,7 @@ export default function MonitorMensualDashboard() {
             onChange={onPeriodChange}
           >
             {reversedPeriods.map((p) => {
-              const pIndex = periodMeta.findIndex((x) => x.id === p.id);
-              const incomplete = p.incomplete ?? (defaultIndex >= 0 && pIndex > defaultIndex);
+              const incomplete = !p.is_complete;
               return (
                 <option key={p.id} value={p.id}>
                   {p.label} {p.year}
@@ -606,7 +584,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               {vm.masa.current}
             </div>
             <div className="kpi-sub">
-              <strong style={{ color: vm.masa.cobCurr === "Sin datos" ? "#64748b" : "#10b981" }}>{vm.masa.cobCurr}</strong>
+              <strong style={{ color: vm.masa.cobCurr.includes("Sin datos") ? "#64748b" : "#10b981" }}>{vm.masa.cobCurr}</strong>
             </div>
           </article>
           <article className="kpi-card" style={{ borderTop: `4px solid ${getBorderColorByValue(vm.masa.prev)}` }}>
@@ -672,30 +650,36 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
 
 
       {/* SECCIÓN: RON ACUMULADA + ROP vs MASA SALARIAL OBJETIVO */}
-      {copaVsData && (
+      {charts && (
         <section className="section-group" style={{ marginTop: "2rem" }}>
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
             <div
               className="info-tooltip"
               data-tooltip={`Compara la recaudación diaria de los ingresos provinciales disponibles provenientes de los Recursos de Origen Nacional (RON) acumulada día a día con el monto objetivo correspondiente a la masa salarial total del período seleccionado. Además, en el último día del mes se suman los recursos de origen provincial (ROP) disponibles.
 
-El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. El dato del mes se considera completo cuando alcanza al menos el 90% del promedio de los 12 meses calendario anteriores. Si no alcanza ese umbral, la línea utiliza como referencia la masa salarial del mes anterior.
+El indicador permite observar cuántos días de recaudación son necesarios para alcanzar y cubrir el total de la masa salarial. El dato del mes se considera completo cuando alcanza al menos el 90% del promedio de los 12 meses calendario anteriores. Si cualquiera de las variables requeridas está incompleta, el gráfico se muestra como Sin datos.
 
 El valor de los Recursos de Origen Nacional disponibles, surge del RON total descontado los recursos con afectación específica y el porcentaje coparticipable con los municipios. Es decir incluye la suma de los conceptos de: C.F.I. Neta de Ley N° 26.075, Financiamiento Educativo Ley N° 26.075, Régimen Simplificado para Pequeños Contribuyentes Ley N° 24.977 y Compensación Consenso Fiscal menos el 19% que se redistribuye a municipios.`}
             >
               ?
             </div>
             <h3 className="chart-title" style={{ lineHeight: 1.35 }}>
-              {charts?.copa_vs_salario.copa_label && charts?.copa_vs_salario.salario_label
+              {charts.copa_vs_salario.is_complete
+                && charts.copa_vs_salario.copa_label
+                && charts.copa_vs_salario.salario_label
                 ? `Recursos Disponibles ${charts.copa_vs_salario.copa_label} vs Sueldos ${charts.copa_vs_salario.salario_label}`
                 : `Recursos Disponibles ${vm.monthName} vs Sueldos ${vm.monthName}`}
             </h3>
             <div className="chart-wrapper">
-              <Chart
-                type="bar"
-                data={copaVsData as ChartData<"bar">}
-                options={copaVsOpts as Parameters<typeof Chart>[0]["options"]}
-              />
+              {copaVsData ? (
+                <Chart
+                  type="bar"
+                  data={copaVsData as ChartData<"bar">}
+                  options={copaVsOpts as Parameters<typeof Chart>[0]["options"]}
+                />
+              ) : (
+                <div className="chart-placeholder">Sin datos</div>
+              )}
             </div>
             <p className="source-text" style={{ textAlign: "left" }}>
               Fuente: Ministerio de Economía de la Provincia (RON/ROP) y Contaduría General de la Provincia de Corrientes (Salarios)
@@ -720,7 +704,11 @@ El valor de los Recursos de Origen Nacional disponibles surge del RON total desc
               <h3 className="chart-title">RON Disponible Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
-                <Bar data={chartCopaReal!} options={optCopaReal} />
+                {chosen.kpi.recaudacion.is_complete ? (
+                  <Bar data={chartCopaReal!} options={optCopaReal} />
+                ) : (
+                  <div className="chart-placeholder">Sin datos</div>
+                )}
               </div>
               <p className="source-text" style={{ textAlign: "left" }}>Fuente: INDEC y Ministerio de Economía de la Nación</p>
             </div>
@@ -736,7 +724,11 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               <h3 className="chart-title">Masa Salarial Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
-                <Bar data={chartMasaReal!} options={optMasaReal} />
+                {chosen.kpi.masa_salarial.is_complete ? (
+                  <Bar data={chartMasaReal!} options={optMasaReal} />
+                ) : (
+                  <div className="chart-placeholder">Sin datos</div>
+                )}
               </div>
               <p className="source-text" style={{ textAlign: "left" }}>Fuente: Ministerio de Economía de la Provincia</p>
             </div>
@@ -745,7 +737,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
       )}
 
       {/* SECCIÓN: DAILY */}
-      {dailyData && (
+      {charts && (
         <section className="section-group">
 
           <div className="chart-container" style={{ margin: "0 3%", width: "94%" }}>
@@ -762,7 +754,11 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
             <h3 className="chart-title">{`Comportamiento de RON Disponible Diario ${vm.monthName}`}</h3>
             <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Comparativa de ingresos diarios nominales (Millones de pesos)</p>
             <div className="chart-wrapper">
-              <Chart type="bar" data={dailyData} options={dailyOpts} />
+              {dailyData ? (
+                <Chart type="bar" data={dailyData} options={dailyOpts} />
+              ) : (
+                <div className="chart-placeholder">Sin datos</div>
+              )}
             </div>
             <p className="source-text" style={{ textAlign: "left" }}>Fuente: Ministerio de Economía de la Nación</p>
           </div>

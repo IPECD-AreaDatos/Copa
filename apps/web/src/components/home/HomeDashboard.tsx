@@ -21,7 +21,17 @@ type Period = {
   label: string;
   year: number;
   month: number;
+  is_complete: boolean;
   incomplete?: boolean;
+};
+
+type Completeness = {
+  is_complete: boolean;
+  variables: {
+    ron: { is_complete: boolean };
+    rop: { is_complete: boolean };
+    masa_salarial: { is_complete: boolean };
+  };
 };
 
 type MainJson = {
@@ -32,34 +42,36 @@ type MainJson = {
   data: Record<
     string,
     {
+      completeness: Completeness;
       kpi: {
         recaudacion: {
-          bruta_current: number;
+          bruta_current: number | null;
+          is_complete: boolean;
           ipc_missing: boolean;
           ipc_projected?: boolean;
           ipc_source?: "official" | "rem_bcra" | "unavailable";
           ipc_rem_published_at?: string | null;
         };
-        rop?: { bruta_current: number };
+        rop?: { bruta_current: number | null; is_complete: boolean };
         resumen: { total_recursos_brutos_var_real: number | null };
         masa_salarial: {
           cobertura_current: number | null;
           var_real: number | null;
-          is_incomplete: boolean;
+          is_complete: boolean;
           ipc_missing: boolean;
           ipc_projected?: boolean;
           ipc_source?: "official" | "rem_bcra" | "unavailable";
           ipc_rem_published_at?: string | null;
-          current: number;
+          current: number | null;
         };
-        distribucion_municipal?: { current: number };
+        distribucion_municipal?: { current: number | null; is_complete: boolean };
       };
     }
   >;
   global_charts: {
     labels: string[];
-    total_var_interanual?: number[];
-    copa_var_interanual?: number[];
+    total_var_interanual?: (number | null)[];
+    copa_var_interanual?: (number | null)[];
     ipc_var_interanual: (number | null)[];
   };
 };
@@ -164,9 +176,9 @@ function buildCoverageChart(mainData: MainJson, periodId: string, isMobile: bool
   const chartPeriods = periods.slice(startIndex, selectedIdx + 1);
 
   const labels: string[] = [];
-  const masaSalarialPctData: number[] = [];
-  const municipiosPctData: number[] = [];
-  const restoCopaPctData: number[] = [];
+  const masaSalarialPctData: (number | null)[] = [];
+  const municipiosPctData: (number | null)[] = [];
+  const restoCopaPctData: (number | null)[] = [];
 
   chartPeriods.forEach((p) => {
     const pData = mainData.data[p.id];
@@ -175,22 +187,28 @@ function buildCoverageChart(mainData: MainJson, periodId: string, isMobile: bool
     const shortLabel = p.label.substring(0, 3) + " " + p.year.toString().slice(-2);
     labels.push(shortLabel);
 
-    const ronBrutaM = pData.kpi.recaudacion.bruta_current || 0;
-    const ropBrutaM = pData.kpi.rop ? pData.kpi.rop.bruta_current || 0 : 0;
-    const masaSalarialM = pData.kpi.masa_salarial.current;
-    const distMuniM = pData.kpi.distribucion_municipal?.current ?? ronBrutaM * 0.19;
-    const isMasaIncomplete = pData.kpi.masa_salarial.is_incomplete;
-
-    let masaSalarial = masaSalarialM * 1000000;
-    let recaudacionTotal = (ronBrutaM + ropBrutaM) * 1000000;
-    let municipios = distMuniM * 1000000;
-
-    let restoCopa = Math.max(0, recaudacionTotal - masaSalarial - municipios);
-
-    if (isMasaIncomplete || masaSalarial === 0) {
-      masaSalarial = 0;
-      restoCopa = Math.max(0, recaudacionTotal - municipios);
+    if (!pData.completeness.is_complete) {
+      masaSalarialPctData.push(null);
+      municipiosPctData.push(null);
+      restoCopaPctData.push(null);
+      return;
     }
+
+    const ronBrutaM = pData.kpi.recaudacion.bruta_current;
+    const ropBrutaM = pData.kpi.rop?.bruta_current ?? null;
+    const masaSalarialM = pData.kpi.masa_salarial.current;
+    const distMuniM = pData.kpi.distribucion_municipal?.current ?? null;
+
+    if (ronBrutaM === null || ropBrutaM === null || masaSalarialM === null || distMuniM === null) {
+      masaSalarialPctData.push(null);
+      municipiosPctData.push(null);
+      restoCopaPctData.push(null);
+      return;
+    }
+
+    const masaSalarial = masaSalarialM * 1000000;
+    const recaudacionTotal = (ronBrutaM + ropBrutaM) * 1000000;
+    const municipios = distMuniM * 1000000;
 
     const total = recaudacionTotal;
     let masaPct = 0;
@@ -315,7 +333,8 @@ const barCoverageOptions: ChartOptions<"bar"> = {
     tooltip: {
       callbacks: {
         label: (ctx) => {
-          const raw = ctx.raw as number;
+          const raw = typeof ctx.raw === "number" ? ctx.raw : null;
+          if (raw === null) return `${ctx.dataset.label}: Sin datos`;
           const pctVal = new Intl.NumberFormat("es-AR", {
             minimumFractionDigits: 1,
             maximumFractionDigits: 1,
@@ -380,11 +399,6 @@ export default function HomeDashboard() {
       .catch(() => setLoadError("No se pudieron cargar los datos del tablero."));
   }, []);
 
-  const defaultPeriodIndex = useMemo(() => {
-    if (!mainData) return -1;
-    return mainData.meta.available_periods.findIndex((p) => p.id === mainData.meta.default_period_id);
-  }, [mainData]);
-
   const kpis = useMemo(() => {
     if (!mainData || !currentPeriodId || !mainData.data[currentPeriodId]) {
       return null;
@@ -392,16 +406,13 @@ export default function HomeDashboard() {
     const row = mainData.data[currentPeriodId];
     const periods = mainData.meta.available_periods;
     const periodObj = periods.find((p) => p.id === currentPeriodId);
-    const periodIndex = periods.findIndex((p) => p.id === currentPeriodId);
     const year = currentPeriodId.split("-")[0];
     const periodLabel = periodObj?.label ?? "Periodo";
 
     const masaData = row.kpi.masa_salarial;
-    const isMasaIncomplete = masaData.is_incomplete || !(masaData.current > 0);
-    const isPeriodIncomplete = periodObj?.incomplete
-      ?? (defaultPeriodIndex >= 0 && periodIndex > defaultPeriodIndex);
-    const hideSalaryKpis = isPeriodIncomplete || isMasaIncomplete;
-    const periodStatus = hideSalaryKpis ? " (incompleto)" : "";
+    const isSalaryIncomplete = !masaData.is_complete;
+    const isPeriodIncomplete = !row.completeness.is_complete;
+    const periodStatus = isPeriodIncomplete ? " (incompleto)" : "";
     const periodLabelFinal = `${periodLabel} ${year}${periodStatus}`;
 
     const resumen = row.kpi.resumen;
@@ -416,16 +427,16 @@ export default function HomeDashboard() {
     }
 
     const kpiCobertura = masaData.cobertura_current;
-    const cobertura = hideSalaryKpis || kpiCobertura === null
+    const cobertura = isPeriodIncomplete || kpiCobertura === null
       ? fmtMissing(null)
       : fmtPct(kpiCobertura, { coverage: true })!;
 
     const isIpcNeaMissingMasa = masaData.ipc_missing;
     const kpiMasaReal =
-      hideSalaryKpis || isIpcNeaMissingMasa ? null : masaData.var_real;
+      isSalaryIncomplete || isIpcNeaMissingMasa ? null : masaData.var_real;
 
     let masa: ReturnType<typeof fmtPct> | ReturnType<typeof fmtMissing>;
-    if (hideSalaryKpis) {
+    if (isSalaryIncomplete) {
       masa = fmtMissing(null);
     } else if (kpiMasaReal === null || kpiMasaReal === undefined) {
       masa = fmtMissing(isIpcNeaMissingMasa ? "IPC" : null);
@@ -433,7 +444,7 @@ export default function HomeDashboard() {
       masa = fmtPct(kpiMasaReal)!;
     }
 
-    const subStyleIncomplete = hideSalaryKpis ? "#ef4444" : "#1e293b";
+    const subStyleIncomplete = isPeriodIncomplete ? "#ef4444" : "#1e293b";
 
     return {
       copa: { ...copa, subtitleColor: subStyleIncomplete, periodLabelFinal },
@@ -443,7 +454,7 @@ export default function HomeDashboard() {
         ? describeInflationSource(row.kpi.recaudacion)
         : null,
     };
-  }, [mainData, currentPeriodId, defaultPeriodIndex]);
+  }, [mainData, currentPeriodId]);
 
   const executiveData = useMemo(() => {
     if (!mainData) return null;
@@ -475,16 +486,15 @@ export default function HomeDashboard() {
   );
 
   const periodOptions = useMemo(() => {
-    if (!mainData || defaultPeriodIndex < 0) return [];
+    if (!mainData) return [];
     const reversed = [...mainData.meta.available_periods].reverse();
     return reversed.map((p) => {
-      const pIndex = mainData.meta.available_periods.findIndex((per) => per.id === p.id);
-      const incomplete = pIndex > defaultPeriodIndex;
+      const incomplete = !p.is_complete;
       let label = `${p.label} ${p.year}`;
       if (incomplete) label += " (Incompleto)";
       return { period: p, label, incomplete };
     });
-  }, [mainData, defaultPeriodIndex]);
+  }, [mainData]);
 
   useEffect(() => {
     if (!mainData || !currentPeriodId) return;
@@ -493,6 +503,14 @@ export default function HomeDashboard() {
     if (opt?.dataset.incomplete === "true") sel!.style.color = "#ef4444";
     else if (sel) sel.style.color = "";
   }, [mainData, currentPeriodId]);
+
+  if (loadError) {
+    return (
+      <div className="chart-container">
+        <p style={{ color: "var(--accent-danger)" }}>{loadError}</p>
+      </div>
+    );
+  }
 
   return (
     <>

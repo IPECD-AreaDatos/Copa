@@ -51,7 +51,7 @@ export function buildDailyBarData(
   };
 }
 
-export function dailyBarOptions(monthName: string): ChartOptions<"bar"> {
+export function dailyBarOptions(): ChartOptions<"bar"> {
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -116,14 +116,14 @@ export function buildCopaVsSalarioMixed(
   if (isMobile) {
     const step = 3;
     const sampledLabels: string[] = [];
-    const sampledCopa: number[] = [];
-    const sampledRop: number[] = [];
-    const sampledSalario: number[] = [];
+    const sampledCopa: (number | null)[] = [];
+    const sampledRop: (number | null)[] = [];
+    const sampledSalario: (number | null)[] = [];
     for (let i = 0; i < chartLabels.length; i += step) {
       const idx = Math.min(i + step - 1, chartLabels.length - 1);
       sampledLabels.push(chartLabels[idx]);
       sampledCopa.push(cumulativeCopaNet[idx]);
-      sampledRop.push(cumulativeRop[idx] ?? 0);
+      sampledRop.push(cumulativeRop[idx] ?? null);
       sampledSalario.push(salarioTarget[idx]);
     }
     chartLabels = sampledLabels;
@@ -396,10 +396,10 @@ export function brechaOptions(
 
 export type RealEvolSeries = {
   labels: string[];
-  copaCurrent: number[];
-  copaPrevReal: number[];
-  masaCurrent: number[];
-  masaPrevReal: number[];
+  copaCurrent: (number | null)[];
+  copaPrevReal: (number | null)[];
+  masaCurrent: (number | null)[];
+  masaPrevReal: (number | null)[];
   barPeriods: { year: number; label: string }[];
 };
 
@@ -415,10 +415,10 @@ export function buildRealEvolutionSeries(
   const chartPeriods: PeriodMeta[] = periods.slice(startIndex, selectedIdx + 1);
 
   const labels: string[] = [];
-  const copaCurrent: number[] = [];
-  const copaPrevReal: number[] = [];
-  const masaCurrent: number[] = [];
-  const masaPrevReal: number[] = [];
+  const copaCurrent: (number | null)[] = [];
+  const copaPrevReal: (number | null)[] = [];
+  const masaCurrent: (number | null)[] = [];
+  const masaPrevReal: (number | null)[] = [];
   const barPeriods = chartPeriods.map((p) => ({ year: p.year, label: p.label }));
 
   chartPeriods.forEach((p) => {
@@ -429,18 +429,23 @@ export function buildRealEvolutionSeries(
     labels.push(shortLabel);
 
     const copaNom =
-      periodData.kpi.recaudacion.disponible_current ?? periodData.kpi.recaudacion.current ?? 0;
-    const inflation = (periodData.kpi.recaudacion.ipc_used_for_calc ?? 0) / 100;
+      periodData.kpi.recaudacion.disponible_current ?? periodData.kpi.recaudacion.current ?? null;
+    const inflationValue = periodData.kpi.recaudacion.ipc_used_for_calc;
+    const inflation = typeof inflationValue === "number" ? inflationValue / 100 : null;
     const copaPrevNom =
-      periodData.kpi.recaudacion.disponible_prev ?? periodData.kpi.recaudacion.prev ?? 0;
-    const copaPrevR = copaPrevNom * (1 + inflation);
+      periodData.kpi.recaudacion.disponible_prev ?? periodData.kpi.recaudacion.prev ?? null;
+    const copaPrevR = copaPrevNom !== null && inflation !== null
+      ? copaPrevNom * (1 + inflation)
+      : null;
 
     copaCurrent.push(copaNom);
     copaPrevReal.push(copaPrevR);
 
-    const masaNom = periodData.kpi.masa_salarial.current ?? 0;
-    const masaPrevNom = periodData.kpi.masa_salarial.prev ?? 0;
-    const masaPrevR = masaPrevNom * (1 + inflation);
+    const masaNom = periodData.kpi.masa_salarial.current ?? null;
+    const masaPrevNom = periodData.kpi.masa_salarial.prev ?? null;
+    const masaPrevR = masaPrevNom !== null && inflation !== null
+      ? masaPrevNom * (1 + inflation)
+      : null;
 
     masaCurrent.push(masaNom);
     masaPrevReal.push(masaPrevR);
@@ -452,10 +457,9 @@ export function buildRealEvolutionSeries(
 export function buildBarComparison(
   labels: string[],
   labelBase: string,
-  data1: number[],
-  data2: number[],
+  data1: (number | null)[],
+  data2: (number | null)[],
   color1: string,
-  barPeriods: { year: number; label: string }[],
 ): ChartData<"bar"> {
   return {
     labels,
@@ -494,6 +498,7 @@ export function barComparisonOptions(labelBase: string, barPeriods: { year: numb
             if (!p) return "";
             const isPrev = ctx.datasetIndex === 1;
             const year = isPrev ? p.year - 1 : p.year;
+            if (ctx.raw === null || ctx.raw === undefined) return `${labelBase} ${year}: Sin datos`;
             const value = new Intl.NumberFormat(esAR).format(Math.round(Number(ctx.raw)));
             return `${labelBase} ${year}: $${value} M`;
           },
