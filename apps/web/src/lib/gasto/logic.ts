@@ -43,36 +43,47 @@ export function formatPeriodo(isoStr: string) {
   return m.charAt(0).toUpperCase() + m.slice(1) + " " + parts[0];
 }
 
-export function executionPaceColor(actualRatio: number, expectedRatio: number) {
-  const pace = expectedRatio > 0 ? actualRatio / expectedRatio : 0;
-
-  if (pace < 0.65) {
-    return { bg: "#c70601", text: "#ffffff", pace, status: "Subejecución alta" };
-  }
-  if (pace < 0.85) {
-    return { bg: "#f59e0b", text: "#1f2937", pace, status: "Subejecución moderada" };
-  }
-  if (pace <= 1.15) {
-    return { bg: "#407b33", text: "#ffffff", pace, status: "En línea con el avance temporal" };
-  }
-  if (pace <= 1.35) {
-    return { bg: "#f97316", text: "#ffffff", pace, status: "Adelanto moderado" };
-  }
-  return { bg: "#900000", text: "#ffffff", pace, status: "Adelanto alto" };
+function interpolateColor(c1: number[], c2: number[], t: number) {
+  return `rgb(${Math.round(c1[0] + (c2[0] - c1[0]) * t)},${Math.round(c1[1] + (c2[1] - c1[1]) * t)},${Math.round(c1[2] + (c2[2] - c1[2]) * t)})`;
 }
 
 /**
- * Escala visible del heatmap. El porcentaje de cada celda sigue siendo
- * ejecución acumulada / crédito vigente; el color representa ese porcentaje
- * relativo al avance teórico del corte.
+ * El color mide únicamente cuánto se supera el ritmo racional del período.
+ * Hasta el ritmo esperado la celda permanece verde; desde allí transita de
+ * forma continua hacia rojo a medida que aumenta el sobrepaso.
  */
-export const EXECUTION_PACE_LEGEND = [
-  { label: "Muy por debajo (<65%)", color: "#c70601" },
-  { label: "Por debajo (65–85%)", color: "#f59e0b" },
-  { label: "En línea (85–115%)", color: "#407b33" },
-  { label: "Por encima (115–135%)", color: "#f97316" },
-  { label: "Muy por encima (>135%)", color: "#900000" },
-] as const;
+export function executionPaceColor(actualRatio: number, expectedRatio: number) {
+  const pace = expectedRatio > 0 ? actualRatio / expectedRatio : 0;
+  const overrun = Math.max(0, pace - 1);
+  // Se conserva el umbral histórico de 35% de adelanto como rojo máximo.
+  const severity = Math.min(1, overrun / 0.35);
+  const stops = [
+    { at: 0, color: [64, 123, 51] },    // verde
+    { at: 0.35, color: [250, 207, 50] }, // amarillo
+    { at: 0.65, color: [249, 115, 22] }, // naranja
+    { at: 1, color: [199, 6, 1] },       // rojo
+  ];
+
+  let bg = interpolateColor(stops[0].color, stops[1].color, 0);
+  for (let i = 1; i < stops.length; i += 1) {
+    const current = stops[i];
+    const previous = stops[i - 1];
+    if (severity <= current.at) {
+      const t = (severity - previous.at) / (current.at - previous.at);
+      bg = interpolateColor(previous.color, current.color, t);
+      break;
+    }
+    bg = interpolateColor(previous.color, current.color, 1);
+  }
+
+  const text = severity > 0.2 && severity < 0.65 ? "#1f2937" : "#ffffff";
+  return {
+    bg,
+    text,
+    pace,
+    overrun,
+  };
+}
 
 export type HeatmapInput = {
   rawData: GastoRow[];
@@ -143,7 +154,6 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
       const ratio = vig > 0 ? comp / vig : 0;
       const pct = Math.round(ratio * 100);
       const colorInfo = executionPaceColor(ratio, expectedRatio);
-      const pacePct = Math.round(colorInfo.pace * 100);
       return {
         j,
         pct,
@@ -151,7 +161,7 @@ export function computeHeatmap({ rawData, estado, jurisGroup, fuenteFilter }: He
         color: vig > 0 ? colorInfo.bg : "transparent",
         textColor: vig > 0 ? colorInfo.text : "transparent",
         title: vig > 0
-          ? `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}\nAvance teórico al corte: ${formatPctNoDecimals(expectedRatio * 100)}\nRitmo relativo: ${formatPctNoDecimals(pacePct)} — ${colorInfo.status}`
+          ? `${p}\n${j}\n${estado}/Vigente: ${formatPctNoDecimals(pct)}\nAvance racional al corte: ${formatPctNoDecimals(expectedRatio * 100)}\nSobrepaso del ritmo racional: ${formatPctNoDecimals(colorInfo.overrun * 100)}${colorInfo.overrun > 0 ? " — Por encima" : ""}`
           : `${p}\n${j}\nSin crédito vigente para el filtro seleccionado`,
       };
     });
@@ -592,8 +602,8 @@ export function computeWaterfall(inp: WaterfallInput): {
             return [
               `${inp.estado} del mes: ${fmtARS.format(monto)}`,
               `Ejecución acumulada: ${formatPctOneDecimal(raw[1] * 100)} del Crédito Vigente`,
-              `Avance teórico: ${formatPctOneDecimal(expectedRatio * 100)}`,
-              `Ritmo relativo: ${formatPctOneDecimal(pace.pace * 100)} — ${pace.status}`,
+              `Avance racional: ${formatPctOneDecimal(expectedRatio * 100)}`,
+              `Sobrepaso del ritmo racional: ${formatPctOneDecimal(pace.overrun * 100)}${pace.overrun > 0 ? " — Por encima" : ""}`,
             ];
           },
         },

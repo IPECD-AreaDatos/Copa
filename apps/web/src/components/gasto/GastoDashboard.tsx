@@ -12,7 +12,6 @@ import {
   computeHeatmap,
   computeRatioChartData,
   computeWaterfall,
-  EXECUTION_PACE_LEGEND,
   format1M,
   formatPctOneDecimal,
   formatPctNoDecimals,
@@ -385,25 +384,15 @@ export default function GastoDashboard() {
       <section className="chart-container heatmap-section" style={{ marginBottom: "3rem" }}>
         <div
           className="info-tooltip"
-          data-tooltip="Mapa de calor de ejecución acumulada respecto al crédito vigente. El color compara la ejecución real con el avance teórico del año al último mes informado: verde dentro de ±15% del ritmo esperado; amarillo o naranja para desvíos moderados; rojo para desvíos altos, tanto por subejecución como por adelanto."
+          data-tooltip="Mapa de calor de ejecución acumulada respecto al crédito vigente. El color parte de verde cuando la ejecución no supera el ritmo racional del año al último mes informado y pasa gradualmente a rojo a medida que aumenta el sobrepaso."
         >?</div>
         <div className="section-header">
           <div>
             <h2 className="section-title">{heatmap?.heatmapTitle ?? "Mapa de Calor de Ejecución"}</h2>
             <p className="section-subtitle">
               Ratio acumulado / Crédito Vigente por partida y organismo
-              {heatmap ? ` · avance teórico al corte: ${formatPctNoDecimals(heatmap.expectedPct)} · color: ritmo relativo` : ""}
             </p>
           </div>
-        </div>
-        <div className="heatmap-legend" aria-label="Escala de color del ritmo relativo al avance teórico">
-          <span className="heatmap-legend-intro">Color = ritmo vs. avance teórico:</span>
-          {EXECUTION_PACE_LEGEND.map((item) => (
-            <span key={item.label} className="heatmap-legend-item">
-              <i className="heatmap-legend-swatch" style={{ backgroundColor: item.color }} aria-hidden="true" />
-              {item.label}
-            </span>
-          ))}
         </div>
         <div className="section-filters gasto-filters">
           <div className="sf-group">

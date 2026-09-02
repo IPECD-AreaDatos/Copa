@@ -441,7 +441,10 @@ export function buildRealEvolutionSeries(
     copaCurrent.push(copaNom);
     copaPrevReal.push(copaPrevR);
 
-    const masaNom = periodData.kpi.masa_salarial.current ?? null;
+    // Un período salarial incompleto no puede entrar como una barra real:
+    // conserva el lugar temporal, pero el valor se muestra como Sin datos.
+    const masaCompleta = periodData.kpi.masa_salarial.is_complete;
+    const masaNom = masaCompleta ? (periodData.kpi.masa_salarial.current ?? null) : null;
     const masaPrevNom = periodData.kpi.masa_salarial.prev ?? null;
     const masaPrevR = masaPrevNom !== null && inflation !== null
       ? masaPrevNom * (1 + inflation)

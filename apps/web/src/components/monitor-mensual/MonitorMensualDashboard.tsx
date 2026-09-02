@@ -153,6 +153,12 @@ export default function MonitorMensualDashboard() {
     );
   }, [realEvol]);
 
+  const hasMasaRealData = useMemo(() => {
+    if (!realEvol) return false;
+    return realEvol.masaCurrent.some((value) => value !== null)
+      || realEvol.masaPrevReal.some((value) => value !== null);
+  }, [realEvol]);
+
   const optCopaReal = useMemo(() => {
     if (!realEvol) return undefined;
     return barComparisonOptions("RON Disponible Real", realEvol.barPeriods);
@@ -725,7 +731,7 @@ La masa salarial total incluye los conceptos de salarios, plus y bonos para los 
               <h3 className="chart-title">Masa Salarial Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
-                {chosen.kpi.masa_salarial.is_complete ? (
+                {hasMasaRealData && chartMasaReal ? (
                   <Bar data={chartMasaReal!} options={optMasaReal} />
                 ) : (
                   <div className="chart-placeholder">Sin datos</div>
