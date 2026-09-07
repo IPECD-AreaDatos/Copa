@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
+const allowUsers = require('../middleware/allow-users');
 const {
     DEFAULT_LOOKBACK_MONTHS,
     DEFAULT_TOLERANCE,
@@ -23,6 +24,7 @@ const {
 } = require('../services/gasto-desagregado');
 
 const GASTO_VARIABLES = ['credito_vigente', 'comprometido', 'ordenado'];
+const canViewGastosDesagregados = allowUsers('gcorrales', 'admin');
 
 const JURISDICCION_ALIASES = {
     'ADMINIST. DE OBRAS SANITARIAS DE': 'ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES',
@@ -120,7 +122,7 @@ router.get('/filtros', authMiddleware, async (req, res) => {
  * La consulta trabaja sobre copa_gastos_fte en el grano de la base detallada
  * y devuelve agregados para evitar enviar cientos de miles de filas al cliente.
  */
-router.get('/desagregados', authMiddleware, async (req, res) => {
+router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (req, res) => {
     try {
         const filters = buildFilters(req.query);
         let effectiveFilters = filters;
