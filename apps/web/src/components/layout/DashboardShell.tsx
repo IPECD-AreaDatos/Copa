@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { canAccessGastosDesagregados } from "@/lib/access";
 
 type Props = {
   /** Ruta activa para el estilo `nav-link-vertical active` */
@@ -103,9 +104,11 @@ export default function DashboardShell({
               <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
                 Gasto
               </Link>
-              <Link href="/gastos-desagregados" className={navClass("/gastos-desagregados")} onClick={() => setSidebarOpen(false)}>
-                Gastos desagregados
-              </Link>
+              {canAccessGastosDesagregados(username) && (
+                <Link href="/gastos-desagregados" className={navClass("/gastos-desagregados")} onClick={() => setSidebarOpen(false)}>
+                  Gastos desagregados
+                </Link>
+              )}
               {username === "admin" && (
                 <Link
                   href="/auditoria"

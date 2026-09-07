@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/allow-users.test.js tests/completeness-resolver.test.js tests/inflation-resolver.test.js tests/salary-target-resolver.test.js"
   },
   "keywords": [],
   "author": "",
