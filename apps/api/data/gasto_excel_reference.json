@@ -1,0 +1,90 @@
+{
+  "anio": 2026,
+  "periodo": "enero-junio",
+  "nota_anio": "Se usa 2026 como contexto operativo del corte actual; el año no aparece explícito en los nombres de los archivos recibidos y debe confirmarse al actualizar la referencia.",
+  "archivos": [
+    "desagregado ministerios ene-jun.xlsx",
+    "desagregado ministerios ene-jun consolida bs y serv.xlsx",
+    "Ejecucion Comp - fte 10 ene a jun.xlsx",
+    "desagregado partidas global ene-jun.xlsx"
+  ],
+  "base": {
+    "categorias": {
+      "personal": 943374674414.76,
+      "bienes_servicios": 184371581313.74,
+      "transferencias": 135396347914.82,
+      "coparticipacion": 199548054400.39,
+      "deuda": 9560641356.13,
+      "bienes_uso": 71996635359.21,
+      "otros": 3607701420.26
+    },
+    "subtotal_reportado": 1547024452813.25,
+    "subtotal_recalculado": 1547855636179.31,
+    "diferencia_subtotal": 831183366.06,
+    "fila_con_subtotal_omitido": {
+      "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
+      "personal": 291841782.06,
+      "transferencias": 539341584,
+      "total_omitido": 831183366.06,
+      "celda_subtotal": "J26"
+    }
+  },
+  "proyeccion": {
+    "fuente": "con proyeccion",
+    "nota": "Referencias manuales del Excel; no son metas oficiales recalculadas por el tablero.",
+    "objetivos": [
+      {
+        "jurisdiccion": "MINISTERIO DE SEGURIDAD",
+        "rubro": "bienes_servicios",
+        "tipo": "Necesidad s/ ministerio",
+        "monto": 3239123000
+      },
+      {
+        "jurisdiccion": "MINISTERIO DE EDUCACION",
+        "rubro": "bienes_servicios",
+        "tipo": "Necesidad s/ ministerio",
+        "monto": 8634238499.248333
+      },
+      {
+        "jurisdiccion": "MINISTERIO DE SALUD PUBLICA",
+        "rubro": "bienes_servicios",
+        "tipo": "Necesidad s/ ministerio",
+        "monto": 23396311558.68
+      },
+      {
+        "jurisdiccion": "MINISTERIO DE SALUD PUBLICA",
+        "rubro": "transferencias",
+        "tipo": "Pres ideal s/ ministerio",
+        "monto": 1750000000
+      },
+      {
+        "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+        "rubro": "bienes_servicios",
+        "tipo": "Necesidad s/ ministerio",
+        "monto": 379462513.72
+      },
+      {
+        "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
+        "rubro": "transferencias",
+        "tipo": "Pres ideal s/ ministerio",
+        "monto": 4555054737.136666
+      }
+    ]
+  },
+  "partidas_global": {
+    "totales_reportados": {
+      "200": 190857030513.78,
+      "300": 147710422458.79,
+      "400": 82557681379.9,
+      "500": 143911983385.66,
+      "coparticipacion": 199548054400.39
+    },
+    "nota": "Las hojas 200, 300, 400 y 500 son rankings por cuenta; la hoja 200 combina cuentas 200 y 300 y no debe sumarse a la hoja 300."
+  },
+  "notas_alcance": [
+    "El año 2026 es una inferencia operativa para comparar con la base viva actual, no una fecha escrita en el nombre de los archivos.",
+    "Los Excel son una referencia de enero a junio y algunas hojas contienen universos parciales o rankings seleccionados.",
+    "El tablero recalcula los agregados sobre copa_gastos_fte con los filtros actuales.",
+    "Los estados Crédito original y Crédito vigente son snapshots y no deben sumarse con Comprometido."
+  ]
+}

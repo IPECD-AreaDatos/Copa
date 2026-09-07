@@ -31,6 +31,48 @@ const ESTADO_LABELS = Object.freeze({
 
 const SNAPSHOT_STATES = new Set(['Cred Ori', 'Cred Vig']);
 
+// Clasificación compatible con las hojas "base", "resumen global" y
+// "con proyeccion" de los archivos recibidos. Se conserva separada de los
+// capítulos oficiales porque el Excel agrupa 200+300 y descompone 500.
+const RUBRO_ORDER = [
+    'personal',
+    'bienes_servicios',
+    'transferencias',
+    'coparticipacion',
+    'seguridad_social',
+    'bienes_uso',
+    'deuda',
+    'otros',
+    'figurativos',
+];
+
+const RUBRO_LABELS = Object.freeze({
+    personal: 'Personal',
+    bienes_servicios: 'Bienes y servicios',
+    transferencias: 'Transferencias',
+    coparticipacion: 'Coparticipación',
+    seguridad_social: 'Seguridad social',
+    bienes_uso: 'Bienes de uso',
+    deuda: 'Servicio de la deuda',
+    otros: 'Otros',
+    figurativos: 'Gastos figurativos',
+});
+
+// La expresión se reutiliza en todas las agregaciones para que los totales,
+// las matrices y las series mensuales tengan exactamente la misma semántica.
+const RUBRO_CASE_SQL = `CASE
+    WHEN partid = 100 THEN 'personal'
+    WHEN partid IN (200, 300) THEN 'bienes_servicios'
+    WHEN partid = 500 AND sub_partid IN (571, 587) THEN 'coparticipacion'
+    WHEN partid = 500 AND sub_partid = 533 THEN 'seguridad_social'
+    WHEN partid = 500 THEN 'transferencias'
+    WHEN partid = 400 THEN 'bienes_uso'
+    WHEN partid = 700 THEN 'deuda'
+    WHEN partid IN (600, 800) THEN 'otros'
+    WHEN partid = 900 THEN 'figurativos'
+    ELSE 'otros'
+END`;
+
 // copa_gastos_fte no tiene una tabla de dimensiones para resolver este código.
 // Estos nombres corresponden a la codificación actualmente usada por la fuente.
 const JURISDICCION_LABELS = Object.freeze({
@@ -187,6 +229,29 @@ function mapSubPartida(code) {
     };
 }
 
+function gastoRubro(partida, subPartida) {
+    const chapter = Number(partida);
+    const account = Number(subPartida);
+    if (chapter === 100) return 'personal';
+    if (chapter === 200 || chapter === 300) return 'bienes_servicios';
+    if (chapter === 500 && [571, 587].includes(account)) return 'coparticipacion';
+    if (chapter === 500 && account === 533) return 'seguridad_social';
+    if (chapter === 500) return 'transferencias';
+    if (chapter === 400) return 'bienes_uso';
+    if (chapter === 700) return 'deuda';
+    if ([600, 800].includes(chapter)) return 'otros';
+    if (chapter === 900) return 'figurativos';
+    return 'otros';
+}
+
+function mapRubro(code) {
+    const key = String(code || 'otros');
+    return {
+        codigo: key,
+        nombre: RUBRO_LABELS[key] || key,
+    };
+}
+
 function buildChapterRows(rows) {
     const total = rows.reduce((sum, row) => sum + numberValue(row.total), 0);
     return rows
@@ -206,20 +271,121 @@ function buildChapterRows(rows) {
 
 function buildSubpartidaRows(rows, chapterRows) {
     const chapterTotals = new Map(chapterRows.map((row) => [row.codigo, row.total]));
-    return rows.map((row) => {
+    const total = chapterRows.reduce((sum, item) => sum + item.total, 0);
+    const grouped = new Map();
+    rows.forEach((row) => {
         const chapter = Number(row.partid);
-        const subPartida = mapSubPartida(row.sub_partid);
-        const amount = numberValue(row.total);
-        return {
-            ...subPartida,
-            partida: mapPartida(chapter),
-            total: amount,
-            participacionPartida: percentage(amount, chapterTotals.get(chapter) || 0),
-            participacionTotal: percentage(amount, chapterRows.reduce((sum, item) => sum + item.total, 0)),
-            filas: Number(row.row_count || 0),
-            jurisdicciones: Number(row.jurisdicciones || 0),
-        };
+        const current = grouped.get(chapter) || [];
+        current.push(row);
+        grouped.set(chapter, current);
     });
+
+    return [...grouped.entries()]
+        .sort(([a], [b]) => PARTIDA_ORDER.indexOf(a) - PARTIDA_ORDER.indexOf(b) || a - b)
+        .flatMap(([chapter, chapterRowsDetail]) => {
+            const chapterTotal = chapterTotals.get(chapter) || 0;
+            let cumulative = 0;
+            return chapterRowsDetail
+                .sort((a, b) => numberValue(b.total) - numberValue(a.total)
+                    || Number(a.sub_partid) - Number(b.sub_partid))
+                .map((row, index) => {
+                    const subPartida = mapSubPartida(row.sub_partid);
+                    const amount = numberValue(row.total);
+                    cumulative += amount;
+                    return {
+                        ...subPartida,
+                        partida: mapPartida(chapter),
+                        rubro: mapRubro(gastoRubro(chapter, row.sub_partid)),
+                        total: amount,
+                        participacionPartida: percentage(amount, chapterTotal),
+                        participacionTotal: percentage(amount, total),
+                        acumuladoPartida: percentage(cumulative, chapterTotal),
+                        rankPartida: index + 1,
+                        filas: Number(row.row_count || 0),
+                        jurisdicciones: Number(row.jurisdicciones || 0),
+                    };
+                });
+        });
+}
+
+function buildRubroRows(rows) {
+    const total = rows.reduce((sum, row) => sum + numberValue(row.total), 0);
+    return rows
+        .map((row) => {
+            const rubro = mapRubro(row.rubro);
+            const amount = numberValue(row.total);
+            return {
+                ...rubro,
+                total: amount,
+                participacion: percentage(amount, total),
+                filas: Number(row.row_count || 0),
+                partidas: Number(row.partidas || 0),
+                subpartidas: Number(row.subpartidas || 0),
+            };
+        })
+        .sort((a, b) => RUBRO_ORDER.indexOf(a.codigo) - RUBRO_ORDER.indexOf(b.codigo));
+}
+
+function buildJurisdictionRubroRows(rows) {
+    return rows
+        .map((row) => ({
+            ...mapJurisdiccion(row.jurisdiccion),
+            rubro: mapRubro(row.rubro),
+            total: numberValue(row.total),
+            filas: Number(row.row_count || 0),
+            partidas: Number(row.partidas || 0),
+            subpartidas: Number(row.subpartidas || 0),
+        }))
+        .sort((a, b) => a.codigo - b.codigo || RUBRO_ORDER.indexOf(a.rubro.codigo) - RUBRO_ORDER.indexOf(b.rubro.codigo));
+}
+
+function buildMonthlyRubroRows(rows) {
+    return rows
+        .map((row) => ({
+            mes: Number(row.mes),
+            rubro: mapRubro(row.rubro),
+            total: numberValue(row.total),
+            filas: Number(row.row_count || 0),
+        }))
+        .sort((a, b) => a.mes - b.mes || RUBRO_ORDER.indexOf(a.rubro.codigo) - RUBRO_ORDER.indexOf(b.rubro.codigo));
+}
+
+function buildJurisdictionSubpartidaRows(rows) {
+    const grouped = new Map();
+    rows.forEach((row) => {
+        const jurisdiction = Number(row.jurisdiccion);
+        const current = grouped.get(jurisdiction) || [];
+        current.push(row);
+        grouped.set(jurisdiction, current);
+    });
+
+    return [...grouped.entries()]
+        .sort(([a], [b]) => a - b)
+        .flatMap(([jurisdictionCode, jurisdictionRows]) => {
+            const jurisdictionTotal = jurisdictionRows.reduce((sum, row) => sum + numberValue(row.total), 0);
+            let cumulative = 0;
+            return jurisdictionRows
+                .sort((a, b) => numberValue(b.total) - numberValue(a.total)
+                    || Number(a.partid) - Number(b.partid)
+                    || Number(a.sub_partid) - Number(b.sub_partid))
+                .map((row, index) => {
+                    const chapter = Number(row.partid);
+                    const amount = numberValue(row.total);
+                    cumulative += amount;
+                    return {
+                        jurisdiccion: mapJurisdiccion(jurisdictionCode),
+                        partida: mapPartida(chapter),
+                        subpartida: mapSubPartida(row.sub_partid),
+                        rubro: mapRubro(gastoRubro(chapter, row.sub_partid)),
+                        total: amount,
+                        participacionJurisdiccion: percentage(amount, jurisdictionTotal),
+                        acumuladoJurisdiccion: percentage(cumulative, jurisdictionTotal),
+                        rankJurisdiccion: index + 1,
+                        filas: Number(row.row_count || 0),
+                        meses: Number(row.months || 0),
+                    };
+                });
+        });
 }
 
 function buildJurisdictionRows(rows) {
@@ -248,14 +414,23 @@ module.exports = {
     JURISDICCION_LABELS,
     PARTIDA_LABELS,
     PARTIDA_ORDER,
+    RUBRO_CASE_SQL,
+    RUBRO_LABELS,
+    RUBRO_ORDER,
     buildChapterRows,
     buildFilters,
     buildJurisdictionRows,
+    buildJurisdictionRubroRows,
+    buildJurisdictionSubpartidaRows,
+    buildMonthlyRubroRows,
+    buildRubroRows,
     buildSubpartidaRows,
     buildWhere,
+    gastoRubro,
     isSnapshotState,
     mapJurisdiccion,
     mapPartida,
+    mapRubro,
     mapSubPartida,
     numberValue,
 };

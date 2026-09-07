@@ -106,7 +106,9 @@ El frontend del Tablero COPA está desarrollado en **Next.js** y organizado en s
 ### Características Principales:
 *   **Desglose jerárquico**: Presenta la composición por capítulo (`partid`), cuenta presupuestaria (`sub_partid`) y jurisdicción.
 *   **Corte reproducible**: Permite seleccionar año, rango de meses, fuente, estado, jurisdicción y capítulo.
-*   **Control de cobertura**: Muestra las filas de origen, las cuentas agrupadas y la evolución mensual del alcance seleccionado.
+*   **Análisis compatible con los Excel**: Incluye la lectura por rubro, la matriz jurisdicción-rubro, rankings globales y por jurisdicción-cuenta, acumulados y la distribución mensual.
+*   **Promedio y proyección**: Calcula el promedio observado y un ritmo anualizado simple; muestra aparte las referencias manuales de `con proyeccion`.
+*   **Control de cobertura y calidad**: Muestra filas de origen, cuentas agrupadas, cierres internos de la API y una conciliación con los cuatro Excel, incluyendo la diferencia de subtotal detectada en `base`.
 
 ---
 

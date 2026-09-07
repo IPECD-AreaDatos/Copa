@@ -158,14 +158,21 @@ Authorization: Bearer <token_jwt_aqui>
 #### Gastos Desagregados
 *   **Ruta**: `GET /api/gastos/desagregados`
 *   **Fuente**: `copa_gastos_fte`.
-*   **Descripción**: Agrupa la base detallada por capítulo (`partid`), cuenta (`sub_partid`), jurisdicción y mes. Devuelve totales, participaciones, cobertura de filas y evolución mensual sin enviar el detalle crudo completo al navegador.
+*   **Descripción**: Agrupa la base detallada por capítulo (`partid`), cuenta (`sub_partid`), jurisdicción y mes. Devuelve totales, participaciones, cobertura de filas y evolución mensual sin enviar el detalle crudo completo al navegador. También expone una clasificación de rubros compatible con los Excel recibidos, una matriz jurisdicción-rubro, un ranking jurisdicción-cuenta, promedios mensuales y una referencia explícita de conciliación con los cuatro archivos suministrados.
 *   **Parámetros opcionales**:
     - `anio` (por defecto `2026`)
     - `mesDesde` y `mesHasta` (por defecto `1` y `6`)
     - `fuente` (por ejemplo `10`; admite una lista separada por comas)
     - `estado` (por defecto `Comprometido`)
     - `jurisdiccion`, `partid` y `subPartid` (códigos; admiten listas separadas por comas)
-*   **Nota de interpretación**: `Comprometido`, `Cred Ori` y `Cred Vig` son estados alternativos y la API exige seleccionar uno. `Comprometido` se suma en el rango de meses; `Cred Ori` y `Cred Vig` se resuelven como el último snapshot disponible dentro del rango para evitar duplicar presupuestos mensuales. Las descripciones de cuentas provienen de un catálogo de referencia construido con los Excel de desglose y los códigos sin correspondencia se conservan visibles.
+*   **Campos analíticos adicionales**:
+    - `rubros`: Personal; Bienes y servicios (capítulos 200+300); Transferencias; Coparticipación (571 y 587); Seguridad social (533); Bienes de uso; Deuda; Otros (600+800); y Gastos figurativos (900).
+    - `jurisdicciones_rubros`: matriz para reproducir `resumen global`, `base` y `por rubro`.
+    - `monthly_rubros`: serie mensual por rubro para calcular el promedio observado.
+    - `jurisdiccion_subpartidas`: ranking por jurisdicción y cuenta, con participación y acumulado para reproducir `BNS Y sERV`.
+    - `excel_reference`: valores de referencia de `base`, objetivos manuales de `con proyeccion`, notas de alcance y nombres de los archivos fuente. El contexto 2026 está marcado como inferencia operativa porque no figura en los nombres de archivo.
+    - `controles`: diferencias entre el total seleccionado y los agregados por capítulo, rubro y matriz jurisdicción-rubro; deben ser cero salvo redondeos.
+*   **Nota de interpretación**: `Comprometido`, `Cred Ori` y `Cred Vig` son estados alternativos y la API exige seleccionar uno. `Comprometido` se suma en el rango de meses; `Cred Ori` y `Cred Vig` se resuelven como el último snapshot disponible dentro del rango para evitar duplicar presupuestos mensuales. Las descripciones de cuentas provienen de un catálogo de referencia construido con los Excel de desglose y los códigos sin correspondencia se conservan visibles. La referencia Excel no se suma al dato vivo: sirve para comparar el corte enero-junio y deja visibles diferencias de universo o de cálculo.
 
 ---
 
