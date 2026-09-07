@@ -15,7 +15,7 @@ export function useAnalytics() {
   const logAction = useCallback(async (
     section: string,
     action: string,
-    details: Record<string, any> = {}
+    details: Record<string, unknown> = {}
   ) => {
     // Deduplication logic
     const cacheKey = `${section}:${action}:${JSON.stringify(details)}`;

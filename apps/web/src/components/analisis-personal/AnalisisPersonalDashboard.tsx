@@ -97,7 +97,7 @@ export default function AnalisisPersonalDashboard() {
     };
   }, []);
 
-  const periods = data?.meta.available_periods ?? [];
+  const periods = useMemo(() => data?.meta.available_periods ?? [], [data]);
   const defaultIndex = periods.findIndex((p) => p.id === data?.meta.default_period_id);
   const row = data && periodId ? data.data[periodId] : undefined;
   const kpi = row?.kpi;
@@ -196,6 +196,16 @@ export default function AnalisisPersonalDashboard() {
       },
     }),
     [],
+  );
+
+  const interactiveLineOpts = useMemo<ChartOptions<"line">>(
+    () => ({
+      ...lineOpts,
+      onClick: () => {
+        void logAction("Análisis Salarial", "Interacción con Gráfico Salario vs RIPTE");
+      },
+    }),
+    [lineOpts, logAction],
   );
 
   const onChange = useCallback(
@@ -405,10 +415,7 @@ export default function AnalisisPersonalDashboard() {
         <div className="chart-wrapper">
           <Line
             data={lineData}
-            options={{
-              ...lineOpts,
-              onClick: () => logAction("Análisis Salarial", "Interacción con Gráfico Salario vs RIPTE")
-            } as any}
+            options={interactiveLineOpts}
           />
         </div>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "1rem" }}>

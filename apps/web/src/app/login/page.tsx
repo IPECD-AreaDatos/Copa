@@ -1,12 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-const apiBase =
-  typeof process.env.NEXT_PUBLIC_API_URL === 'string' && process.env.NEXT_PUBLIC_API_URL.length > 0
-    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')
-    : 'http://localhost:4000';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -59,9 +55,11 @@ export default function LoginPage() {
       <div className="login-card-wrapper">
         <div className="login-card">
           <div className="logo-container">
-            <img
+            <Image
               src="/copa/assets/logo-provincia.png"
               alt="Logo Provincia de Corrientes"
+              width={150}
+              height={150}
               style={{
                 width: '150px',
                 height: '150px',

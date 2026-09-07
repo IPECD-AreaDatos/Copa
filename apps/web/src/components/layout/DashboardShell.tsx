@@ -21,7 +21,6 @@ export default function DashboardShell({
   displayName,
   onLogout,
   username,
-  name,
   children,
 }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

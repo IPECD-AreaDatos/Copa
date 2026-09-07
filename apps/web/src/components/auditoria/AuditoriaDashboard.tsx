@@ -14,24 +14,31 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
+import type {
+  ArcElement as ChartArcElement,
+  Plugin,
+} from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
-const doughnutLabelsPlugin = {
+function numericValue(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+const doughnutLabelsPlugin: Plugin<"doughnut"> = {
   id: "doughnutLabelsPlugin",
-  afterDraw(chart: any) {
+  afterDraw(chart) {
     const { ctx } = chart;
     const datasetMeta = chart.getDatasetMeta(0);
     if (!datasetMeta || datasetMeta.hidden) return;
 
     const dataset = chart.data.datasets[0];
-    const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+    const total = dataset.data.reduce<number>((sum, value) => sum + numericValue(value), 0);
     if (total === 0) return;
 
-    datasetMeta.data.forEach((element: any, index: number) => {
-      const value = dataset.data[index];
-      if (value === undefined || value === null) return;
+    datasetMeta.data.forEach((element, index) => {
+      const value = numericValue(dataset.data[index]);
 
       const percentageValue = (value / total) * 100;
       if (percentageValue < 3) return; // No pintar si la porción es menor al 3% para evitar solapamiento
@@ -39,7 +46,7 @@ const doughnutLabelsPlugin = {
       const pct = percentageValue.toFixed(1) + "%";
 
       // Obtener el centro del segmento (arco)
-      const { x, y, startAngle, endAngle, innerRadius, outerRadius } = element;
+      const { x, y, startAngle, endAngle, innerRadius, outerRadius } = element as ChartArcElement;
       const avgAngle = startAngle + (endAngle - startAngle) / 2;
       const r = innerRadius + (outerRadius - innerRadius) / 2;
 
@@ -65,25 +72,24 @@ const doughnutLabelsPlugin = {
   }
 };
 
-const barLabelsPlugin = {
+const barLabelsPlugin: Plugin<"bar"> = {
   id: "barLabelsPlugin",
-  afterDraw(chart: any) {
+  afterDraw(chart) {
     const { ctx } = chart;
     const datasetMeta = chart.getDatasetMeta(0);
     if (!datasetMeta || datasetMeta.hidden) return;
 
     const dataset = chart.data.datasets[0];
-    const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+    const total = dataset.data.reduce<number>((sum, value) => sum + numericValue(value), 0);
     if (total === 0) return;
 
-    datasetMeta.data.forEach((element: any, index: number) => {
-      const value = dataset.data[index];
-      if (value === undefined || value === null) return;
+    datasetMeta.data.forEach((element, index) => {
+      const value = numericValue(dataset.data[index]);
 
       const percentageValue = (value / total) * 100;
       const pct = percentageValue.toFixed(1) + "%";
 
-      const { x, y, base } = element;
+      const { x, y, base } = element as unknown as { x: number; y: number; base: number };
       const barHeight = base - y;
 
       let labelY;
@@ -128,7 +134,7 @@ type TelemetriaRow = {
   fecha_hora: string;
   seccion_tablero: string;
   accion: string;
-  detalle_interaccion: any;
+  detalle_interaccion: unknown;
   ip_cliente: string;
   username: string;
 };
@@ -156,19 +162,14 @@ export default function AuditoriaDashboard() {
         } else {
           throw new Error(json.message || "Error al cargar auditoría");
         }
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Error al cargar auditoría");
       } finally {
         setLoading(false);
       }
     }
 
-    if (user?.username === "admin") {
-      loadData();
-    } else if (user) {
-      setError("Acceso denegado: solo para administradores.");
-      setLoading(false);
-    }
+    if (user?.username === "admin") void loadData();
   }, [user]);
 
   // Auxiliar para formatear fecha local a string YYYY-MM-DD
@@ -350,6 +351,10 @@ export default function AuditoriaDashboard() {
 
   if (!user) return null;
 
+  const accessError = user.username === "admin"
+    ? error
+    : "Acceso denegado: solo para administradores.";
+
   return (
     <DashboardShell
       activePath="/auditoria"
@@ -365,7 +370,7 @@ export default function AuditoriaDashboard() {
             Monitoreo del uso real del tablero por parte de las autoridades y analistas.
           </p>
         </div>
-        {!loading && !error && (
+        {!loading && !accessError && (
           <div className="section-filters" style={{ width: "100%", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
             {/* Filtro por Usuario */}
             <div className="sf-group" style={{ flex: "1 1 200px" }}>
@@ -434,12 +439,12 @@ export default function AuditoriaDashboard() {
         )}
       </div>
 
-      {loading ? (
+      {loading && !accessError ? (
         <div style={{ textAlign: "center", marginTop: "3rem" }}>Cargando datos de telemetría...</div>
-      ) : error ? (
+      ) : accessError ? (
         <div className="kpi-card" style={{ marginTop: "3rem", borderColor: "var(--accent-danger)" }}>
           <h2 className="text-danger" style={{ marginBottom: "1rem" }}>Acceso Restringido</h2>
-          <p>{error}</p>
+          <p>{accessError}</p>
         </div>
       ) : (
         <>
@@ -478,7 +483,7 @@ export default function AuditoriaDashboard() {
                         callbacks: {
                           label(ctx) {
                             const val = ctx.parsed?.y ?? 0;
-                            const total = ctx.dataset.data.reduce((s: any, v: any) => s + v, 0);
+                            const total = ctx.dataset.data.reduce<number>((sum, value) => sum + numericValue(value), 0);
                             const pct = ((val / total) * 100).toFixed(1) + "%";
                             return ` ${ctx.dataset.label || "Interacciones"}: ${val} (${pct})`;
                           }
@@ -513,7 +518,7 @@ export default function AuditoriaDashboard() {
                         callbacks: {
                           label(ctx) {
                             const val = ctx.parsed;
-                            const total = ctx.dataset.data.reduce((s: any, v: any) => s + v, 0);
+                            const total = ctx.dataset.data.reduce<number>((sum, value) => sum + numericValue(value), 0);
                             const pct = ((val / total) * 100).toFixed(1) + "%";
                             return ` ${ctx.label}: ${val} (${pct})`;
                           }

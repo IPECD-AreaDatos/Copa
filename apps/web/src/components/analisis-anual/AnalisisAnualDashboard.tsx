@@ -3,6 +3,7 @@
 import "@/lib/chart/registerChartJs";
 
 import { Bar, Chart } from "react-chartjs-2";
+import type { ActiveElement, ChartEvent, ChartOptions } from "chart.js";
 import {
   useCallback,
   useEffect,
@@ -95,7 +96,7 @@ export default function AnalisisAnualDashboard() {
   }, []);
 
   const mon = payload?.annual_monitor;
-  const periods = mon?.meta.available_periods ?? [];
+  const periods = useMemo(() => mon?.meta.available_periods ?? [], [mon]);
 
   const periodRow = mon && yearId ? mon.data[yearId] : undefined;
   const iterYear = yearId ? parseInt(yearId, 10) : NaN;
@@ -111,11 +112,11 @@ export default function AnalisisAnualDashboard() {
     return buildMonthlyAnnualData(periodRow.charts.monthly, iterYear, prevYear, isMobile);
   }, [periodRow, iterYear, prevYear, isMobile]);
 
-  const monthlyOpts = useMemo(() => {
+  const monthlyOpts = useMemo<ChartOptions<"bar">>(() => {
     const base = monthlyAnnualOptions();
     return {
       ...base,
-      onClick: (_: any, elements: any[]) => {
+      onClick: (_: ChartEvent, elements: ActiveElement[]) => {
         if (elements.length > 0) {
           logAction("Análisis Anual RON", "Interacción con Gráfico Mensual");
         }
@@ -128,11 +129,11 @@ export default function AnalisisAnualDashboard() {
     return buildCopaVsAnnualMixed(periodRow.charts.copa_vs_salario, isMobile);
   }, [periodRow, isMobile]);
 
-  const copaVsOpts = useMemo(() => {
+  const copaVsOpts = useMemo<ChartOptions<"bar" | "line">>(() => {
     const base = copaVsAnnualOptions();
     return {
       ...base,
-      onClick: (_: any, elements: any[]) => {
+      onClick: (_: ChartEvent, elements: ActiveElement[]) => {
         if (elements.length > 0) {
           logAction("Análisis Anual RON", "Interacción con Gráfico RON vs Sueldos");
         }
@@ -525,7 +526,7 @@ El valor de los Recursos de Origen Nacional disponibles, surge del RON total des
             ?
           </div>
           <div className="chart-wrapper">
-            {copaVsMixed && <Chart type="bar" data={copaVsMixed as any} options={copaVsOpts as any} />}
+            {copaVsMixed && <Chart type="bar" data={copaVsMixed} options={copaVsOpts} />}
           </div>
           <p className="source-text" style={{ marginTop: "1rem", textAlign: "left" }}>
             Fuente: Ministerio de Economía de la Provincia (RON) / Contaduría General de la Provincia (Salarios)
