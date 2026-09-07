@@ -23,7 +23,7 @@
     "diferencia_subtotal": 831183366.06,
     "fila_con_subtotal_omitido": {
       "jurisdiccion": "CENTRO DE ONCOLOGIA 'ANNA ROCCA DE BONATTI'",
-      "bienes_servicios": 291841782.06,
+      "personal": 291841782.06,
       "transferencias": 539341584,
       "total_omitido": 831183366.06,
       "celda_subtotal": "J26"
@@ -43,7 +43,7 @@
         "jurisdiccion": "MINISTERIO DE EDUCACION",
         "rubro": "bienes_servicios",
         "tipo": "Necesidad s/ ministerio",
-        "monto": 8634238499.25
+        "monto": 8634238499.248333
       },
       {
         "jurisdiccion": "MINISTERIO DE SALUD PUBLICA",
@@ -67,7 +67,7 @@
         "jurisdiccion": "MINISTERIO DE DESARROLLO SOCIAL",
         "rubro": "transferencias",
         "tipo": "Pres ideal s/ ministerio",
-        "monto": 4555054737.14
+        "monto": 4555054737.136666
       }
     ]
   },

@@ -2,11 +2,26 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const {
+    buildFilters,
+    buildWhere,
     buildJurisdictionSubpartidaRows,
     buildRubroRows,
     buildSubpartidaRows,
     gastoRubro,
 } = require('../services/gasto-desagregado');
+
+test('admite varios capítulos sin duplicados y los combina con los demás filtros', () => {
+    const filters = buildFilters({ anio: '2026', fuente: '10', jurisdiccion: '4', partid: '200,300,200' });
+    assert.deepEqual(filters.partidas, [200, 300]);
+    const where = buildWhere(filters);
+    assert.ok(where.text.includes('partid = ANY('));
+    assert.ok(where.text.includes('jurisdiccion = ANY('));
+    assert.ok(where.text.includes('codigo_fuente = ANY('));
+    assert.ok(where.params.some((p) => Array.isArray(p) && p.join(',') === '200,300'));
+    assert.equal(buildFilters({}).partidas, null);
+    assert.equal(buildFilters({ partid: 'TODAS' }).partidas, null);
+    assert.throws(() => buildFilters({ partid: '200,no-valido' }), /partid/);
+});
 
 test('clasifica los capítulos con la semántica compatible con los Excel', () => {
     assert.equal(gastoRubro(100, 113), 'personal');

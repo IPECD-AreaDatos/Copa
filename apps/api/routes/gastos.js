@@ -1,8 +1,10 @@
 const express = require('express');
+const { buildMinisterialAnalysis } = require('../services/gasto-ministerial');
 const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
 const EXCEL_REFERENCE = require('../data/gasto_excel_reference.json');
+const { archive: EXCEL_ARCHIVE, buildExcelAnalysis } = require('../services/gasto-excel-analysis');
 const {
     DEFAULT_LOOKBACK_MONTHS,
     DEFAULT_TOLERANCE,
@@ -126,6 +128,12 @@ router.get('/filtros', authMiddleware, async (req, res) => {
  * La consulta trabaja sobre copa_gastos_fte en el grano de la base detallada
  * y devuelve agregados para evitar enviar cientos de miles de filas al cliente.
  */
+router.get('/desagregados/excel/:id', authMiddleware, (req, res) => {
+    const sheet = EXCEL_ARCHIVE.books.flatMap((book) => book.sheets).find((s) => s.id === req.params.id);
+    if (!sheet) return res.status(404).json({ message: 'Hoja no encontrada' });
+    res.json(sheet);
+});
+
 router.get('/desagregados', authMiddleware, async (req, res) => {
     try {
         const filters = buildFilters(req.query);
@@ -151,6 +159,8 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
 
         const where = buildWhere(effectiveFilters);
         const from = `FROM copa_gastos_fte WHERE ${where.text}`;
+        const budgetWhere = buildWhere({ ...filters, estados: ['Cred Ori', 'Cred Vig'] });
+        const budgetFrom = `FROM copa_gastos_fte WHERE ${budgetWhere.text}`;
 
         const [
             chaptersResult,
@@ -163,6 +173,7 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
             jurisdictionRubrosResult,
             monthlyRubrosResult,
             jurisdictionSubpartidasResult,
+            budgetResult,
         ] = await Promise.all([
             db.query(`
                 SELECT partid,
@@ -255,6 +266,15 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
                 GROUP BY jurisdiccion, partid, sub_partid
                 ORDER BY jurisdiccion, ABS(SUM(val)) DESC, partid, sub_partid
             `, where.params),
+            db.query(`
+                SELECT jurisdiccion, MAX(mes)::int AS mes,
+                       SUM(val) FILTER (WHERE tipo_de_g = 'Cred Ori')::numeric AS original,
+                       SUM(val) FILTER (WHERE tipo_de_g = 'Cred Vig')::numeric AS vigente
+                ${budgetFrom}
+                AND mes = (SELECT MAX(mes) ${budgetFrom})
+                GROUP BY jurisdiccion
+                ORDER BY jurisdiccion
+            `, budgetWhere.params),
         ]);
 
         const chapterRows = buildChapterRows(chaptersResult.rows);
@@ -306,6 +326,9 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
                 grouped_rows: subpartidaRows.length,
                 jurisdiction_account_rows: jurisdictionSubpartidaRows.length,
                 response_at: new Date().toISOString(),
+                requested_months: filters.mesHasta - filters.mesDesde + 1,
+                missing_months: Array.from({ length: filters.mesHasta - filters.mesDesde + 1 }, (_, i) => filters.mesDesde + i)
+                    .filter((mes) => !monthlyResult.rows.some((r) => Number(r.mes) === mes)),
             },
             total: selectedTotal,
             chapters: chapterRows,
@@ -321,6 +344,21 @@ router.get('/desagregados', authMiddleware, async (req, res) => {
             monthly_rubros: monthlyRubroRows,
             jurisdiccion_subpartidas: jurisdictionSubpartidaRows,
             excel_reference: EXCEL_REFERENCE,
+            excel_analysis: buildExcelAnalysis(jurisdictionSubpartidaRows, filters, isSnapshotState(filters)),
+            ministerial_analysis: buildMinisterialAnalysis(jurisdictionSubpartidaRows),
+            excel_inventory: {
+                books: EXCEL_ARCHIVE.books.map(({ id, name, sha256, sheets }) => ({ id, name, sha256, sheets: sheets.length })),
+                cells: EXCEL_ARCHIVE.books.reduce((n, b) => n + b.sheets.reduce((m, s) => m + s.cells.length, 0), 0),
+                formulas: EXCEL_ARCHIVE.books.reduce((n, b) => n + b.sheets.reduce((m, s) => m + s.formulaCount, 0), 0),
+                extracted_on: EXCEL_ARCHIVE.extractedOn,
+                year_confirmed: EXCEL_ARCHIVE.yearConfirmed,
+            },
+            modificaciones_presupuestarias: budgetResult.rows.map((r) => ({
+                ...mapJurisdiccion(r.jurisdiccion), mes: r.mes,
+                original: r.original === null ? null : numberValue(r.original),
+                vigente: r.vigente === null ? null : numberValue(r.vigente),
+                modificacion: r.original === null || r.vigente === null ? null : roundDifference(numberValue(r.vigente), numberValue(r.original)),
+            })),
             controles: {
                 total_vs_capitulos: roundDifference(selectedTotal, chapterTotal),
                 total_vs_rubros: roundDifference(selectedTotal, rubroTotal),

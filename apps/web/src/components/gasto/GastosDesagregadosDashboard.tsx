@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
 import { format1M, formatPctOneDecimal } from "@/lib/gasto/logic";
+import GastoExcelCoverage, { type ExcelSheetAnalysis } from "./GastoExcelCoverage";
+import GastoAnalisisMinisterial, { type MinisterialAnalysis } from "./GastoAnalisisMinisterial";
 
 type NumericOption = {
   codigo: number;
@@ -129,7 +131,7 @@ type ExcelReference = {
     diferencia_subtotal: number;
     fila_con_subtotal_omitido: {
       jurisdiccion: string;
-      bienes_servicios: number;
+      personal: number;
       transferencias: number;
       total_omitido: number;
       celda_subtotal: string;
@@ -153,7 +155,7 @@ type Controls = {
   total_vs_jurisdicciones_rubros: number;
 };
 
-type DesagregadoResponse = {
+export type DesagregadoResponse = {
   meta: {
     source_table: string;
     grain: string;
@@ -176,6 +178,8 @@ type DesagregadoResponse = {
     grouped_rows: number;
     jurisdiction_account_rows: number;
     response_at: string;
+    requested_months: number;
+    missing_months: number[];
   };
   total: number;
   chapters: ChapterRow[];
@@ -188,6 +192,9 @@ type DesagregadoResponse = {
   jurisdiccion_subpartidas: JurisdictionSubpartidaRow[];
   excel_reference: ExcelReference;
   controles: Controls;
+  excel_analysis: ExcelSheetAnalysis[];
+  ministerial_analysis: MinisterialAnalysis;
+  modificaciones_presupuestarias: { codigo: number; nombre: string; mes: number; original: number | null; vigente: number | null; modificacion: number | null }[];
 };
 
 const MONTHS = [
@@ -287,13 +294,15 @@ function isExcelComparable(data: DesagregadoResponse) {
 }
 
 export default function GastosDesagregadosDashboard() {
+  const [view, setView] = useState("ministerial");
   const [year, setYear] = useState("2026");
   const [monthFrom, setMonthFrom] = useState("1");
   const [monthTo, setMonthTo] = useState("6");
   const [source, setSource] = useState("10");
   const [state, setState] = useState("Comprometido");
   const [jurisdiction, setJurisdiction] = useState("TODAS");
-  const [partida, setPartida] = useState("TODAS");
+  // An empty selection means no chapter restriction, as in the API contract.
+  const [selectedPartidas, setSelectedPartidas] = useState<number[]>([]);
   const [subpartidaSearch, setSubpartidaSearch] = useState("");
   const [jurisdictionAccountSearch, setJurisdictionAccountSearch] = useState("");
   const [data, setData] = useState<DesagregadoResponse | null>(null);
@@ -315,7 +324,7 @@ export default function GastosDesagregadosDashboard() {
     });
     if (source !== "TODAS") params.set("fuente", source);
     if (jurisdiction !== "TODAS") params.set("jurisdiccion", jurisdiction);
-    if (partida !== "TODAS") params.set("partid", partida);
+    if (selectedPartidas.length) params.set("partid", selectedPartidas.join(","));
 
     fetchWithAuth(`/copa/copa-api/api/gastos/desagregados?${params.toString()}`, {
       signal: controller.signal,
@@ -340,7 +349,7 @@ export default function GastosDesagregadosDashboard() {
       });
 
     return () => controller.abort();
-  }, [year, monthFrom, monthTo, source, state, jurisdiction, partida]);
+  }, [year, monthFrom, monthTo, source, state, jurisdiction, selectedPartidas]);
 
   const years = useMemo(() => {
     const values = data?.meta.available.years ?? [2026];
@@ -355,6 +364,15 @@ export default function GastosDesagregadosDashboard() {
     : [{ codigo: "Comprometido", nombre: "Comprometido" }];
   const jurisdictions = data?.meta.available.jurisdicciones ?? [];
   const chapters = data?.chapters ?? [];
+  // Keep all choices available after filtering, including when the cut is empty.
+  const chapterOptions = data?.meta.available.partidas ?? [];
+  const chapterSelectionLabel = selectedPartidas.length === 0
+    ? "Todos los capítulos"
+    : selectedPartidas.length === 2 && selectedPartidas.includes(200) && selectedPartidas.includes(300)
+      ? "200 + 300 · Bienes y servicios"
+      : selectedPartidas.length === 1
+        ? `${selectedPartidas[0]} · ${chapterOptions.find((item) => item.codigo === selectedPartidas[0])?.nombre ?? "Capítulo"}`
+        : `Capítulos ${selectedPartidas.join(" + ")}`;
   const rubros = data?.rubros ?? [];
 
   const visibleSubpartidas = useMemo(() => {
@@ -373,10 +391,10 @@ export default function GastosDesagregadosDashboard() {
     });
   }, [data, jurisdictionAccountSearch]);
 
-  const periodsInScope = Math.max(data?.monthly.length ?? 0, 1);
+  const periodsInScope = data?.meta.requested_months ?? 6;
 
   const projectionRows = useMemo(() => {
-    if (!data) return [];
+    if (!data || data.meta.is_snapshot) return [];
     return data.jurisdicciones_rubros
       .map((row) => {
         const target = data.excel_reference.proyeccion.objetivos.find((item) => (
@@ -390,23 +408,25 @@ export default function GastosDesagregadosDashboard() {
           proyeccionAnual: promedioMensual * 12,
           objetivo: target?.monto ?? null,
           objetivoTipo: target?.tipo ?? null,
-          diferenciaObjetivo: target ? promedioMensual - target.monto : null,
+          diferenciaObjetivo: target && isExcelComparable(data) ? promedioMensual - target.monto : null,
         };
       })
-      .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+      .sort((a, b) => b.total - a.total);
   }, [data, periodsInScope]);
 
   const excelComparisonRows = useMemo(() => {
     if (!data) return [];
     return Object.entries(data.excel_reference.base.categorias).map(([codigo, referencia]) => {
       const rubroCodigo = EXCEL_CATEGORY_TO_RUBRO[codigo];
-      const live = data.rubros.find((row) => row.codigo === rubroCodigo)?.total ?? 0;
+      const column: Record<string, string> = { personal: 'C', bienes_servicios: 'D', transferencias: 'E', coparticipacion: 'F', deuda: 'G', bienes_uso: 'H', otros: 'I' };
+      const matched = data.excel_analysis.find((s) => s.id === '3-5')?.blocks[0].rows.filter((r) => r.ref.startsWith(column[codigo])) ?? [];
+      const live = matched.some((r) => r.live !== null) ? matched.reduce((n, r) => n + (r.live ?? 0), 0) : null;
       return {
         codigo,
         rubroCodigo,
         referencia,
         live,
-        diferencia: live - referencia,
+        diferencia: live === null ? null : live - referencia,
       };
     });
   }, [data]);
@@ -432,7 +452,7 @@ export default function GastosDesagregadosDashboard() {
     return data.rubros.map((rubro) => {
       const rows = data.jurisdicciones_rubros
         .filter((row) => row.rubro.codigo === rubro.codigo && row.total !== 0)
-        .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+        .sort((a, b) => b.total - a.total);
       const topRows = rows.slice(0, 7);
       const topTotal = topRows.reduce((sum, row) => sum + row.total, 0);
       return {
@@ -468,6 +488,14 @@ export default function GastosDesagregadosDashboard() {
   const markFilterChange = () => {
     setLoading(true);
     setError(null);
+  };
+
+  const updatePartidas = (values: number[]) => {
+    const next = [...new Set(values)].sort((a, b) => a - b);
+    if (next.join(",") === selectedPartidas.join(",")) return;
+    markFilterChange();
+    setSelectedPartidas(next);
+    logAction("Gastos desagregados", "Cambio capítulos", { capitulos: next.length ? next : "todos" });
   };
 
   if (error && !data) {
@@ -580,19 +608,27 @@ export default function GastosDesagregadosDashboard() {
               {jurisdictions.map((value) => <option key={value.codigo} value={value.codigo}>{value.nombre}</option>)}
             </select>
           </div>
-          <div className="sf-group">
-            <label htmlFor="desagregado-partida">Capítulo</label>
-            <select
-              id="desagregado-partida"
-              value={partida}
-              onChange={(event) => {
-                markFilterChange();
-                setPartida(event.target.value);
-              }}
-            >
-              <option value="TODAS">Todos los capítulos</option>
-              {chapters.map((value) => <option key={value.codigo} value={value.codigo}>{value.codigo} - {value.nombre}</option>)}
-            </select>
+          <div className="sf-group desagregado-chapter-filter">
+            <span className="desagregado-filter-label" id="desagregado-partida-label">Capítulos</span>
+            <details className="gasto-multi-dropdown" onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.currentTarget.open = false;
+                event.currentTarget.querySelector("summary")?.focus();
+              }
+            }}>
+              <summary id="desagregado-partida" className="gasto-multi-trigger" aria-label={`Capítulos: ${chapterSelectionLabel}`} title={chapterSelectionLabel}>
+                <span>{chapterSelectionLabel}</span><span aria-hidden="true">⌄</span>
+              </summary>
+              <div className="gasto-multi-menu" role="group" aria-labelledby="desagregado-partida-label">
+                <button type="button" className="desagregado-chapter-preset" aria-pressed={selectedPartidas.length === 0} onClick={() => updatePartidas([])}>Todos los capítulos</button>
+                <button type="button" className="desagregado-chapter-preset" aria-pressed={selectedPartidas.length === 2 && selectedPartidas.includes(200) && selectedPartidas.includes(300)} onClick={() => updatePartidas([200, 300])}>200 + 300 · Bienes y servicios</button>
+                <p className="desagregado-chapter-help">Marcá uno o varios. Sin marcas se incluyen todos.</p>
+                {chapterOptions.map((value) => <label key={value.codigo} className="gasto-multi-option">
+                  <input type="checkbox" checked={selectedPartidas.includes(value.codigo)} onChange={(event) => updatePartidas(event.target.checked ? [...selectedPartidas, value.codigo] : selectedPartidas.filter((code) => code !== value.codigo))} />
+                  <span>{value.codigo} - {value.nombre}</span>
+                </label>)}
+              </div>
+            </details>
           </div>
         </div>
         {data && (
@@ -601,13 +637,21 @@ export default function GastosDesagregadosDashboard() {
               ? `Snapshot: ${MONTHS[data.meta.snapshot_month - 1]} ${year}`
               : `Corte: ${MONTHS[Number(monthFrom) - 1]}–${MONTHS[Number(monthTo) - 1]} ${year}`}
             {" · "}{state} · {source === "TODAS" ? "todas las fuentes" : `fuente ${source}`}
+            {" · "}{chapterSelectionLabel}
             {data.meta.is_snapshot && " · se usa el último crédito disponible del rango"}
           </p>
         )}
       </section>
 
-      {data && (
+      {error && <p className="desagregado-error" role="alert">{error} No se muestran resultados del corte anterior.</p>}
+      {data && !error && !loading && (
         <>
+          <nav className="desagregado-tabs" aria-label="Vistas de gastos desagregados">
+            {[["ministerial", "Análisis del ministro"], ["excel", "29 hojas Excel"], ["summary", "Explorador general"]].map(([id, label]) => <button key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}>{label}</button>)}
+          </nav>
+          {view === "ministerial" && <GastoAnalisisMinisterial data={data} />}
+          {view === "excel" && <GastoExcelCoverage sheets={data.excel_analysis} comparable={excelScopeComparable} isSnapshot={data.meta.is_snapshot} />}
+          {view === "summary" && <>
           <section className="desagregado-kpi-grid" aria-label="Resumen del corte seleccionado">
             <article className="kpi-card">
               <span className="kpi-label">Total seleccionado</span>
@@ -737,7 +781,7 @@ export default function GastosDesagregadosDashboard() {
             <div className="section-header">
               <div>
                 <h2 className="section-title">Ejecución por jurisdicción y rubro</h2>
-                <p className="section-subtitle">Matriz equivalente a “resumen global”, “base” y “por rubro”</p>
+                <p className="section-subtitle">Matriz extendida; seguridad social se muestra separada. La clasificación original está en «Análisis del ministro».</p>
               </div>
             </div>
             <div className="desagregado-table-scroll">
@@ -768,7 +812,7 @@ export default function GastosDesagregadosDashboard() {
             </div>
           </section>
 
-          <section className="chart-container">
+          {!data.meta.is_snapshot && <section className="chart-container">
             <div className="section-header">
               <div>
                 <h2 className="section-title">Promedio mensual y proyección simple</h2>
@@ -810,13 +854,13 @@ export default function GastosDesagregadosDashboard() {
                 </tbody>
               </table>
             </div>
-          </section>
+          </section>}
 
           <section className="chart-container">
             <div className="section-header">
               <div>
                 <h2 className="section-title">Ranking de cuentas por jurisdicción</h2>
-                <p className="section-subtitle">Desglose equivalente a “BNS Y sERV”: cuenta, jurisdicción, participación y acumulado</p>
+                <p className="section-subtitle">Detalle completo con porcentaje dentro de la jurisdicción. La selección de “BNS Y sERV” está en «29 hojas Excel».</p>
               </div>
               <div className="desagregado-search-wrap">
                 <label htmlFor="desagregado-jurisdiction-account-search">Buscar cuenta o jurisdicción</label>
@@ -1042,11 +1086,11 @@ export default function GastosDesagregadosDashboard() {
                 <p className="section-subtitle">Conciliación del corte vivo contra la referencia enero-junio suministrada</p>
               </div>
               <span className={`desagregado-status ${excelScopeComparable ? "desagregado-status-ok" : "desagregado-status-note"}`}>
-                {excelScopeComparable ? "Corte comparable" : "Referencia informativa"}
+                {excelScopeComparable ? "Corte orientativo · año por confirmar" : "Referencia informativa"}
               </span>
             </div>
             <p className="desagregado-scope-note">
-              Los Excel se usan como referencia de análisis. La comparación numérica sólo es estricta con año 2026, enero-junio, fuente 10, Comprometido y sin filtros de jurisdicción o capítulo; con otro corte se mantienen visibles como antecedente, pero no se mezclan con el total vivo.
+              La comparación usa las mismas celdas y jurisdicciones de “base”, con 533 dentro de Transferencias. Es orientativa: el año de los archivos no está confirmado. Las diferencias sólo se muestran con enero–junio 2026, fuente 10, Comprometido y sin filtros adicionales.
             </p>
             <p className="source-text desagregado-inline-note">{data.excel_reference.nota_anio || EXCEL_YEAR_NOTE_FALLBACK}</p>
             <div className="desagregado-table-scroll">
@@ -1054,7 +1098,7 @@ export default function GastosDesagregadosDashboard() {
                 <thead>
                   <tr>
                     <th>Categoría Excel</th>
-                    <th>Rubro vivo equivalente</th>
+                    <th>Alcance vivo</th>
                     <th className="numeric">Referencia Excel</th>
                     <th className="numeric">Corte vivo</th>
                     <th className="numeric">Diferencia</th>
@@ -1064,10 +1108,10 @@ export default function GastosDesagregadosDashboard() {
                   {excelComparisonRows.map((row) => (
                     <tr key={row.codigo}>
                       <td>{EXCEL_CATEGORY_LABELS[row.codigo] || row.codigo}</td>
-                      <td>{rubros.find((rubro) => rubro.codigo === row.rubroCodigo)?.nombre || row.rubroCodigo}</td>
+                      <td>Mismas filas de «base»{row.codigo === "transferencias" ? " · incluye 533" : ""}</td>
                       <td className="numeric">{format1M(row.referencia)}</td>
-                      <td className="numeric">{format1M(row.live)}</td>
-                      <td className={`numeric ${row.diferencia < 0 ? "desagregado-negative" : ""}`}>{formatDifference(row.diferencia)}</td>
+                      <td className="numeric">{row.live === null ? "Sin registros" : format1M(row.live)}</td>
+                      <td className={`numeric ${row.diferencia !== null && row.diferencia < 0 ? "desagregado-negative" : ""}`}>{excelScopeComparable && row.diferencia !== null ? formatDifference(row.diferencia) : "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1127,6 +1171,7 @@ export default function GastosDesagregadosDashboard() {
             </div>
           </section>
 
+          </>}
           <p className="source-text desagregado-source-line">
             Fuente viva: {data.meta.source_table}. Grano: {data.meta.grain}. Referencias: {data.meta.excel_reference_files.join(" · ")}. La respuesta se actualizó en la consulta actual.
           </p>

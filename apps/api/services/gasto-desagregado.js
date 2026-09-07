@@ -286,7 +286,7 @@ function buildSubpartidaRows(rows, chapterRows) {
             const chapterTotal = chapterTotals.get(chapter) || 0;
             let cumulative = 0;
             return chapterRowsDetail
-                .sort((a, b) => Math.abs(numberValue(b.total)) - Math.abs(numberValue(a.total))
+                .sort((a, b) => numberValue(b.total) - numberValue(a.total)
                     || Number(a.sub_partid) - Number(b.sub_partid))
                 .map((row, index) => {
                     const subPartida = mapSubPartida(row.sub_partid);
@@ -365,7 +365,7 @@ function buildJurisdictionSubpartidaRows(rows) {
             const jurisdictionTotal = jurisdictionRows.reduce((sum, row) => sum + numberValue(row.total), 0);
             let cumulative = 0;
             return jurisdictionRows
-                .sort((a, b) => Math.abs(numberValue(b.total)) - Math.abs(numberValue(a.total))
+                .sort((a, b) => numberValue(b.total) - numberValue(a.total)
                     || Number(a.partid) - Number(b.partid)
                     || Number(a.sub_partid) - Number(b.sub_partid))
                 .map((row, index) => {
