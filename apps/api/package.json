@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test tests/allow-users.test.js tests/completeness-resolver.test.js tests/inflation-resolver.test.js tests/salary-target-resolver.test.js"
+    "test": "node --test tests/allow-users.test.js tests/completeness-resolver.test.js tests/inflation-resolver.test.js tests/monthly-report.test.js tests/salary-target-resolver.test.js",
+    "report:preview": "node scripts/send-monthly-report.js --preview",
+    "report:send": "node scripts/send-monthly-report.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
+    "nodemailer": "^7.0.13",
     "pg": "^8.20.0"
   }
 }
