@@ -1,0 +1,13 @@
+[Unit]
+Description=Envío mensual del Tablero Ejecutivo Provincial
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ipecd-infra/apps/front/Copa/apps/api
+ExecStart=/home/ubuntu/.nvm/versions/node/v20.20.0/bin/node scripts/send-monthly-report.js
+
+[Install]
+WantedBy=multi-user.target

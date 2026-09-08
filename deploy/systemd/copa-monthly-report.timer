@@ -1,0 +1,11 @@
+[Unit]
+Description=Comprobar informe mensual de Copa de martes a viernes
+
+[Timer]
+OnCalendar=Tue..Fri *-*-* 20:30:00 America/Argentina/Buenos_Aires
+Persistent=true
+RandomizedDelaySec=60
+Unit=copa-monthly-report.service
+
+[Install]
+WantedBy=timers.target

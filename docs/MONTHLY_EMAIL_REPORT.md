@@ -34,3 +34,7 @@ en el archivo de estado y no vuelve a enviarle el mismo período.
 En producción se programa a las 20:30 (hora argentina) de martes a viernes. La
 actualización habitual ocurre el martes; los días adicionales permiten reintentar
 si alguna fuente todavía no estaba completa, sin producir duplicados.
+
+Las unidades listas para instalar están en `deploy/systemd`. Antes de habilitar
+el temporizador se debe ejecutar manualmente `report:send` y comprobar la recepción
+en ambos destinatarios.
