@@ -72,7 +72,6 @@ export default function AnalisisAnualDashboard() {
   const [payload, setPayload] = useState<AnnualMeta | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [yearId, setYearId] = useState("");
-  const [refreshId, setRefreshId] = useState(0);
   const isMobile = useMobile768();
   const { logAction } = useAnalytics();
 
@@ -82,44 +81,28 @@ export default function AnalisisAnualDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    let inFlight = false;
-    let controller: AbortController | undefined;
-    const refresh = async () => {
-      if (inFlight || document.visibilityState === "hidden") return;
-      inFlight = true;
-      controller = new AbortController();
-      const timeout = window.setTimeout(() => controller?.abort(), 30_000);
-      try {
-        const response = await fetchWithAuth(`/copa/copa-api/api/ron/annual-monitor?ts=${Date.now()}`, {
-          cache: "no-store", headers: { "Cache-Control": "no-cache" }, signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("No se pudieron actualizar los datos anuales.");
-        const next = await response.json() as AnnualMeta;
+    fetchWithAuth(`/copa/copa-api/api/ron/annual-monitor?ts=${Date.now()}`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("No se pudieron cargar los datos.");
+        return response.json() as Promise<AnnualMeta>;
+      })
+      .then((next) => {
         if (cancelled) return;
         setPayload(next);
-        setErr(null);
-        setYearId((selected) => next.annual_monitor.data[selected]
-          ? selected : next.annual_monitor.meta.default_period_id || "");
-      } catch (error: unknown) {
-        if (!cancelled) setErr(error instanceof Error && error.name !== "AbortError"
-          ? error.message : "La consulta demoró demasiado. Se volverá a intentar.");
-      } finally {
-        window.clearTimeout(timeout);
-        inFlight = false;
-      }
-    };
-    void refresh();
-    const interval = window.setInterval(refresh, 5 * 60 * 1000);
-    document.addEventListener("visibilitychange", refresh);
-    window.addEventListener("focus", refresh);
+        setYearId(next.annual_monitor.meta.default_period_id || "");
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setErr(error instanceof Error ? error.message : "Error al cargar datos.");
+      });
     return () => {
       cancelled = true;
-      controller?.abort();
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", refresh);
-      window.removeEventListener("focus", refresh);
     };
-  }, [refreshId]);
+  }, []);
 
   const mon = payload?.annual_monitor;
   const periods = useMemo(() => mon?.meta.available_periods ?? [], [mon]);
@@ -197,11 +180,10 @@ export default function AnalisisAnualDashboard() {
     [periods, logAction],
   );
 
-  if (err && !payload) {
+  if (err) {
     return (
       <div className="chart-container">
         <p style={{ color: "var(--accent-danger)" }}>{err}</p>
-        <button type="button" onClick={() => setRefreshId((value) => value + 1)}>Reintentar</button>
       </div>
     );
   }
@@ -250,10 +232,9 @@ export default function AnalisisAnualDashboard() {
           ? `Acumulado enero–${budgetCutoffLabel} de ${iterYear}. Comparación con los mismos meses de ${prevYear}.`
           : "Todavía no hay meses completos para este año."}</p>
         <p>{periodRow.kpi.meta?.source === "monthly"
-          ? "Fuente: misma base de datos del análisis mensual. Actualización automática cada 5 minutos."
+          ? "Fuente: misma base de datos del análisis mensual."
           : "Serie histórica conservada."}</p>
         {mon.meta.generated_at && <p>Última consulta: {new Date(mon.meta.generated_at).toLocaleString("es-AR")}</p>}
-        {err && <p role="status" style={{ color: "var(--accent-danger)" }}>{err} Se mantienen los datos de la última consulta correcta.</p>}
       </div>
 
       {periodRow.kpi.recaudacion.ipc_projected && (

@@ -16,7 +16,7 @@ La inflación anual conserva la metodología anterior: promedio de las variacion
 
 Los años anteriores a 2025 conservan sus filas históricas en `_data_ipce_v1.json`. Si falta el salario previo en la base (caso 2024), sólo se usa el total histórico cuando coincide exactamente el corte anual. No se prorratea un total anual para completar un intervalo parcial ni se recuperan valores estáticos de 2025 en adelante.
 
-La API vuelve a consultar las fuentes en cada solicitud y responde sin caché HTTP. La pestaña anual consulta al abrirse, cada cinco minutos mientras esté visible y al volver a enfocarla. Conserva el año seleccionado. Si una actualización falla, mantiene los últimos datos con un aviso visible. La hora mostrada es la de consulta, no una afirmación sobre la última carga de la base.
+La API vuelve a consultar las fuentes en cada solicitud y responde sin caché HTTP. La pestaña anual usa el mismo ciclo de carga del mensual: consulta una vez al abrirse o recargarse, sin temporizadores ni consultas al cambiar el foco. Cambiar el año usa los datos de esa consulta, igual que cambiar el período en el mensual. Si la carga falla, muestra el error. La hora mostrada es la de consulta, no una afirmación sobre la última carga de la base.
 
 Esto usa la misma carga de base que el mensual; no crea un proceso ETL adicional. Los cambios quedan disponibles cuando las fuentes del mensual se actualicen.
 
