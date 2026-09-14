@@ -7,12 +7,13 @@ export type CopaVsAnnualShape = {
   cumulative_bruta?: (number | null)[];
   salario_target: (number | null)[];
   cumulative_esperada?: (number | null)[];
+  through_month?: number;
 };
 
 export type MonthlyAnnualShape = {
   labels: string[];
-  data_curr: number[];
-  data_prev: number[];
+  data_curr: (number | null)[];
+  data_prev: (number | null)[];
 };
 
 function normalizeToMillions(value: number | null | undefined): number | null {
@@ -29,23 +30,23 @@ export function buildMonthlyAnnualData(
 ): ChartData<"bar"> {
   let chartLabels = Array.isArray(monthlyData?.labels) ? [...monthlyData.labels] : [];
   let dataCurrNet = Array.isArray(monthlyData?.data_curr)
-    ? monthlyData.data_curr.map((v) => normalizeToMillions(v) ?? 0)
+    ? monthlyData.data_curr.map((v) => normalizeToMillions(v))
     : [];
   let dataPrevNet = Array.isArray(monthlyData?.data_prev)
-    ? monthlyData.data_prev.map((v) => normalizeToMillions(v) ?? 0)
+    ? monthlyData.data_prev.map((v) => normalizeToMillions(v))
     : [];
 
   if (isMobile) {
     const quarterLabels = ["T1", "T2", "T3", "T4"];
-    const qCurr = [0, 0, 0, 0];
-    const qPrev = [0, 0, 0, 0];
-    for (let i = 0; i < dataCurrNet.length; i++) {
-      const q = Math.floor(i / 3);
-      if (q < 4) {
-        qCurr[q] += dataCurrNet[i] || 0;
-        qPrev[q] += dataPrevNet[i] || 0;
-      }
-    }
+    const lastObserved = dataCurrNet.reduce<number>((last, value, index) => value !== null ? index + 1 : last, 0);
+    const aggregateQuarter = (values: (number | null)[], quarter: number) => {
+      const months = values.slice(quarter * 3, Math.min(quarter * 3 + 3, lastObserved));
+      return months.length && months.every((value) => value !== null)
+        ? months.reduce<number>((total, value) => total + (value ?? 0), 0) : null;
+    };
+    const qCurr = quarterLabels.map((_, index) => aggregateQuarter(dataCurrNet, index));
+    const qPrev = quarterLabels.map((_, index) => aggregateQuarter(dataPrevNet, index));
+    if (lastObserved % 3) quarterLabels[Math.floor(lastObserved / 3)] += " (parcial)";
     chartLabels = quarterLabels;
     dataCurrNet = qCurr;
     dataPrevNet = qPrev;
@@ -140,14 +141,16 @@ export function buildCopaVsAnnualMixed(
     : [];
 
   if (isMobile) {
-    const quarterEndIndices = [2, 5, 8, 11];
+    const through = dataCopa.through_month ?? 12;
+    const quarterEndIndices = [2, 5, 8, 11].map((index, quarter) =>
+      quarter * 3 < through ? Math.min(index, through - 1) : index);
     const qLabels = ["T1", "T2", "T3", "T4"];
     const sampledLabels: string[] = [];
     const sampledCopa: (number | null)[] = [];
     const sampledSalario: (number | null)[] = [];
     quarterEndIndices.forEach((idx, qi) => {
       if (idx < chartLabels.length) {
-        sampledLabels.push(qLabels[qi]);
+        sampledLabels.push(qLabels[qi] + (idx % 3 !== 2 ? " (parcial)" : ""));
         sampledCopa.push(cumulativeCopaNet[idx]);
         sampledSalario.push(salarioTarget[idx]);
       }
@@ -273,15 +276,15 @@ export function buildBrechaAnnualStacked(
   isMobile: boolean,
 ): { chartData: ChartData<"bar">; card: BrechaAnnualCard } | null {
   if (
-    currentYear !== 2026 ||
+    currentYear < 2025 ||
     !dataCopa.cumulative_esperada ||
     !dataCopa.cumulative_copa
   ) {
     return null;
   }
 
-  const expectedData = dataCopa.cumulative_esperada;
-  const actualDataRaw = dataCopa.cumulative_bruta ?? dataCopa.cumulative_copa;
+  const expectedData = dataCopa.cumulative_esperada.map(normalizeToMillions);
+  const actualDataRaw = (dataCopa.cumulative_bruta ?? dataCopa.cumulative_copa).map(normalizeToMillions);
 
   const baseData: (number | null)[] = [];
   const faltanteData: (number | null)[] = [];
@@ -290,10 +293,9 @@ export function buildBrechaAnnualStacked(
   let lastActualVal = 0;
   let lastExpectedVal = 0;
 
-  let limitMonthIndex = 12;
-  if (maxMonth) {
-    limitMonthIndex = isComplete ? maxMonth : maxMonth - 1;
-  }
+  const limitMonthIndex = dataCopa.through_month
+    ?? (maxMonth ? isComplete ? maxMonth : maxMonth - 1 : 12);
+  if (!expectedData.some((value, index) => index < limitMonthIndex && value !== null && actualDataRaw[index] != null)) return null;
 
   for (let i = 0; i < expectedData.length; i++) {
     const exp = expectedData[i];
@@ -343,7 +345,8 @@ export function buildBrechaAnnualStacked(
   let brechaExcedente = excedenteData;
 
   if (isMobile) {
-    const quarterEndIndices = [2, 5, 8, 11];
+    const quarterEndIndices = [2, 5, 8, 11].map((index, quarter) =>
+      quarter * 3 < limitMonthIndex ? Math.min(index, limitMonthIndex - 1) : index);
     const qLabels = ["T1", "T2", "T3", "T4"];
     brechaLabels = [];
     brechaBase = [];
@@ -351,7 +354,7 @@ export function buildBrechaAnnualStacked(
     brechaExcedente = [];
     quarterEndIndices.forEach((idx, qi) => {
       if (idx < dataCopa.labels.length) {
-        brechaLabels.push(qLabels[qi]);
+        brechaLabels.push(qLabels[qi] + (idx % 3 !== 2 ? " (parcial)" : ""));
         brechaBase.push(baseData[idx]);
         brechaFaltante.push(faltanteData[idx]);
         brechaExcedente.push(excedenteData[idx]);

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:annual": "node --test tests/annual-view-model.test.mjs"
   },
   "dependencies": {
     "chart.js": "^4.5.1",

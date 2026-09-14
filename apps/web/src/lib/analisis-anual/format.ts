@@ -1,13 +1,13 @@
 /** IPC para deflactar: el JSON anual usa `avg_ipc_used` si no viene `ipc_used_for_calc`. */
 export function recaudacionIpcPct(kpi: {
-  recaudacion: { ipc_used_for_calc?: number; avg_ipc_used?: number };
+  recaudacion: { ipc_used_for_calc?: number | null; avg_ipc_used?: number | null };
 }): number {
   const r = kpi.recaudacion;
   return r.ipc_used_for_calc ?? r.avg_ipc_used ?? 0;
 }
 
 export function formatBillions(value: number | null | undefined): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return "N/A";
+  if (value === undefined || value === null || Number.isNaN(value)) return "Sin datos";
   const valInBillions = value / 1_000_000;
   return (
     "$" +
@@ -17,7 +17,7 @@ export function formatBillions(value: number | null | undefined): string {
 }
 
 export function formatMillions(value: number | null | undefined): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return "N/A";
+  if (value === undefined || value === null || Number.isNaN(value)) return "Sin datos";
   return (
     "$" +
     new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value) +
@@ -26,7 +26,7 @@ export function formatMillions(value: number | null | undefined): string {
 }
 
 export function formatPercentage(value: number | null | undefined): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return "N/A";
+  if (value === undefined || value === null || Number.isNaN(value)) return "Sin datos";
   const sign = value >= 0 ? "+" : "";
   const formattedValue = new Intl.NumberFormat("es-AR", {
     minimumFractionDigits: 1,
@@ -36,7 +36,7 @@ export function formatPercentage(value: number | null | undefined): string {
 }
 
 export function formatPctUnsigned(value: number | null | undefined): string {
-  if (value === undefined || value === null || Number.isNaN(value)) return "N/A";
+  if (value === undefined || value === null || Number.isNaN(value)) return "Sin datos";
   return (
     new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
       Math.abs(value),

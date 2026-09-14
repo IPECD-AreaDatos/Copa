@@ -2,7 +2,6 @@ import {
   formatBillions,
   formatMillions,
   formatPercentage,
-  formatPctUnsigned,
   recaudacionIpcPct,
 } from "./format";
 
@@ -13,67 +12,71 @@ export type AnnualKpiBundle = {
     max_month?: number;
     is_complete?: boolean;
     budget_through_month?: number;
+    source?: "monthly";
   };
   recaudacion: {
-    disponible_current?: number;
-    disponible_prev?: number;
-    current?: number;
-    prev?: number;
-    neta_current?: number;
-    neta_prev?: number;
-    bruta_current?: number;
-    bruta_prev?: number;
-    diff_nom?: number;
-    var_nom?: number;
-    var_real?: number;
+    disponible_current?: number | null;
+    disponible_prev?: number | null;
+    current?: number | null;
+    prev?: number | null;
+    neta_current?: number | null;
+    neta_prev?: number | null;
+    bruta_current?: number | null;
+    bruta_prev?: number | null;
+    diff_nom?: number | null;
+    var_nom?: number | null;
+    var_real?: number | null;
+    diff_real?: number | null;
     ipc_missing?: boolean;
     ipc_projected?: boolean;
     ipc_source?: "official" | "rem_bcra" | "unavailable";
     ipc_rem_published_at?: string | null;
-    ipc_used_for_calc?: number;
-    avg_ipc_used?: number;
-    esperada?: number;
+    ipc_used_for_calc?: number | null;
+    avg_ipc_used?: number | null;
+    esperada?: number | null;
   };
   rop?: {
-    bruta_current?: number;
-    bruta_prev?: number;
-    disponible_current?: number;
-    disponible_prev?: number;
-    diff_nom?: number;
-    var_nom?: number;
-    var_real?: number;
-    diff_real?: number;
+    bruta_current?: number | null;
+    bruta_prev?: number | null;
+    disponible_current?: number | null;
+    disponible_prev?: number | null;
+    diff_nom?: number | null;
+    var_nom?: number | null;
+    var_real?: number | null;
+    diff_real?: number | null;
     ipc_missing?: boolean;
     ipc_projected?: boolean;
     ipc_source?: "official" | "rem_bcra" | "unavailable";
     ipc_rem_published_at?: string | null;
-    esperada_prov?: number;
-    brecha_abs_prov?: number;
-    brecha_pct_prov?: number;
+    esperada_prov?: number | null;
+    brecha_abs_prov?: number | null;
+    brecha_pct_prov?: number | null;
   };
   distribucion_municipal?: {
-    current?: number;
-    prev?: number;
-    nacion_current?: number;
-    nacion_prev?: number;
-    provincia_current?: number;
-    provincia_prev?: number;
-    diff_nom?: number;
-    var_nom?: number;
-    var_real?: number;
+    current?: number | null;
+    prev?: number | null;
+    nacion_current?: number | null;
+    nacion_prev?: number | null;
+    provincia_current?: number | null;
+    provincia_prev?: number | null;
+    diff_nom?: number | null;
+    var_nom?: number | null;
+    var_real?: number | null;
+    diff_real?: number | null;
     ipc_missing?: boolean;
     ipc_projected?: boolean;
     ipc_source?: "official" | "rem_bcra" | "unavailable";
     ipc_rem_published_at?: string | null;
   };
   masa_salarial: {
-    current?: number;
-    prev?: number;
-    cobertura_current?: number;
-    cobertura_prev?: number;
-    diff_nom?: number;
-    var_nom?: number;
-    var_real?: number;
+    current?: number | null;
+    prev?: number | null;
+    cobertura_current?: number | null;
+    cobertura_prev?: number | null;
+    diff_nom?: number | null;
+    var_nom?: number | null;
+    var_real?: number | null;
+    diff_real?: number | null;
     ipc_missing?: boolean;
     ipc_projected?: boolean;
     ipc_source?: "official" | "rem_bcra" | "unavailable";
@@ -81,10 +84,10 @@ export type AnnualKpiBundle = {
     is_incomplete?: boolean;
   };
   recaudacion_provincial?: {
-    current?: number;
-    esperada_prov?: number;
-    brecha_abs_prov?: number;
-    brecha_pct_prov?: number;
+    current?: number | null;
+    esperada_prov?: number | null;
+    brecha_abs_prov?: number | null;
+    brecha_pct_prov?: number | null;
   };
 };
 
@@ -174,246 +177,89 @@ export type AnnualVm = {
   };
 };
 
-function buildBudgetComparison(actual: number, expected: number) {
-  if (!(expected > 0)) return undefined;
+type Amount = number | null | undefined;
+const hasValue = (value: Amount): value is number => typeof value === "number" && Number.isFinite(value);
+const missingClass = "kpi-value text-secondary text-missing";
+const valueClass = (value: Amount) => hasValue(value)
+  ? `kpi-value ${value >= 0 ? "text-success" : "text-danger"}` : missingClass;
+const signedAmount = (value: Amount, format = formatMillions) => hasValue(value)
+  ? (value >= 0 ? "+" : "-") + format(Math.abs(value)) : "Sin datos";
+const diff = (current: Amount, previous: Amount) => hasValue(current) && hasValue(previous) ? current - previous : null;
 
-  const diffAbs = actual - expected;
-  const diffPct = ((actual / expected) - 1) * 100;
-  const absSign = diffAbs > 0 ? "+" : diffAbs < 0 ? "-" : "";
-
+function buildBudgetComparison(actual: Amount, expected: Amount) {
+  if (!hasValue(expected) || expected <= 0) return undefined;
+  const diffAbs = diff(actual, expected);
+  const diffPct = hasValue(actual) ? (actual / expected - 1) * 100 : null;
   return {
-    diffAbs: absSign + formatMillions(Math.abs(diffAbs)),
-    diffAbsClass: `kpi-value ${diffAbs >= 0 ? "text-success" : "text-danger"}`,
-    diffPct: formatPercentage(diffPct),
-    diffPctClass: `kpi-value ${diffPct >= 0 ? "text-success" : "text-danger"}`,
-    recaudado: formatMillions(actual),
-    esperada: formatMillions(expected),
+    diffAbs: signedAmount(diffAbs), diffAbsClass: valueClass(diffAbs),
+    diffPct: formatPercentage(diffPct), diffPctClass: valueClass(diffPct),
+    recaudado: formatMillions(actual), esperada: formatMillions(expected),
   };
 }
 
 export function buildAnnualVm(kpi: AnnualKpiBundle, iterYear: number): AnnualVm {
-  const prevYear = iterYear - 1;
-  const rawPeriod = kpi.meta?.periodo ?? "";
-  const periodLabel = rawPeriod.replace(" (YTD)", " (incompleto)");
-
   const ipcPct = recaudacionIpcPct(kpi);
-
-  const currentNet =
-    kpi.recaudacion.disponible_current ?? kpi.recaudacion.current ?? 0;
-  const prevNet = kpi.recaudacion.disponible_prev ?? kpi.recaudacion.prev ?? 0;
-  const diffNomNet = kpi.recaudacion.diff_nom ?? 0;
-  const diffSign = diffNomNet >= 0 ? "+" : "-";
-  const coberturaBaseCurr = (kpi.rop?.bruta_current ?? 0) + (kpi.recaudacion.bruta_current ?? 0);
-  const coberturaBasePrev = (kpi.rop?.bruta_prev ?? 0) + (kpi.recaudacion.bruta_prev ?? 0);
-  const coberturaCurr = coberturaBaseCurr > 0 ? ((kpi.masa_salarial.current ?? 0) / coberturaBaseCurr) * 100 : 0;
-  const coberturaPrev = coberturaBasePrev > 0 ? ((kpi.masa_salarial.prev ?? 0) / coberturaBasePrev) * 100 : 0;
-
-  const isIpcNacionMissing = !!kpi.recaudacion.ipc_missing;
-
-  let recRealAbs = "--";
-  let recRealAbsClass = "";
-  if (!isIpcNacionMissing) {
-    const inflacionPct = ipcPct / 100;
-    const prevAjustado = prevNet * (1 + inflacionPct);
-    const diffReal = currentNet - prevAjustado;
-    const diffRealSign = diffReal >= 0 ? "+" : "-";
-    recRealAbs = diffRealSign + formatBillions(Math.abs(diffReal));
-    recRealAbsClass = diffReal >= 0 ? "text-success" : "text-danger";
-  }
-
-  let muniVm: AnnualVm["muni"];
-  if (kpi.distribucion_municipal) {
-    const dm = kpi.distribucion_municipal;
-    const isIpcNeaMissingMuni = !!dm.ipc_missing;
-
-    let realPct = "";
-    let realPctClass = "";
-    let realAbs = "";
-    let realAbsClass = "";
-    if (isIpcNeaMissingMuni) {
-      realPct = "Sin IPC completo";
-      realPctClass = "kpi-value text-secondary text-missing";
-      realAbs = "--";
-    } else {
-      realPct = formatPercentage(dm.var_real ?? 0);
-      realPctClass = `kpi-value ${(dm.var_real ?? 0) >= 0 ? "text-success" : "text-danger"}`;
-      const muniCurrent = dm.current ?? 0;
-      const muniPrev = dm.prev ?? 0;
-      const inflacionPct = ipcPct / 100;
-      const muniPrevAjustado = muniPrev * (1 + inflacionPct);
-      const muniDiffReal = muniCurrent - muniPrevAjustado;
-      const muniDiffRealSign = muniDiffReal >= 0 ? "+" : "-";
-      realAbs = muniDiffRealSign + formatMillions(Math.abs(muniDiffReal));
-      realAbsClass = muniDiffReal >= 0 ? "text-success" : "text-danger";
-    }
-
-    const muniDiffNom = dm.diff_nom ?? 0;
-    const muniDiffSign = muniDiffNom >= 0 ? "+" : "-";
-
-    muniVm = {
-      current: formatMillions(dm.current),
-      prev: formatMillions(dm.prev),
-      natCurr: formatMillions(dm.nacion_current),
-      provCurr: formatMillions(dm.provincia_current),
-      natPrev: formatMillions(dm.nacion_prev),
-      provPrev: formatMillions(dm.provincia_prev),
-      varNomAbs: muniDiffSign + formatBillions(Math.abs(muniDiffNom)),
-      varNomPct:
-        ((dm.var_nom ?? 0) >= 0 ? "+" : "-") + formatPctUnsigned(Math.abs(dm.var_nom ?? 0)),
-      varNomClass: `kpi-value ${(dm.var_nom ?? 0) >= 0 ? "text-success" : "text-danger"}`,
-      realPct,
-      realPctClass,
-      realAbs,
-      realAbsClass,
-      showNomAbs: true,
-      showRealAbs: true,
+  const rec = kpi.recaudacion;
+  const current = rec.disponible_current ?? rec.current;
+  const previous = rec.disponible_prev ?? rec.prev;
+  const indicators = (
+    item: { diff_nom?: Amount; var_nom?: Amount; var_real?: Amount; diff_real?: Amount; ipc_missing?: boolean },
+    amountCurrent: Amount, amountPrevious: Amount, nominalFormat = formatMillions, realFormat = formatMillions,
+  ) => {
+    const comparable = hasValue(amountCurrent) && hasValue(amountPrevious);
+    const realAvailable = comparable && !item.ipc_missing;
+    const realDiff = realAvailable
+      ? item.diff_real !== undefined ? item.diff_real : diff(amountCurrent, amountPrevious * (1 + ipcPct / 100))
+      : null;
+    const nominal = comparable ? item.var_nom : null;
+    const real = realAvailable ? item.var_real : null;
+    return {
+      varNomAbs: signedAmount(comparable ? item.diff_nom : null, nominalFormat),
+      varNomPct: formatPercentage(nominal), varNomClass: valueClass(nominal),
+      realPct: comparable && item.ipc_missing ? "Sin IPC completo" : formatPercentage(real),
+      realPctClass: valueClass(real), realAbs: signedAmount(realDiff, realFormat),
+      realAbsClass: valueClass(realDiff), showNomAbs: true, showRealAbs: true,
     };
-  }
-
-  let ropVm: AnnualVm["rop"];
-  if (kpi.rop) {
-    const rp = kpi.rop;
-    const isIpcProv = !!rp.ipc_missing;
-    let realPct = "";
-    let realPctClass = "";
-    let realAbs = "";
-    let realAbsClass = "";
-    if (isIpcProv) {
-      realPct = "Sin IPC completo";
-      realPctClass = "kpi-value text-secondary text-missing";
-      realAbs = "--";
-    } else {
-      realPct = formatPercentage(rp.var_real ?? 0);
-      realPctClass = `kpi-value ${(rp.var_real ?? 0) >= 0 ? "text-success" : "text-danger"}`;
-      const dr = rp.diff_real ?? 0;
-      const drs = dr >= 0 ? "+" : "-";
-      realAbs = drs + formatMillions(Math.abs(dr));
-      realAbsClass = dr >= 0 ? "text-success" : "text-danger";
-    }
-    const dn = rp.diff_nom ?? 0;
-    const dns = dn >= 0 ? "+" : "-";
-
-    ropVm = {
-      dispCurr: formatMillions(rp.disponible_current),
-      brutaCurr: formatMillions(rp.bruta_current),
-      dispPrev: formatMillions(rp.disponible_prev),
-      brutaPrev: formatMillions(rp.bruta_prev),
-      varNomAbs: dns + formatMillions(Math.abs(dn)),
-      varNomPct:
-        ((rp.var_nom ?? 0) >= 0 ? "+" : "-") + formatPctUnsigned(Math.abs(rp.var_nom ?? 0)),
-      varNomClass: `kpi-value ${(rp.var_nom ?? 0) >= 0 ? "text-success" : "text-danger"}`,
-      realPct,
-      realPctClass,
-      realAbs,
-      realAbsClass,
-      showNomAbs: true,
-      showRealAbs: true,
-    };
-  }
-
-  const isIncomplete = !!kpi.masa_salarial.is_incomplete;
-  const isIpcNeaMissingMasa = !!kpi.masa_salarial.ipc_missing;
-
-  let masaVarNomPct = "";
-  let masaVarNomPctClass = "";
-  let masaVarNomAbs = "";
-  if (isIncomplete) {
-    masaVarNomPct = "Sin datos";
-    masaVarNomPctClass = "kpi-value text-secondary";
-    masaVarNomAbs = " - ";
-  } else {
-    const masaDiffSign = (kpi.masa_salarial.diff_nom ?? 0) >= 0 ? "+" : "-";
-    masaVarNomAbs = masaDiffSign + formatMillions(Math.abs(kpi.masa_salarial.diff_nom ?? 0));
-    masaVarNomPct =
-      ((kpi.masa_salarial.var_nom ?? 0) >= 0 ? "+" : "-") +
-      formatPctUnsigned(Math.abs(kpi.masa_salarial.var_nom ?? 0));
-    masaVarNomPctClass = `kpi-value ${(kpi.masa_salarial.var_nom ?? 0) >= 0 ? "text-success" : "text-danger"}`;
-  }
-
-  let masaRealPct = "";
-  let masaRealPctClass = "";
-  let masaRealAbs = "--";
-  let masaRealAbsClass = "";
-  if (isIncomplete || isIpcNeaMissingMasa) {
-    masaRealPct = isIpcNeaMissingMasa ? "Sin IPC completo" : "Sin datos completos";
-    masaRealPctClass = "kpi-value text-secondary text-missing";
-  } else {
-    masaRealPct = formatPercentage(kpi.masa_salarial.var_real ?? 0);
-    masaRealPctClass = `kpi-value ${(kpi.masa_salarial.var_real ?? 0) >= 0 ? "text-success" : "text-danger"}`;
-    const inflacionPct = ipcPct / 100;
-    const prevAjustado = (kpi.masa_salarial.prev ?? 0) * (1 + inflacionPct);
-    const diffReal = (kpi.masa_salarial.current ?? 0) - prevAjustado;
-    const diffRealSign = diffReal >= 0 ? "+" : "-";
-    masaRealAbs = diffRealSign + formatMillions(Math.abs(diffReal));
-    masaRealAbsClass = diffReal >= 0 ? "text-success" : "text-danger";
-  }
-
-  const presupuestoRon = buildBudgetComparison(
-    kpi.recaudacion.bruta_current ?? 0,
-    kpi.recaudacion.esperada ?? 0,
-  );
-
-  let presupuestoProv: AnnualVm["presupuestoProv"];
-  const pProv = kpi.recaudacion_provincial ?? (kpi.rop
-    ? {
-        current: kpi.rop.bruta_current,
-        esperada_prov: kpi.rop.esperada_prov,
-        brecha_abs_prov: kpi.rop.brecha_abs_prov,
-        brecha_pct_prov: kpi.rop.brecha_pct_prov,
-      }
-    : undefined);
-
-  if (pProv && (pProv.esperada_prov ?? 0) > 0) {
-    const recaProvCurr = pProv.current ?? 0;
-    const esperadaProv = pProv.esperada_prov ?? 0;
-    presupuestoProv = buildBudgetComparison(recaProvCurr, esperadaProv);
-  }
-
+  };
+  const salary = kpi.masa_salarial;
+  const salaryIndicators = indicators(salary, salary.current, salary.prev);
+  const coverage = (amount: Amount, ron: Amount, rop: Amount) =>
+    hasValue(amount) && hasValue(ron) && hasValue(rop) && ron + rop > 0
+      ? amount / (ron + rop) * 100 : null;
+  const coverageLabel = (value: Amount) => hasValue(value) ? `Cobertura: ${value.toFixed(1)}%` : "Cobertura: Sin datos";
+  const rp = kpi.rop;
+  const dm = kpi.distribucion_municipal;
   return {
-    periodLabel,
-    prevYear,
-    ipcPct,
+    periodLabel: (kpi.meta?.periodo ?? "").replace(" (YTD)", " (incompleto)"),
+    prevYear: iterYear - 1, ipcPct,
     recaudacion: {
-      current: formatBillions(currentNet),
-      prev: formatBillions(prevNet),
-      netaCurr: formatMillions(kpi.recaudacion.neta_current),
-      netaPrev: formatMillions(kpi.recaudacion.neta_prev),
-      brutaCurr: formatMillions(kpi.recaudacion.bruta_current),
-      brutaPrev: formatMillions(kpi.recaudacion.bruta_prev),
-      varNomAbs: diffSign + formatBillions(Math.abs(diffNomNet)),
-      varNomPct:
-        ((kpi.recaudacion.var_nom ?? 0) >= 0 ? "+" : "-") +
-        formatPctUnsigned(Math.abs(kpi.recaudacion.var_nom ?? 0)),
-      varNomClass: `kpi-value ${(kpi.recaudacion.var_nom ?? 0) >= 0 ? "text-success" : "text-danger"}`,
-      realPct: isIpcNacionMissing
-        ? "Sin IPC completo"
-        : formatPercentage(kpi.recaudacion.var_real ?? 0),
-      realPctClass: isIpcNacionMissing
-        ? "kpi-value text-secondary text-missing"
-        : `kpi-value ${(kpi.recaudacion.var_real ?? 0) >= 0 ? "text-success" : "text-danger"}`,
-      realAbs: isIpcNacionMissing ? "--" : recRealAbs,
-      realAbsClass: isIpcNacionMissing ? "" : recRealAbsClass,
-      showNomAbs: true,
-      showRealAbs: true,
+      ...indicators(rec, current, previous, formatBillions, formatBillions),
+      current: formatBillions(current), prev: formatBillions(previous),
+      netaCurr: formatMillions(rec.neta_current), netaPrev: formatMillions(rec.neta_prev),
+      brutaCurr: formatMillions(rec.bruta_current), brutaPrev: formatMillions(rec.bruta_prev),
     },
-    muni: muniVm,
-    rop: ropVm,
+    rop: rp ? {
+      ...indicators(rp, rp.disponible_current, rp.disponible_prev),
+      dispCurr: formatMillions(rp.disponible_current), dispPrev: formatMillions(rp.disponible_prev),
+      brutaCurr: formatMillions(rp.bruta_current), brutaPrev: formatMillions(rp.bruta_prev),
+    } : undefined,
+    muni: dm ? {
+      ...indicators(dm, dm.current, dm.prev, formatBillions),
+      current: formatMillions(dm.current), prev: formatMillions(dm.prev),
+      natCurr: formatMillions(dm.nacion_current), natPrev: formatMillions(dm.nacion_prev),
+      provCurr: formatMillions(dm.provincia_current), provPrev: formatMillions(dm.provincia_prev),
+    } : undefined,
     masa: {
-      current: isIncomplete ? "Sin datos" : formatMillions(kpi.masa_salarial.current),
-      prev: formatMillions(kpi.masa_salarial.prev),
-      cobCurr: `Cobertura: ${coberturaCurr.toFixed(1)}%`,
-      cobPrev: `Cobertura: ${coberturaPrev.toFixed(1)}%`,
-      varNomPct: masaVarNomPct,
-      varNomPctClass: masaVarNomPctClass,
-      varNomAbs: masaVarNomAbs,
-      showNomAbs: true,
-      realPct: masaRealPct,
-      realPctClass: masaRealPctClass,
-      realAbs: masaRealAbs,
-      realAbsClass: masaRealAbsClass,
-      showRealAbs: true,
+      ...salaryIndicators,
+      current: salary.is_incomplete ? "Sin datos" : formatMillions(salary.current),
+      prev: formatMillions(salary.prev),
+      cobCurr: coverageLabel(coverage(salary.current, rec.bruta_current, rp?.bruta_current)),
+      cobPrev: coverageLabel(coverage(salary.prev, rec.bruta_prev, rp?.bruta_prev)),
+      varNomPctClass: salaryIndicators.varNomClass,
     },
-    presupuestoRon,
-    presupuestoProv,
+    presupuestoRon: buildBudgetComparison(rec.bruta_current, rec.esperada),
+    presupuestoProv: kpi.recaudacion_provincial
+      ? buildBudgetComparison(kpi.recaudacion_provincial.current, kpi.recaudacion_provincial.esperada_prov)
+      : buildBudgetComparison(rp?.bruta_current, rp?.esperada_prov),
   };
 }

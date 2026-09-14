@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test tests/allow-users.test.js tests/completeness-resolver.test.js tests/inflation-resolver.test.js tests/monthly-report.test.js tests/salary-target-resolver.test.js",
+    "test": "node --test tests/annual-monitor.test.js tests/allow-users.test.js tests/completeness-resolver.test.js tests/inflation-resolver.test.js tests/monthly-report.test.js tests/salary-target-resolver.test.js",
     "report:preview": "node scripts/send-monthly-report.js --preview",
     "report:send": "node scripts/send-monthly-report.js"
   },
