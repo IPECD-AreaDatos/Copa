@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const db_copa = require('../db');            // Para RON y Gastos (Datos frescos)
 const authMiddleware = require('../middleware/auth');
@@ -46,6 +47,26 @@ function createDashboardCompleteness({ ronByPeriod, ropByPeriod, salaryByPeriod 
         cache.set(id, result);
         return result;
     };
+}
+
+function monthlyReportAuth(req, res, next) {
+    const expected = process.env.MONTHLY_REPORT_JOB_SECRET;
+    const provided = req.get('x-report-job-secret');
+
+    if (!expected || !provided) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+
+    const expectedBuffer = Buffer.from(expected);
+    const providedBuffer = Buffer.from(provided);
+    if (
+        expectedBuffer.length !== providedBuffer.length
+        || !crypto.timingSafeEqual(expectedBuffer, providedBuffer)
+    ) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+
+    return next();
 }
 
 /**
@@ -293,7 +314,7 @@ router.get('/home', async (req, res) => {
  * GET /api/dashboard/monthly
  * Retorna datos detallados para el monitor mensual
  */
-router.get('/monthly', authMiddleware, async (req, res) => {
+async function monthlyDashboardHandler(req, res) {
     try {
         // 1. Obtener RON Mensual detallado (db_copa)
         const ronResult = await db_copa.query(`
@@ -739,6 +760,9 @@ router.get('/monthly', authMiddleware, async (req, res) => {
         console.error('Error in /monthly:', err);
         res.status(500).json({ message: err.message });
     }
-});
+}
+
+router.get('/monthly', authMiddleware, monthlyDashboardHandler);
+router.get('/monthly-report', monthlyReportAuth, monthlyDashboardHandler);
 
 module.exports = router;
