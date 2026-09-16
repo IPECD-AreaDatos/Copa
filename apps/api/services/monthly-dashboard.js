@@ -166,18 +166,6 @@ async function loadMonthlyDashboard() {
         const daysSet = new Set([...Object.keys(dailyCurr), ...Object.keys(dailyPrev)].map(Number));
         const sortedDays = [...daysSet].sort((a, b) => a - b);
 
-        const dailyChart = {
-            labels: [],
-            data_curr: [],
-            data_prev_nom: [],
-            is_complete: ronComplete && ronPreviousComplete,
-        };
-        sortedDays.forEach(d => {
-            dailyChart.labels.push(String(d));
-            dailyChart.data_curr.push(dailyCurr[d] || 0);
-            dailyChart.data_prev_nom.push(dailyPrev[d] || 0);
-        });
-
         // Copa vs Salario (Acumulado) — alineado a backend/etl_main.py (pre migración Next)
         const now = new Date();
         const isRunningMonth = row.anio === now.getFullYear() && row.mes === now.getMonth() + 1;
@@ -187,6 +175,22 @@ async function loadMonthlyDashboard() {
             const di = parseInt(k, 10);
             if (Number.isFinite(di) && Number(v) > 0) maxDayCurr = Math.max(maxDayCurr, di);
         }
+
+        const dailyChart = {
+            labels: [],
+            data_curr: [],
+            data_prev_nom: [],
+            is_complete: ronComplete && ronPreviousComplete,
+        };
+        sortedDays.forEach(d => {
+            dailyChart.labels.push(String(d));
+            // La tabla diaria trae ceros placeholder para los días futuros del mes en
+            // curso; a partir del último día con recaudación positiva se deja un hueco
+            // (null) en vez de dibujar una caída a cero que todavía no ocurrió.
+            const currValue = (isRunningMonth && d > maxDayCurr) ? null : (dailyCurr[d] || 0);
+            dailyChart.data_curr.push(currValue);
+            dailyChart.data_prev_nom.push(dailyPrev[d] || 0);
+        });
 
         const totalDaysInMonth = new Date(row.anio, row.mes, 0).getDate();
 
@@ -224,7 +228,11 @@ async function loadMonthlyDashboard() {
         const ronNetoDispBaseCurrRaw = useExclIvaCurr
             ? ronNeto + ronIva * (1 - RON_IVA_RESIDUAL_RATIO)
             : ronNeto;
-        const ronBrutoDispFactor = ronComplete && ronBruto > 0
+        // El acumulado diario debe mostrar el progreso real hasta la fecha: exige sólo
+        // que haya observación (`ronBruto > 0`), no el umbral de completitud de KPIs
+        // (`ronComplete`), que sigue gobernando variaciones y coberturas del período.
+        const ronHasData = ronBruto !== null && ronBruto > 0;
+        const ronBrutoDispFactor = ronHasData
             ? ronNetoDispBaseCurrRaw / ronBruto
             : 0;
         for (let d = 1; d <= chartLastDay; d++) {
@@ -236,7 +244,7 @@ async function loadMonthlyDashboard() {
             if (d === maxDayCurr && maxDayCurr > 0 && ropDispoPesosMes !== null) {
                 accRop += ropDispoPesosMes;
             }
-            cumulativeCopa.push(ronComplete ? accCopa / 1000000 : null);
+            cumulativeCopa.push(ronHasData ? accCopa / 1000000 : null);
             cumulativeRop.push(ropComplete ? accRop / 1000000 : null);
             salarioTarget.push(masaPesosObjetivo > 0 ? masaPesosObjetivo / 1000000 : null);
         }

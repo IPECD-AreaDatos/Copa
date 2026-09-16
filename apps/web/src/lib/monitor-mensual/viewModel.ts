@@ -38,7 +38,7 @@ export type MonitorJson = {
 export type ChartsShape = {
   daily: {
     labels: string[];
-    data_curr: number[];
+    data_curr: (number | null)[];
     data_prev_nom: number[];
     is_complete: boolean;
   };

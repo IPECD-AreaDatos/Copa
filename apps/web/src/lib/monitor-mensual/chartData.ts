@@ -16,8 +16,8 @@ export function buildDailyBarData(
   isMobile: boolean,
 ): ChartData<"bar"> {
   let chartLabels = [...daily.labels];
-  let dataCurrNet = [...daily.data_curr];
-  let dataPrevNet = [...daily.data_prev_nom];
+  let dataCurrNet: (number | null)[] = [...daily.data_curr];
+  let dataPrevNet: (number | null)[] = [...daily.data_prev_nom];
 
   if (isMobile) {
     const groupSize = 3;

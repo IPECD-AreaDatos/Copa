@@ -101,10 +101,16 @@ export default function MonitorMensualDashboard() {
 
   const charts = chosen?.charts;
 
+  const hasDailyData = useMemo(() => {
+    if (!charts) return false;
+    return charts.daily.data_curr.some((v) => v !== null)
+      || charts.daily.data_prev_nom.some((v) => v !== null);
+  }, [charts]);
+
   const dailyData = useMemo(() => {
-    if (!charts || !vm || !charts.daily.is_complete) return undefined;
+    if (!charts || !vm || !hasDailyData) return undefined;
     return buildDailyBarData(charts.daily, vm.monthName, vm.currentYear, vm.prevYear, isMobile768);
-  }, [charts, vm, isMobile768]);
+  }, [charts, vm, hasDailyData, isMobile768]);
 
   const dailyOpts = useMemo(() => {
     if (!vm) return undefined;
@@ -157,6 +163,12 @@ export default function MonitorMensualDashboard() {
     if (!realEvol) return false;
     return realEvol.masaCurrent.some((value) => value !== null)
       || realEvol.masaPrevReal.some((value) => value !== null);
+  }, [realEvol]);
+
+  const hasCopaRealData = useMemo(() => {
+    if (!realEvol) return false;
+    return realEvol.copaCurrent.some((value) => value !== null)
+      || realEvol.copaPrevReal.some((value) => value !== null);
   }, [realEvol]);
 
   const optCopaReal = useMemo(() => {
@@ -711,7 +723,7 @@ El valor de los Recursos de Origen Nacional disponibles surge del RON total desc
               <h3 className="chart-title">RON Disponible Real</h3>
               <p className="chart-subtitle" style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Evolución últimos 3 meses (Pesos constantes)</p>
               <div className="chart-wrapper">
-                {chosen.kpi.recaudacion.is_complete ? (
+                {hasCopaRealData && chartCopaReal ? (
                   <Bar data={chartCopaReal!} options={optCopaReal} />
                 ) : (
                   <div className="chart-placeholder">Sin datos</div>
