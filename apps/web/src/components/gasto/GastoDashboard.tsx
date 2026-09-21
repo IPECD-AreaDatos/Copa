@@ -71,6 +71,10 @@ function gastoVariable(estado: string): GastoVariable {
   return estado === "Ordenado" ? "ordenado" : "comprometido";
 }
 
+function getCurrentPeriodId(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function isVariableComplete(
   completeness: GastoCompleteness | null,
   periodId: string,
@@ -79,15 +83,37 @@ function isVariableComplete(
   return completeness?.periods[periodId]?.variables[variable]?.is_complete === true;
 }
 
-function areVariablesComplete(
+function isVariableAvailable(
+  completeness: GastoCompleteness | null,
+  periodId: string,
+  variable: GastoVariable,
+  currentPeriodId: string,
+) {
+  const status = completeness?.periods[periodId]?.variables[variable];
+  return status?.is_complete === true
+    || (periodId === currentPeriodId && Number(status?.observed_rows) > 0);
+}
+
+function areVariablesAvailable(
   completeness: GastoCompleteness | null,
   periodIds: string[],
   variables: GastoVariable[],
+  currentPeriodId: string,
 ) {
   return periodIds.length > 0
     && periodIds.every((periodId) => variables.every(
-      (variable) => isVariableComplete(completeness, periodId, variable),
+      (variable) => isVariableAvailable(completeness, periodId, variable, currentPeriodId),
     ));
+}
+
+function periodLabelSuffix(
+  completeness: GastoCompleteness | null,
+  periodId: string,
+  currentPeriodId: string,
+) {
+  if (completeness?.periods[periodId]?.is_complete) return "";
+  if (periodId === currentPeriodId) return " (Parcial · hasta la fecha)";
+  return " (Incompleto)";
 }
 
 export default function GastoDashboard() {
@@ -109,6 +135,7 @@ export default function GastoDashboard() {
     () => [...new Set(rawData.map((d) => d.periodo))].sort(),
     [rawData],
   );
+  const currentPeriodId = useMemo(() => getCurrentPeriodId(), []);
   const allPeriodosDesc = useMemo(() => [...allPeriodos].reverse(), [allPeriodos]);
   const lastPeriodo = allPeriodos.length ? allPeriodos[allPeriodos.length - 1] : "";
   const defaultCompletePeriod = completeness?.meta.default_period_id || lastPeriodo;
@@ -188,7 +215,12 @@ export default function GastoDashboard() {
     const fuenteFilter = hmFuente.includes("TODAS") ? null : hmFuente;
     const requiredVariable = gastoVariable(hmEstado);
     const latestUsablePeriod = allPeriodos.filter((periodId) =>
-      areVariablesComplete(completeness, [periodId], ["credito_vigente", requiredVariable]),
+      areVariablesAvailable(
+        completeness,
+        [periodId],
+        ["credito_vigente", requiredVariable],
+        currentPeriodId,
+      ),
     ).at(-1);
     if (!latestUsablePeriod) return null;
     const completeRawData = rawData.filter((row) => row.periodo <= latestUsablePeriod);
@@ -198,7 +230,7 @@ export default function GastoDashboard() {
       jurisGroup: hmJurisGroup,
       fuenteFilter,
     });
-  }, [rawData, completeness, allPeriodos, hmEstado, hmJurisGroup, hmFuente]);
+  }, [rawData, completeness, allPeriodos, currentPeriodId, hmEstado, hmJurisGroup, hmFuente]);
 
   const hmFuenteLabel = useMemo(() => {
     if (hmFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -226,10 +258,10 @@ export default function GastoDashboard() {
   const tblPeriodoLabel = useMemo(() => {
     if (tblPeriodo.length === 1) {
       const period = tblPeriodo[0];
-      return `${period}${completeness?.periods[period]?.is_complete ? "" : " (Incompleto)"}`;
+      return `${period}${periodLabelSuffix(completeness, period, currentPeriodId)}`;
     }
     return `${tblPeriodo.length} períodos seleccionados`;
-  }, [tblPeriodo, completeness]);
+  }, [tblPeriodo, completeness, currentPeriodId]);
 
   const tblFuenteLabel = useMemo(() => {
     if (tblFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -250,15 +282,16 @@ export default function GastoDashboard() {
     if (!rawData.length || !completeness) return null;
     const periodoSel = avPeriodo.length === 0 ? null : avPeriodo;
     const selectedPeriods = periodoSel ?? allPeriodos;
-    if (!areVariablesComplete(
+    if (!areVariablesAvailable(
       completeness,
       selectedPeriods,
       ["credito_vigente", "comprometido", "ordenado"],
+      currentPeriodId,
     )) return null;
     const fuenteSel = avFuente.includes("TODAS") || avFuente.length === 0 ? null : avFuente;
     const jurisSel = avJuris.includes("TODAS") || avJuris.length === 0 ? null : avJuris;
     return computeRatioChartData({ rawData, periodoSel, fuenteSel, jurisSel });
-  }, [rawData, completeness, allPeriodos, avPeriodo, avFuente, avJuris]);
+  }, [rawData, completeness, allPeriodos, currentPeriodId, avPeriodo, avFuente, avJuris]);
 
   const filteredAvJuris = useMemo(() => {
     if (!avJurisSearch.trim()) return jurisEnBD;
@@ -269,10 +302,10 @@ export default function GastoDashboard() {
   const avPeriodoLabel = useMemo(() => {
     if (avPeriodo.length === 1) {
       const period = avPeriodo[0];
-      return `${period}${completeness?.periods[period]?.is_complete ? "" : " (Incompleto)"}`;
+      return `${period}${periodLabelSuffix(completeness, period, currentPeriodId)}`;
     }
     return `${avPeriodo.length} períodos seleccionados`;
-  }, [avPeriodo, completeness]);
+  }, [avPeriodo, completeness, currentPeriodId]);
 
   const avFuenteLabel = useMemo(() => {
     if (avFuente.includes("TODAS")) return "TODAS LAS FUENTES";
@@ -297,7 +330,12 @@ export default function GastoDashboard() {
     const variable = gastoVariable(wfEstado);
     const allowedPeriods = new Set(
       allPeriodos.filter((periodId) =>
-        areVariablesComplete(completeness, [periodId], ["credito_vigente", variable]),
+        areVariablesAvailable(
+          completeness,
+          [periodId],
+          ["credito_vigente", variable],
+          currentPeriodId,
+        ),
       ),
     );
     const completeRawData = rawData.filter((row) => allowedPeriods.has(row.periodo));
@@ -309,26 +347,42 @@ export default function GastoDashboard() {
       partidaFilter,
       fuente: fuenteFilter,
     });
-  }, [rawData, completeness, allPeriodos, wfEstado, wfYear, wfJuris, wfPartida, wfFuente, currentYear]);
+  }, [rawData, completeness, allPeriodos, currentPeriodId, wfEstado, wfYear, wfJuris, wfPartida, wfFuente, currentYear]);
 
   const tableCompleteness = useMemo(() => {
     const selectedPeriods = tblPeriodo.length ? [...tblPeriodo].sort() : allPeriodos;
     const maxPeriod = selectedPeriods.at(-1) || "";
     return {
-      credito: isVariableComplete(completeness, maxPeriod, "credito_vigente"),
-      comprometido: areVariablesComplete(completeness, selectedPeriods, ["comprometido"]),
-      ordenado: areVariablesComplete(completeness, selectedPeriods, ["ordenado"]),
+      credito: isVariableAvailable(completeness, maxPeriod, "credito_vigente", currentPeriodId),
+      comprometido: areVariablesAvailable(completeness, selectedPeriods, ["comprometido"], currentPeriodId),
+      ordenado: areVariablesAvailable(completeness, selectedPeriods, ["ordenado"], currentPeriodId),
     };
-  }, [completeness, tblPeriodo, allPeriodos]);
+  }, [completeness, tblPeriodo, allPeriodos, currentPeriodId]);
 
   const waterfallIncompletePeriods = useMemo(() => {
     const year = wfYear || currentYear;
     const variable = gastoVariable(wfEstado);
     return allPeriodos.filter(
       (periodId) => periodId.startsWith(`${year}-`)
-        && !areVariablesComplete(completeness, [periodId], ["credito_vigente", variable]),
+        && !areVariablesAvailable(
+          completeness,
+          [periodId],
+          ["credito_vigente", variable],
+          currentPeriodId,
+        ),
     );
-  }, [allPeriodos, completeness, wfEstado, wfYear, currentYear]);
+  }, [allPeriodos, completeness, currentPeriodId, wfEstado, wfYear, currentYear]);
+
+  const waterfallPartialPeriods = useMemo(() => {
+    const year = wfYear || currentYear;
+    const variable = gastoVariable(wfEstado);
+    return allPeriodos.filter(
+      (periodId) => periodId.startsWith(`${year}-`)
+        && periodId === currentPeriodId
+        && (!isVariableComplete(completeness, periodId, "credito_vigente")
+          || !isVariableComplete(completeness, periodId, variable)),
+    );
+  }, [allPeriodos, completeness, currentPeriodId, wfEstado, wfYear, currentYear]);
 
   const years = useMemo(
     () => [...new Set(allPeriodos.map((p) => p.split("-")[0]))].sort().reverse(),
@@ -535,7 +589,7 @@ export default function GastoDashboard() {
                           }
                         }}
                       />
-                      {p}{completeness.periods[p]?.is_complete ? "" : " (Incompleto)"}
+                      {p}{periodLabelSuffix(completeness, p, currentPeriodId)}
                     </label>
                   );
                 })}
@@ -723,7 +777,7 @@ export default function GastoDashboard() {
                         }
                       }}
                     />
-                    {p}{completeness.periods[p]?.is_complete ? "" : " (Incompleto)"}
+                    {p}{periodLabelSuffix(completeness, p, currentPeriodId)}
                   </label>
                 ))}
               </div>
@@ -996,6 +1050,11 @@ export default function GastoDashboard() {
             <div className="chart-placeholder">Sin datos</div>
           )}
         </div>
+        {waterfallPartialPeriods.length > 0 && (
+          <p className="section-subtitle" style={{ marginTop: "0.75rem" }}>
+            Datos parciales del mes en curso: {waterfallPartialPeriods.join(", ")} (acumulado hasta la fecha).
+          </p>
+        )}
         {waterfallIncompletePeriods.length > 0 && (
           <p className="section-subtitle" style={{ marginTop: "0.75rem" }}>
             Sin datos: {waterfallIncompletePeriods.join(", ")}.
