@@ -38,7 +38,15 @@ function analysis(rows) {
     const jurisdictionRanking = ranked(aggregate(topScope, (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre));
     const topEight = jurisdictionRanking.slice(0, 8);
     const topTotal = sum(topEight);
-    const top8 = { total: topTotal, universeTotal: sum(topScope), rows: topEight.map((r) => ({ ...r, shareTop: topTotal === 0 ? null : r.total / topTotal * 100 })) };
+    let topAccumulated = 0;
+    const top8 = { total: topTotal, universeTotal: sum(topScope), rows: topEight.map((r) => {
+        topAccumulated += r.total;
+        return {
+            ...r,
+            shareTop: topTotal === 0 ? null : r.total / topTotal * 100,
+            cumulativeTop: topTotal === 0 ? null : topAccumulated / topTotal * 100,
+        };
+    }) };
     const concentration = Object.entries({ bienes_servicios: 5, transferencias: 6, bienes_uso: 7 }).map(([id, n]) => {
         const selected = rows.filter((r) => sourceCategory(r) === id);
         const ranking = ranked(aggregate(selected, (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre));
@@ -50,8 +58,15 @@ function analysis(rows) {
         const rubros = Object.fromEntries(aggregate(selected, sourceCategory, (r) => labels[sourceCategory(r)]).map((r) => [r.id, r.total]));
         return { ...jur, rubros, withoutPersonal: jur.total - (rubros.personal || 0), withoutPersonalCop: jur.total - (rubros.personal || 0) - (rubros.coparticipacion || 0) };
     }).sort((a, b) => b.total - a.total);
-    const accounts = ranked(aggregate(rows, (r) => String(r.subpartida.codigo), (r) => `${r.subpartida.codigo} · ${r.subpartida.nombre}`)).map((account) => ({
-        ...account, rows: ranked(aggregate(rows.filter((r) => String(r.subpartida.codigo) === account.id), (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre)),
+    const personalRows = rows.filter((r) => r.partida.codigo === 100);
+    const partida100 = {
+        total: sum(personalRows),
+        rows: ranked(aggregate(personalRows, (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre)),
+    };
+    const accountRows = rows.filter((r) => r.partida.codigo !== 100);
+    const accountsTotal = sum(accountRows);
+    const accounts = ranked(aggregate(accountRows, (r) => String(r.subpartida.codigo), (r) => `${r.subpartida.codigo} · ${r.subpartida.nombre}`)).map((account) => ({
+        ...account, rows: ranked(aggregate(accountRows.filter((r) => String(r.subpartida.codigo) === account.id), (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre)),
     }));
     const ministryRankings = [];
     for (const jur of matrix) {
@@ -64,7 +79,7 @@ function analysis(rows) {
             }
         }
     }
-    return { universes, top8, concentration, matrix, accounts, ministryRankings, labels, total: sum(rows) };
+    return { universes, top8, concentration, matrix, partida100, accountsTotal, accounts, ministryRankings, labels, total: sum(rows) };
 }
 function buildMinisterialAnalysis(rows) {
     return { all: analysis(rows), reference: analysis(rows.filter((r) => referenceJurisdictions.includes(r.jurisdiccion.codigo))), referenceJurisdictions };

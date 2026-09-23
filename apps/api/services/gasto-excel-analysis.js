@@ -16,7 +16,7 @@ function rubroScope(label) {
 }
 
 function describeSheet(book, sheet, index) {
-    if (book.id === '1') return { destination: 'rankings', summary: 'Cuentas por ministerio separadas por capítulo, con participación y acumulado dentro de cada bloque.' };
+    if (book.id === '1') return { destination: 'rankings', summary: 'Cuentas por ministerio separadas por partida, con participación y acumulado dentro de cada bloque.' };
     if (book.id === '2' && index < 8) return { destination: 'rankings', summary: 'Ranking conjunto de bienes y servicios (200 + 300), más bienes de uso y transferencias del ministerio.' };
     return ({
         '2-9': { destination: 'rankings', summary: 'Selección de cuentas y jurisdicciones, subtotales por cuenta y segunda presentación ordenada por monto. No representa todas las jurisdicciones.' },

@@ -16,16 +16,21 @@ test('contrato del tablero y conciliación directa con SQL en seis cortes', { sk
         for (const query of [base, { ...base, anio: '2025' }, { ...base, fuente: '11' }, { ...base, fuente: undefined }, { ...base, estado: 'Cred Vig' }, { ...base, anio: '2024' }]) {
             await t.test(JSON.stringify(query), async () => {
                 const response = await invoke(query);
-                assert.equal(response.excel_analysis.length, 29);
-                assert.equal(response.excel_inventory.cells, 9899);
+                assert.equal('excel_analysis' in response, false);
+                assert.equal('excel_reference' in response, false);
+                assert.equal('excel_inventory' in response, false);
                 for (const v of Object.values(response.controles)) assert.ok(Math.abs(v) < 0.01);
                 const where = buildWhere(response.meta.selected);
                 const direct = await db.query(`SELECT COALESCE(SUM(val), 0)::numeric AS total FROM copa_gastos_fte WHERE ${where.text}`, where.params);
                 assert.ok(Math.abs(Number(direct.rows[0].total) - response.total) < 0.01);
                 assert.ok(Math.abs(response.ministerial_analysis.all.total - response.total) < 0.01);
+                const rubroTotal = (code) => response.rubros.find((row) => row.codigo === code)?.total || 0;
+                const accountTotal = (matches) => response.subpartidas.filter(matches).reduce((sum, row) => sum + row.total, 0);
+                assert.ok(Math.abs(accountTotal((row) => [200, 300].includes(row.partida.codigo)) - rubroTotal('bienes_servicios')) < 0.01);
+                assert.ok(Math.abs(accountTotal((row) => row.partida.codigo === 500 && ![571, 587].includes(row.codigo)) - rubroTotal('transferencias') - rubroTotal('seguridad_social')) < 0.01);
+                assert.ok(Math.abs(accountTotal((row) => row.partida.codigo === 500 && [571, 587].includes(row.codigo)) - rubroTotal('coparticipacion')) < 0.01);
                 if (response.meta.is_snapshot) {
                     assert.equal(response.meta.snapshot_month, 6);
-                    assert.ok(response.excel_analysis.flatMap((s) => s.blocks).flatMap((b) => b.rows).every((r) => r.annual === null));
                 }
                 if (query.anio === '2024') {
                     assert.equal(response.total, 0);

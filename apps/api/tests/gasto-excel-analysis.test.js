@@ -88,9 +88,32 @@ test('tres universos, Top 8 y Top 5/6/7 tienen denominadores diferentes y explí
     assert.equal(a.top8.rows.length, 8);
     assert.ok(Math.abs(a.top8.rows.reduce((n, r) => n + r.shareTop, 0) - 100) < 1e-8);
     assert.ok(a.top8.rows.reduce((n, r) => n + r.share, 0) < 100);
+    let cumulativeTop = 0;
+    for (const item of a.top8.rows) {
+        cumulativeTop += item.total;
+        assert.ok(Math.abs(item.cumulativeTop - cumulativeTop / a.top8.total * 100) < 1e-8);
+    }
+    assert.ok(Math.abs(a.top8.rows.at(-1).cumulativeTop - 100) < 1e-8);
     assert.deepEqual(a.concentration.map((c) => c.n), [5, 6, 7]);
     assert.equal(a.concentration[1].total, rows.filter((r) => [513, 533].includes(r.subpartida.codigo)).reduce((n, r) => n + r.total, 0));
     for (const c of a.concentration) assert.ok(Math.abs(c.rows.at(-1).cumulative - 100) < 1e-8);
+});
+test('la partida 100 se presenta una vez por jurisdicción y sale del ranking de cuentas', () => {
+    const a = buildMinisterialAnalysis([
+        row(1, 111, 100), row(1, 113, 50), row(2, 112, 200),
+        row(1, 211, 300), row(2, 211, 400),
+    ]).all;
+    assert.equal(a.total, 1050);
+    assert.equal(a.partida100.total, 350);
+    assert.deepEqual(a.partida100.rows.map((r) => [r.id, r.total]), [['2', 200], ['1', 150]]);
+    assert.equal(a.accountsTotal, 700);
+    assert.deepEqual(a.accounts.map((r) => r.id), ['211']);
+    assert.equal(a.accounts[0].share, 100);
+    assert.equal(a.accounts[0].rows.reduce((n, r) => n + r.total, 0), 700);
+    const onlyPersonal = buildMinisterialAnalysis([row(1, 111, 100)]).all;
+    assert.equal(onlyPersonal.accountsTotal, 0);
+    assert.deepEqual(onlyPersonal.accounts, []);
+    assert.equal(onlyPersonal.partida100.total, 100);
 });
 test('todos los subtotales y la matriz cierran, la selección original no añade otros organismos', () => {
     const a = buildMinisterialAnalysis([row(1, 211, 200), row(2, 211, 300), row(999, 211, 1000), row(1, 311, -50)]);

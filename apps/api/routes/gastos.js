@@ -4,8 +4,7 @@ const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
 const allowUsers = require('../middleware/allow-users');
-const EXCEL_REFERENCE = require('../data/gasto_excel_reference.json');
-const { archive: EXCEL_ARCHIVE, buildExcelAnalysis } = require('../services/gasto-excel-analysis');
+const { archive: EXCEL_ARCHIVE } = require('../services/gasto-excel-analysis');
 const {
     DEFAULT_LOOKBACK_MONTHS,
     DEFAULT_TOLERANCE,
@@ -321,9 +320,6 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
                     partidas: availablePartidas,
                 },
                 unmapped_jurisdictions: unmappedJurisdictions,
-                description_source: 'Catálogo de referencia generado a partir de los Excel de desglose recibidos; los códigos sin correspondencia se muestran por código.',
-                excel_reference_period: EXCEL_REFERENCE.periodo,
-                excel_reference_files: EXCEL_REFERENCE.archivos,
                 raw_rows: Number(coverage.raw_rows || 0),
                 grouped_rows: subpartidaRows.length,
                 jurisdiction_account_rows: jurisdictionSubpartidaRows.length,
@@ -345,16 +341,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             jurisdicciones_rubros: jurisdictionRubroRows,
             monthly_rubros: monthlyRubroRows,
             jurisdiccion_subpartidas: jurisdictionSubpartidaRows,
-            excel_reference: EXCEL_REFERENCE,
-            excel_analysis: buildExcelAnalysis(jurisdictionSubpartidaRows, filters, isSnapshotState(filters)),
             ministerial_analysis: buildMinisterialAnalysis(jurisdictionSubpartidaRows),
-            excel_inventory: {
-                books: EXCEL_ARCHIVE.books.map(({ id, name, sha256, sheets }) => ({ id, name, sha256, sheets: sheets.length })),
-                cells: EXCEL_ARCHIVE.books.reduce((n, b) => n + b.sheets.reduce((m, s) => m + s.cells.length, 0), 0),
-                formulas: EXCEL_ARCHIVE.books.reduce((n, b) => n + b.sheets.reduce((m, s) => m + s.formulaCount, 0), 0),
-                extracted_on: EXCEL_ARCHIVE.extractedOn,
-                year_confirmed: EXCEL_ARCHIVE.yearConfirmed,
-            },
             modificaciones_presupuestarias: budgetResult.rows.map((r) => ({
                 ...mapJurisdiccion(r.jurisdiccion), mes: r.mes,
                 original: r.original === null ? null : numberValue(r.original),
