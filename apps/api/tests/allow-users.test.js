@@ -2,7 +2,13 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const allowUsers = require('../middleware/allow-users');
 
-const authorize = allowUsers('gcorrales', 'admin');
+const authorize = allowUsers(
+  'gcorrales',
+  'hgrachot',
+  'dinsaurralde',
+  'fgonzalez',
+  'admin',
+);
 
 function run(username) {
   let nextCalled = false;
@@ -35,6 +41,12 @@ test('permite al usuario gcorrales', () => {
 test('permite al usuario admin', () => {
   assert.equal(run('admin').nextCalled, true);
 });
+
+for (const username of ['hgrachot', 'dinsaurralde', 'fgonzalez']) {
+  test(`permite al usuario ${username}`, () => {
+    assert.equal(run(username).nextCalled, true);
+  });
+}
 
 test('normaliza mayúsculas y espacios', () => {
   assert.equal(run('  GCORRALES ').nextCalled, true);

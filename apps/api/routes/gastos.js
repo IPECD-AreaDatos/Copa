@@ -31,7 +31,13 @@ const {
 } = require('../services/gasto-desagregado');
 
 const GASTO_VARIABLES = ['credito_vigente', 'comprometido', 'ordenado'];
-const canViewGastosDesagregados = allowUsers('gcorrales', 'admin');
+const canViewGastosDesagregados = allowUsers(
+    'gcorrales',
+    'hgrachot',
+    'dinsaurralde',
+    'fgonzalez',
+    'admin',
+);
 
 const JURISDICCION_ALIASES = {
     'ADMINIST. DE OBRAS SANITARIAS DE': 'ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES',
