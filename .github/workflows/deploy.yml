@@ -43,6 +43,6 @@ jobs:
             pm2 restart copa-api
             pm2 restart copa-web
 
-            curl --fail --silent --show-error --retry 5 --retry-delay 2 \
+            curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-errors \
               http://127.0.0.1:4000/api/health
             test "$(git rev-parse HEAD)" = "${{ github.sha }}"
