@@ -41,7 +41,15 @@ async function loadMonthlyDashboard() {
         WITH monthly_rop AS (
             SELECT
                 anio::int, mes::int,
-                SUM(inmobiliario_rural + tasas + marcas_y_senales + sellos + premios + ingresos_brutos + apremios_concursos_quiebras_reg_judiciales) as rop_bruta
+                SUM(
+                    COALESCE(inmobiliario_rural, 0)
+                    + COALESCE(tasas, 0)
+                    + COALESCE(marcas_y_senales, 0)
+                    + COALESCE(sellos, 0)
+                    + COALESCE(premios, 0)
+                    + COALESCE(ingresos_brutos, 0)
+                    + COALESCE(apremios_concursos_quiebras_reg_judiciales, 0)
+                ) as rop_bruta
             FROM copa_reca_rop
             GROUP BY 1, 2
         )
