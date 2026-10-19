@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const db = require('../db');
+const { loadDataStatus } = require('../services/data-status');
 
 // Middleware para verificar si es admin
 const isAdmin = (req, res, next) => {
@@ -34,6 +35,17 @@ router.get('/usage', authMiddleware, isAdmin, async (req, res) => {
   } catch (err) {
     console.error('[ADMIN ROUTE ERROR]', err);
     res.status(500).json({ status: 'error', message: 'Error obteniendo datos de auditoría' });
+  }
+});
+
+// La autorización se aplica también al acceso directo, independientemente del menú.
+router.get('/data-status', authMiddleware, isAdmin, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  try {
+    res.json(await loadDataStatus());
+  } catch (err) {
+    console.error('[DATA STATUS ERROR]', err.code || 'query_failed');
+    res.status(500).json({ message: 'No se pudo consultar el estado de las fuentes de datos' });
   }
 });
 

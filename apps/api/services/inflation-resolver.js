@@ -113,4 +113,4 @@ async function createInflationResolver() {
     return buildInflationResolver(officialResult.rows, remRows);
 }
 
-module.exports = { buildInflationResolver, createInflationResolver };
+module.exports = { buildInflationResolver, createInflationResolver, IPC_QUERY, REM_QUERY };

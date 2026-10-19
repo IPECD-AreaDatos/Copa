@@ -2,6 +2,7 @@ const db_copa = require('../db');
 const { createInflationResolver } = require('./inflation-resolver');
 const { getMonthlyBudget } = require('./budget-resolver');
 const { resolveMonthlySalaryTarget } = require('./salary-target-resolver');
+const { ROP_MONTHLY_QUERY } = require('./rop-source');
 const { periodId, nullableNumber, mapValue, createDashboardCompleteness } = require('./dashboard-completeness');
 
 // Fuente compartida por el análisis mensual, el anual y el reporte mensual.
@@ -37,24 +38,7 @@ async function loadMonthlyDashboard() {
     const inflationResolver = await createInflationResolver();
 
     // 3. Obtener ROP (Recursos de Origen Provincial)
-    const ropResult = await db_copa.query(`
-        WITH monthly_rop AS (
-            SELECT
-                anio::int, mes::int,
-                SUM(
-                    COALESCE(inmobiliario_rural, 0)
-                    + COALESCE(tasas, 0)
-                    + COALESCE(marcas_y_senales, 0)
-                    + COALESCE(sellos, 0)
-                    + COALESCE(premios, 0)
-                    + COALESCE(ingresos_brutos, 0)
-                    + COALESCE(apremios_concursos_quiebras_reg_judiciales, 0)
-                ) as rop_bruta
-            FROM copa_reca_rop
-            GROUP BY 1, 2
-        )
-        SELECT * FROM monthly_rop
-    `);
+    const ropResult = await db_copa.query(ROP_MONTHLY_QUERY);
     const ropMap = ropResult.rows.reduce((acc, row) => {
         const m = String(row.mes).padStart(2, '0');
         acc[`${row.anio}-${m}`] = nullableNumber(row.rop_bruta);

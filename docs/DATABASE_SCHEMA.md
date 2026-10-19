@@ -69,6 +69,12 @@ Almacena la recaudación mensual agregada de los tributos de origen provincial.
     La API agrupa y suma todos estos tributos mensuales para determinar los recursos provinciales corrientes:
     $$\text{ROP Bruta} = \text{inmobiliario\_rural} + \text{tasas} + \text{marcas\_y\_senales} + \text{sellos} + \text{premios} + \text{ingresos\_brutos} + \text{apremios\_concursos...}$$
 
+    Los campos individuales `NULL` cuentan como cero (criterio confirmado el
+    19/10/2026). La expresión compartida está en `apps/api/services/rop-source.js`
+    y se utiliza en Inicio, Análisis Mensual/Anual RON y Actualización de datos.
+    Una fila mensual ausente sigue siendo `Sin datos`; la regla de completitud
+    del período continúa evaluándose por separado.
+
 ---
 
 ### C. Tabla: `copa_gastos` (Ejecución Presupuestaria de Gastos)

@@ -110,6 +110,15 @@ export default function DashboardShell({
               )}
               {username === "admin" && (
                 <Link
+                  href="/actualizacion-datos"
+                  className={navClass("/actualizacion-datos")}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Actualización de datos
+                </Link>
+              )}
+              {username === "admin" && (
+                <Link
                   href="/auditoria"
                   className={navClass("/auditoria")}
                   onClick={() => setSidebarOpen(false)}
