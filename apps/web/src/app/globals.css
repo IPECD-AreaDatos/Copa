@@ -1775,3 +1775,17 @@ footer.app-footer {
     grid-template-columns: 1fr;
   }
 }
+
+.institution-access-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #9fcbbd;
+  border-left: 4px solid #008275;
+  border-radius: 0.75rem;
+  background: #edf7f3;
+  color: #175448;
+}
+.institution-access-banner span { font-size: 0.9rem; }

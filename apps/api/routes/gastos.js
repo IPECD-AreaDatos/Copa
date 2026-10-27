@@ -4,6 +4,7 @@ const router = express.Router();
 const db = require('../db'); // datos_tablero
 const authMiddleware = require('../middleware/auth');
 const allowUsers = require('../middleware/allow-users');
+const { institutionCodes, institutionWhere, scopeDetailedFilters, validateNamedInstitution } = require('../services/user-access');
 const { archive: EXCEL_ARCHIVE } = require('../services/gasto-excel-analysis');
 const {
     DEFAULT_LOOKBACK_MONTHS,
@@ -31,13 +32,15 @@ const {
 } = require('../services/gasto-desagregado');
 
 const GASTO_VARIABLES = ['credito_vigente', 'comprometido', 'ordenado'];
-const canViewGastosDesagregados = allowUsers(
+const canViewGastosExcel = allowUsers(
     'gcorrales',
     'hgrachot',
     'dinsaurralde',
     'fgonzalez',
     'admin',
 );
+const canViewGastosDesagregados = (req, res, next) => institutionCodes(req)
+    ? next() : canViewGastosExcel(req, res, next);
 
 const JURISDICCION_ALIASES = {
     'ADMINIST. DE OBRAS SANITARIAS DE': 'ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES',
@@ -79,9 +82,11 @@ function gastoVariableKey(raw) {
 router.get('/resumen', authMiddleware, async (req, res) => {
     try {
         const { jurisdiccion, partida, fuente, estado } = req.query;
+        validateNamedInstitution(req, jurisdiccion);
+        const accessWhere = institutionWhere(req);
         
-        let query = 'SELECT * FROM v_gastos_agrupados WHERE 1=1';
-        const params = [];
+        let query = `SELECT * FROM v_gastos_agrupados WHERE ${accessWhere.text}`;
+        const params = [...accessWhere.params];
 
         if (jurisdiccion) {
             params.push(jurisdiccion);
@@ -103,6 +108,7 @@ router.get('/resumen', authMiddleware, async (req, res) => {
         const result = await db.query(query, params);
         res.json(result.rows);
     } catch (err) {
+        if (err.statusCode === 403) return res.status(403).json({ message: err.message });
         console.error('Error al consultar gastos:', err.message);
         res.status(500).json({ message: 'Error al obtener datos de gastos' });
     }
@@ -113,10 +119,12 @@ router.get('/resumen', authMiddleware, async (req, res) => {
  */
 router.get('/filtros', authMiddleware, async (req, res) => {
     try {
-        const jurisdicciones = await db.query('SELECT DISTINCT jurisdiccion FROM v_gastos_agrupados ORDER BY 1');
-        const partidas = await db.query('SELECT DISTINCT partida FROM v_gastos_agrupados ORDER BY 1');
-        const fuentes = await db.query('SELECT DISTINCT fuente FROM v_gastos_agrupados ORDER BY 1');
-        const estados = await db.query('SELECT DISTINCT estado FROM v_gastos_agrupados ORDER BY 1');
+        const where = institutionWhere(req);
+        const [jurisdicciones, partidas, fuentes, estados] = await Promise.all(
+            ['jurisdiccion', 'partida', 'fuente', 'estado'].map((column) => db.query(
+                `SELECT DISTINCT ${column} FROM v_gastos_agrupados WHERE ${where.text} ORDER BY 1`, where.params,
+            )),
+        );
 
         res.json({
             jurisdicciones: jurisdicciones.rows.map(r => r.jurisdiccion),
@@ -135,7 +143,11 @@ router.get('/filtros', authMiddleware, async (req, res) => {
  * La consulta trabaja sobre copa_gastos_fte en el grano de la base detallada
  * y devuelve agregados para evitar enviar cientos de miles de filas al cliente.
  */
-router.get('/desagregados/excel/:id', authMiddleware, canViewGastosDesagregados, (req, res) => {
+router.get('/desagregados/excel/:id', authMiddleware, (req, res, next) => {
+    // Original workbooks can contain data from several institutions on one sheet.
+    if (institutionCodes(req)) return res.status(403).json({ message: 'Archivo reservado al acceso general' });
+    return canViewGastosExcel(req, res, next);
+}, (req, res) => {
     const sheet = EXCEL_ARCHIVE.books.flatMap((book) => book.sheets).find((s) => s.id === req.params.id);
     if (!sheet) return res.status(404).json({ message: 'Hoja no encontrada' });
     res.json(sheet);
@@ -143,7 +155,8 @@ router.get('/desagregados/excel/:id', authMiddleware, canViewGastosDesagregados,
 
 router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (req, res) => {
     try {
-        const filters = buildFilters(req.query);
+        const filters = scopeDetailedFilters(req, buildFilters(req.query));
+        const accessWhere = institutionWhere(req, { numeric: true });
         let effectiveFilters = filters;
         let snapshotMonth = null;
         const requestedWhere = buildWhere(filters);
@@ -230,8 +243,8 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
                     ARRAY_AGG(DISTINCT tipo_de_g ORDER BY tipo_de_g) AS states,
                     ARRAY_AGG(DISTINCT jurisdiccion ORDER BY jurisdiccion) AS jurisdictions,
                     ARRAY_AGG(DISTINCT partid ORDER BY partid) AS partidas
-                FROM copa_gastos_fte
-            `),
+                FROM copa_gastos_fte WHERE ${accessWhere.text}
+            `, accessWhere.params),
             db.query(`
                 SELECT ${RUBRO_CASE_SQL} AS rubro,
                        SUM(val)::numeric AS total,
@@ -306,6 +319,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
 
         res.json({
             meta: {
+                access: req.user?.access,
                 source_table: 'copa_gastos_fte',
                 grain: 'mes, año, jurisdicción, fuente, programa, subprofesional, proyecto, obra, partida, subpartida y estado',
                 requested: filters,
@@ -347,7 +361,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             jurisdicciones_rubros: jurisdictionRubroRows,
             monthly_rubros: monthlyRubroRows,
             jurisdiccion_subpartidas: jurisdictionSubpartidaRows,
-            ministerial_analysis: buildMinisterialAnalysis(jurisdictionSubpartidaRows),
+            ministerial_analysis: buildMinisterialAnalysis(jurisdictionSubpartidaRows, institutionCodes(req)),
             modificaciones_presupuestarias: budgetResult.rows.map((r) => ({
                 ...mapJurisdiccion(r.jurisdiccion), mes: r.mes,
                 original: r.original === null ? null : numberValue(r.original),
@@ -361,8 +375,8 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             },
         });
     } catch (err) {
-        if (err.statusCode === 400) {
-            return res.status(400).json({ message: err.message });
+        if (err.statusCode === 400 || err.statusCode === 403) {
+            return res.status(err.statusCode).json({ message: err.message });
         }
         console.error('Error al consultar gastos desagregados:', err.message);
         return res.status(500).json({ message: 'Error al obtener el desglose de gastos' });
@@ -379,15 +393,17 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
  */
 router.get('/completeness', authMiddleware, async (req, res) => {
     try {
+        const where = institutionWhere(req);
         const result = await db.query(`
             SELECT
                 TO_CHAR(periodo, 'YYYY-MM') AS periodo,
                 estado,
                 COUNT(*)::int AS row_count
             FROM copa_gastos
+            WHERE ${where.text}
             GROUP BY 1, 2
             ORDER BY 1, 2
-        `);
+        `, where.params);
 
         const countsByVariable = Object.fromEntries(
             GASTO_VARIABLES.map((variable) => [variable, {}]),
@@ -456,6 +472,7 @@ router.get('/completeness', authMiddleware, async (req, res) => {
  */
 router.get('/all-data', authMiddleware, async (req, res) => {
     try {
+        const where = institutionWhere(req);
         const result = await db.query(`
             SELECT 
                 TO_CHAR(periodo, 'YYYY-MM') as periodo, 
@@ -465,8 +482,9 @@ router.get('/all-data', authMiddleware, async (req, res) => {
                 estado, 
                 monto 
             FROM copa_gastos 
+            WHERE ${where.text}
             ORDER BY periodo DESC
-        `);
+        `, where.params);
         // El frontend espera un array de objetos GastoRow con monto como número
         const rows = result.rows.map(r => ({
             ...r,

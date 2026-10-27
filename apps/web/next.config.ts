@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   async rewrites() {
-    return [
+    return { beforeFiles: [
+      {
+        source: '/copa/data/:path*',
+        destination: 'http://localhost:4000/api/data/:path*',
+        basePath: false,
+      },
       {
         source: '/copa/copa-api/:path*',
         destination: 'http://localhost:4000/:path*',
@@ -17,7 +22,7 @@ const nextConfig: NextConfig = {
         destination: 'http://localhost:4000/:path*',
         basePath: false,
       },
-    ];
+    ] };
   },
 };
 

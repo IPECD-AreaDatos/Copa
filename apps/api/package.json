@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test tests/annual-monitor.test.js tests/allow-users.test.js tests/completeness-resolver.test.js tests/data-status.test.js tests/inflation-resolver.test.js tests/monthly-report.test.js tests/salary-target-resolver.test.js",
+    "test": "node --test tests/annual-monitor.test.js tests/allow-users.test.js tests/completeness-resolver.test.js tests/data-status.test.js tests/inflation-resolver.test.js tests/monthly-report.test.js tests/salary-target-resolver.test.js tests/institution-access.test.js tests/gasto-desagregado.test.js",
+    "migrate:access": "node scripts/migrate-access.js",
+    "users:institution": "node scripts/create-institution-users.js",
     "test:rop-source": "node --test tests/rop-source.integration.test.js",
     "report:preview": "node scripts/send-monthly-report.js --preview",
     "report:send": "node scripts/send-monthly-report.js"

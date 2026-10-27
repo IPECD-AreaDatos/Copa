@@ -81,7 +81,9 @@ function analysis(rows) {
     }
     return { universes, top8, concentration, matrix, partida100, accountsTotal, accounts, ministryRankings, labels, total: sum(rows) };
 }
-function buildMinisterialAnalysis(rows) {
-    return { all: analysis(rows), reference: analysis(rows.filter((r) => referenceJurisdictions.includes(r.jurisdiccion.codigo))), referenceJurisdictions };
+function buildMinisterialAnalysis(rows, allowedJurisdictions = null) {
+    const reference = allowedJurisdictions
+        ? referenceJurisdictions.filter((code) => allowedJurisdictions.includes(code)) : referenceJurisdictions;
+    return { all: analysis(rows), reference: analysis(rows.filter((r) => reference.includes(r.jurisdiccion.codigo))), referenceJurisdictions: reference };
 }
 module.exports = { buildMinisterialAnalysis, referenceJurisdictions, sourceCategory, ranked };

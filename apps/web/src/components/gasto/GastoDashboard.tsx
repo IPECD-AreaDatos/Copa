@@ -6,6 +6,7 @@ import { Chart } from "react-chartjs-2";
 import { useEffect, useMemo, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
+import type { CopaUser } from "@/hooks/useDashboardSession";
 
 import {
   computeCompositionTable,
@@ -116,7 +117,9 @@ function periodLabelSuffix(
   return " (Incompleto)";
 }
 
-export default function GastoDashboard() {
+export default function GastoDashboard({ access }: { access?: CopaUser["access"] }) {
+  const institutionOnly = access?.scope === "institution";
+  const institutionLabel = access?.jurisdictions.map((j) => j.name).join(" · ") || "";
   const [rawData, setRawData] = useState<GastoRow[]>([]);
   const [completeness, setCompleteness] = useState<GastoCompleteness | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -128,7 +131,7 @@ export default function GastoDashboard() {
 
   // Heatmap filters
   const [hmEstado, setHmEstado] = useState("Comprometido");
-  const [hmJurisGroup, setHmJurisGroup] = useState("MINISTERIOS");
+  const [hmJurisGroup, setHmJurisGroup] = useState(institutionOnly ? "TODAS" : "MINISTERIOS");
   const [hmFuente, setHmFuente] = useState<string[]>(["10"]);
 
   const allPeriodos = useMemo(
@@ -273,10 +276,10 @@ export default function GastoDashboard() {
   }, [tblFuente]);
 
   const tblJurisLabel = useMemo(() => {
-    if (tblJuris.includes("TODAS")) return "TODAS LAS JURISDICCIONES";
+    if (tblJuris.includes("TODAS")) return institutionOnly ? institutionLabel : "TODAS LAS JURISDICCIONES";
     if (tblJuris.length === 1) return tblJuris[0];
     return `${tblJuris.length} jurisdicciones seleccionadas`;
-  }, [tblJuris]);
+  }, [tblJuris, institutionOnly, institutionLabel]);
 
   const ratio = useMemo(() => {
     if (!rawData.length || !completeness) return null;
@@ -317,10 +320,10 @@ export default function GastoDashboard() {
   }, [avFuente]);
 
   const avJurisLabel = useMemo(() => {
-    if (avJuris.includes("TODAS")) return "TODAS LAS JURISDICCIONES";
+    if (avJuris.includes("TODAS")) return institutionOnly ? institutionLabel : "TODAS LAS JURISDICCIONES";
     if (avJuris.length === 1) return avJuris[0];
     return `${avJuris.length} jurisdicciones seleccionadas`;
-  }, [avJuris]);
+  }, [avJuris, institutionOnly, institutionLabel]);
 
   const waterfall = useMemo(() => {
     if (!rawData.length || !completeness) return null;
@@ -396,10 +399,10 @@ export default function GastoDashboard() {
   }, [jurisEnBD, wfJurisSearch]);
 
   const wfJurisLabel = useMemo(() => {
-    if (wfJuris.includes("TODAS")) return "TODAS";
+    if (wfJuris.includes("TODAS")) return institutionOnly ? institutionLabel : "TODAS";
     if (wfJuris.length === 1) return wfJuris[0];
     return `${wfJuris.length} jurisdicciones`;
-  }, [wfJuris]);
+  }, [wfJuris, institutionOnly, institutionLabel]);
 
   const wfPartidaLabel = useMemo(() => {
     if (wfPartida.includes("TODAS")) return "Todas";
@@ -462,12 +465,12 @@ export default function GastoDashboard() {
           </div>
           <div className="sf-group">
             <label>Jurisdicción</label>
-            <select value={hmJurisGroup} onChange={(e) => {
+            <select aria-label="Jurisdicción del mapa de calor" disabled={institutionOnly} value={hmJurisGroup} onChange={(e) => {
               const v = e.target.value;
               setHmJurisGroup(v);
               logAction("Gastos", "Cambio Jurisdicción Heatmap", { grupo: v });
             }}>
-              <option value="TODAS">TODAS LAS JURISDICCIONES</option>
+              <option value="TODAS">{institutionOnly ? institutionLabel : "TODAS LAS JURISDICCIONES"}</option>
               <option value="MINISTERIOS">MINISTERIOS</option>
               <option value="RESTO">RESTO</option>
             </select>
@@ -654,7 +657,7 @@ export default function GastoDashboard() {
                       else setTblJuris(jurisEnBD);
                     }}
                   />
-                  TODAS LAS JURISDICCIONES
+                  {institutionOnly ? "Todas las instituciones autorizadas" : "TODAS LAS JURISDICCIONES"}
                 </label>
                 {filteredTblJuris.map((j) => (
                   <label key={j} className="gasto-multi-option">
@@ -841,7 +844,7 @@ export default function GastoDashboard() {
                       else setAvJuris(jurisEnBD);
                     }}
                   />
-                  TODAS LAS JURISDICCIONES
+                  {institutionOnly ? "Todas las instituciones autorizadas" : "TODAS LAS JURISDICCIONES"}
                 </label>
                 {filteredAvJuris.map((j) => (
                   <label key={j} className="gasto-multi-option">
@@ -934,7 +937,7 @@ export default function GastoDashboard() {
                       else setWfJuris(jurisEnBD);
                     }}
                   />
-                  TODAS
+                  {institutionOnly ? "Todas las instituciones autorizadas" : "TODAS"}
                 </label>
                 {filteredWfJuris.map((j) => (
                   <label key={j} className="gasto-multi-option">

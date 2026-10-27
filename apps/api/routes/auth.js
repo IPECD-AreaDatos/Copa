@@ -3,16 +3,25 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const authMiddleware = require('../middleware/auth');
+const { publicUser } = require('../services/user-access');
+const { jwtSecret } = require('../services/auth-config');
+
+router.get('/me', authMiddleware, (req, res) => res.json({ user: req.user }));
 
 // Login endpoint
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  res.setHeader('Cache-Control', 'private, no-store');
+  if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
+    return res.status(400).json({ message: 'Usuario y contraseña requeridos' });
+  }
   console.log(`[AUTH] Intento de login para usuario: ${username}`);
 
   try {
     // 1. Buscamos el usuario en la DB
     const result = await db.query(
-      `SELECT id_usuario, username, password_hash, tablero_acceso 
+      `SELECT id_usuario, username, password_hash, tablero_acceso, activo, gastos_jurisdicciones
        FROM public.usuarios_tableros 
        WHERE username = $1 AND activo = true`,
       [username]
@@ -40,7 +49,7 @@ router.post('/login', async (req, res) => {
         console.log("[AUTH] Error comparando hash, probando texto plano...");
     }
     
-    const isPlainMatch = password === user.password_hash;
+    const isPlainMatch = !/^\$2[aby]\$/.test(user.password_hash) && password === user.password_hash;
 
     if (!validPassword && !isPlainMatch) {
       console.warn(`[AUTH] Contraseña incorrecta para usuario: ${username}`);
@@ -57,13 +66,12 @@ router.post('/login', async (req, res) => {
       );
     }
 
-    const displayName = user.username;
-    const role = 'user';
+    const sessionUser = publicUser(user);
 
     // 3. Generamos JWT
     const token = jwt.sign(
-      { id: user.id_usuario, username: user.username, role, name: displayName },
-      process.env.JWT_SECRET || 'secret_key_temporal_ipced',
+      { id: user.id_usuario, username: user.username },
+      jwtSecret(),
       { expiresIn: '8h' }
     );
 
@@ -78,12 +86,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       token,
-      user: {
-        id: user.id_usuario,
-        username: user.username,
-        name: displayName,
-        role
-      }
+      user: sessionUser
     });
 
   } catch (err) {

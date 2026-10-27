@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
+import type { CopaUser } from "@/hooks/useDashboardSession";
 import { format1M, formatPctOneDecimal } from "@/lib/gasto/logic";
 import GastoAnalisisMinisterial, { type MinisterialAnalysis } from "./GastoAnalisisMinisterial";
 
@@ -119,6 +120,7 @@ type Controls = {
 
 export type DesagregadoResponse = {
   meta: {
+    access?: CopaUser["access"];
     source_table: string;
     grain: string;
     requested: SelectedFilters;
@@ -221,14 +223,16 @@ function matchesAccountGroup(row: SubpartidaRow, group: string) {
   return false;
 }
 
-export default function GastosDesagregadosDashboard() {
+export default function GastosDesagregadosDashboard({ access }: { access?: CopaUser["access"] }) {
+  const institutionOnly = access?.scope === "institution";
+  const singleInstitution = institutionOnly && access.jurisdictions.length === 1;
   const [view, setView] = useState<"ministerial" | "summary">("ministerial");
   const [year, setYear] = useState("2026");
   const [monthFrom, setMonthFrom] = useState("1");
   const [monthTo, setMonthTo] = useState("6");
   const [source, setSource] = useState("10");
   const [state, setState] = useState("Comprometido");
-  const [jurisdiction, setJurisdiction] = useState("TODAS");
+  const [jurisdiction, setJurisdiction] = useState(singleInstitution ? String(access.jurisdictions[0].code) : "TODAS");
   // An empty selection means no chapter restriction, as in the API contract.
   const [selectedPartidas, setSelectedPartidas] = useState<number[]>([]);
   const [subpartidaSearch, setSubpartidaSearch] = useState("");
@@ -531,13 +535,14 @@ export default function GastosDesagregadosDashboard() {
             <select
               id="desagregado-jurisdiction"
               value={jurisdiction}
+              disabled={singleInstitution}
               onChange={(event) => {
                 markFilterChange();
                 setJurisdiction(event.target.value);
               }}
             >
-              <option value="TODAS">Todas las jurisdicciones</option>
-              {jurisdictions.map((value) => <option key={value.codigo} value={value.codigo}>{value.nombre}</option>)}
+              {!singleInstitution && <option value="TODAS">{institutionOnly ? "Instituciones autorizadas" : "Todas las jurisdicciones"}</option>}
+              {(institutionOnly ? access.jurisdictions.map((j) => ({ codigo: j.code, nombre: j.name })) : jurisdictions).map((value) => <option key={value.codigo} value={value.codigo}>{value.nombre}</option>)}
             </select>
           </div>
           <div className="sf-group desagregado-chapter-filter">

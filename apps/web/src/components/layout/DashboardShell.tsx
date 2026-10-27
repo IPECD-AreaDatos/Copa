@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { canAccessGastosDesagregados } from "@/lib/access";
+import { canAccessGastosDesagregados, isInstitutionUser } from "@/lib/access";
+import type { CopaUser } from "@/hooks/useDashboardSession";
 
 type Props = {
   /** Ruta activa para el estilo `nav-link-vertical active` */
@@ -13,6 +14,7 @@ type Props = {
   /** Para ocultar “Gasto” como en el tablero estático (gobernador) */
   username?: string;
   name?: string;
+  access?: CopaUser["access"];
   children: ReactNode;
 };
 
@@ -21,8 +23,10 @@ export default function DashboardShell({
   displayName,
   onLogout,
   username,
+  access,
   children,
 }: Props) {
+  const institutionOnly = isInstitutionUser({ access });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -68,7 +72,7 @@ export default function DashboardShell({
             padding: "0.5rem 0",
           }}
         >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
+          <Link href={institutionOnly ? "/gasto" : "/"} style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
             <Image
               src="/copa/assets/logo-modernizacion.png"
               alt="Modernización"
@@ -80,18 +84,18 @@ export default function DashboardShell({
         </div>
 
         <nav className="nav-vertical">
-          <Link href="/" className={navClass("/")} onClick={() => setSidebarOpen(false)}>
+          {!institutionOnly && <Link href="/" className={navClass("/")} onClick={() => setSidebarOpen(false)}>
             Inicio
-          </Link>
+          </Link>}
           {displayName !== "Invitado" && (
             <>
-              <Link href="/monitor-mensual" className={navClass("/monitor-mensual")} onClick={() => setSidebarOpen(false)}>
+              {!institutionOnly && <><Link href="/monitor-mensual" className={navClass("/monitor-mensual")} onClick={() => setSidebarOpen(false)}>
                 Análisis Mensual RON
               </Link>
               <Link href="/analisis-anual" className={navClass("/analisis-anual")} onClick={() => setSidebarOpen(false)}>
                 Análisis Anual RON
-              </Link>
-              {username === "admin" && (
+              </Link></>}
+              {!institutionOnly && username === "admin" && (
                 <Link
                   href="/analisis-personal"
                   className={navClass("/analisis-personal")}
@@ -103,12 +107,12 @@ export default function DashboardShell({
               <Link href="/gasto" className={navClass("/gasto")} onClick={() => setSidebarOpen(false)}>
                 Gasto
               </Link>
-              {canAccessGastosDesagregados(username) && (
+              {canAccessGastosDesagregados({ username, access }) && (
                 <Link href="/gastos-desagregados" className={navClass("/gastos-desagregados")} onClick={() => setSidebarOpen(false)}>
                   Gastos desagregados
                 </Link>
               )}
-              {username === "admin" && (
+              {!institutionOnly && username === "admin" && (
                 <Link
                   href="/actualizacion-datos"
                   className={navClass("/actualizacion-datos")}
@@ -117,7 +121,7 @@ export default function DashboardShell({
                   Actualización de datos
                 </Link>
               )}
-              {username === "admin" && (
+              {!institutionOnly && username === "admin" && (
                 <Link
                   href="/auditoria"
                   className={navClass("/auditoria")}
@@ -151,6 +155,10 @@ export default function DashboardShell({
 
       <div className="main-content-wrapper">
         <main>
+          {institutionOnly && <aside className="institution-access-banner" aria-label="Institución autorizada">
+            <strong>{access?.jurisdictions.map((j) => j.name).join(" · ")}</strong>
+            <span>Acceso de consulta · Los datos y totales corresponden únicamente a su institución.</span>
+          </aside>}
           {children}
         </main>
         <footer className="app-footer">

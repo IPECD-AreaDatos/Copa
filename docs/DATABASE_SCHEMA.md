@@ -131,6 +131,7 @@ Contiene las credenciales y permisos de los usuarios del tablero.
 | `password_hash` | `VARCHAR` | Contraseña cifrada con Bcrypt o texto plano (migrado automáticamente al hacer login). |
 | `tablero_acceso` | `VARCHAR` | Tipo de acceso permitido (ej. `coparticipacion` para acceder a la aplicación). |
 | `activo` | `BOOLEAN` | Estado de habilitación de la cuenta. |
+| `gastos_jurisdicciones` | `INTEGER[]` | `NULL` conserva el alcance general; una lista de códigos limita la cuenta a los gastos de esas instituciones. Ver [Acceso por institución](INSTITUTION_ACCESS.md). |
 
 ---
 
