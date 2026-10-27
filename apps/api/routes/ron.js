@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/auth');
 const { loadMonthlyDashboard } = require('../services/monthly-dashboard');
 const { buildAnnualMonitor } = require('../services/annual-monitor');
 const router = express.Router();
-const annualPath = path.join(__dirname, '../../web/public/data/_data_ipce_v1.json');
+const annualPath = path.join(__dirname, '../data/legacy/_data_ipce_v1.json');
 
 router.get('/annual-monitor', authMiddleware, async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

@@ -17,9 +17,10 @@ export default function GastoPage() {
       displayName={displayName}
       username={user.username}
       name={user.name}
+      access={user.access}
       onLogout={logout}
     >
-      <GastoDashboard />
+      <GastoDashboard access={user.access} />
     </DashboardShell>
   );
 }

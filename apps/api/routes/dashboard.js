@@ -31,9 +31,9 @@ function monthlyReportAuth(req, res, next) {
 /**
  * GET /api/dashboard/home
  * Retorna datos resumidos para la pantalla principal.
- * Acceso público (sin JWT): el inicio del tablero debe ser visible para todos.
+ * Requiere acceso general: incluye totales de toda la provincia.
  */
-router.get('/home', async (req, res) => {
+router.get('/home', authMiddleware, async (req, res) => {
     try {
         // 1. Obtener RON Mensual desde la DB fresca (db_copa)
         const ronResult = await db_copa.query(`

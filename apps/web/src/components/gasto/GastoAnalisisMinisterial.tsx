@@ -26,7 +26,8 @@ function RankTable({ rows, denominator }: { rows: Ranked[]; denominator: string 
   return <><p className="source-text">Porcentajes sobre {denominator}. Orden por monto de mayor a menor, conservando los ajustes negativos.</p><div className="desagregado-table-scroll analysis-detail-scroll"><table className="data-table"><thead><tr><th>#</th><th>Concepto</th><th>Monto (M$)</th><th>%</th><th>% acumulado</th></tr></thead><tbody>{rows.map((r) => <tr key={r.id}><td>{r.rank}</td><td>{r.label}</td><td className="numeric">{format1M(r.total)}</td><td className="numeric">{pct(r.share)}</td><td className="numeric">{pct(r.cumulative)}</td></tr>)}</tbody></table>{!rows.length && <p>Sin registros en este corte.</p>}</div></>;
 }
 export default function GastoAnalisisMinisterial({ data }: { data: DesagregadoResponse }) {
-  const [scope, setScope] = useState<"reference" | "all">("reference");
+  const institutionOnly = data.meta.access?.scope === "institution";
+  const [scope, setScope] = useState<"reference" | "all">(institutionOnly ? "all" : "reference");
   const [universe, setUniverse] = useState("operating");
   const [jurisdiction, setJurisdiction] = useState("1");
   const [combined, setCombined] = useState(true);
@@ -39,7 +40,7 @@ export default function GastoAnalisisMinisterial({ data }: { data: DesagregadoRe
   return <div className="ministerial-analysis">
     <section className="chart-container">
       <h2 className="section-title">Análisis consolidado del gasto</h2>
-      <div className="analysis-controls"><label>Universo de organismos<select aria-label="Universo de organismos" value={scope} onChange={(e) => setScope(e.target.value as "reference" | "all")}><option value="reference">Selección de {data.ministerial_analysis.referenceJurisdictions.length} jurisdicciones</option><option value="all">Todos los organismos con datos</option></select></label></div>
+      {!institutionOnly && <div className="analysis-controls"><label>Universo de organismos<select aria-label="Universo de organismos" value={scope} onChange={(e) => setScope(e.target.value as "reference" | "all")}><option value="reference">Selección de {data.ministerial_analysis.referenceJurisdictions.length} jurisdicciones</option><option value="all">Todos los organismos con datos</option></select></label></div>}
       <p className="desagregado-scope-note">Se aplican los filtros superiores y el universo de organismos elegido. Transferencias incluye la cuenta de seguridad social 533 y excluye coparticipación (571/587). Los montos se expresan en millones de pesos.</p>
       {scope === "reference" && <details className="analysis-block"><summary>Ver las {data.ministerial_analysis.referenceJurisdictions.length} jurisdicciones incluidas</summary><ul>{data.ministerial_analysis.referenceJurisdictions.map((code) => <li key={code}>{data.meta.available.jurisdicciones.find((item) => item.codigo === code)?.nombre ?? `Jurisdicción ${code}`}</li>)}</ul></details>}
       {!data.meta.is_snapshot && data.meta.missing_months.length > 0 && <p className="desagregado-warning-box">Meses sin registros: {data.meta.missing_months.join(", ")}. Los promedios mantienen los {data.meta.requested_months} meses solicitados; no se asume que la carga esté completa.</p>}

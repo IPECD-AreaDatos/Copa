@@ -65,7 +65,7 @@ test('rechaza solicitudes sin usuario autenticado', () => {
   assert.equal(result.statusCode, 403);
 });
 
-test('protege el desglose y las hojas Excel con la misma autenticación y autorización', () => {
+test('protege el desglose y las hojas Excel con autenticación y deniega usuarios sin permiso', () => {
   const router = require('../routes/gastos');
   const authentication = require('../middleware/auth');
   const paths = ['/desagregados', '/desagregados/excel/:id'];
@@ -73,7 +73,6 @@ test('protege el desglose y las hojas Excel con la misma autenticación y autori
   for (const route of routes) {
     assert.equal(route.stack.length, 3);
     assert.equal(route.stack[0].handle, authentication);
-    assert.equal(route.stack[1].handle, routes[0].stack[1].handle);
     let nextCalled = false;
     let statusCode;
     route.stack[1].handle({ user: { username: 'otro_usuario' } }, {

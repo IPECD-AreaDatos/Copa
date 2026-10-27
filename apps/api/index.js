@@ -40,6 +40,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     service: 'IPECD Copa API', 
+    institution_access: true,
     db: 'connected',
     timestamp: new Date() 
   });

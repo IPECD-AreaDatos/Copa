@@ -40,9 +40,14 @@ jobs:
             npm run build
 
             cd ../..
+            node apps/api/scripts/configure-auth.js
+            node apps/api/scripts/migrate-access.js
             pm2 restart copa-api
             pm2 restart copa-web
 
             curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-errors \
               http://127.0.0.1:4000/api/health
+            curl --fail --silent --show-error --output /dev/null --retry 10 --retry-delay 2 --retry-all-errors \
+              http://127.0.0.1:3006/copa/login
+            node apps/api/scripts/activate-institution-users.js
             test "$(git rev-parse HEAD)" = "${{ github.sha }}"

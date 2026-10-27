@@ -1,0 +1,36 @@
+name: Verify Institutional Access
+
+on:
+  workflow_dispatch:
+    inputs:
+      activate_test_users:
+        description: Habilitar las cuentas de prueba de Salud y Educación
+        required: true
+        default: false
+        type: boolean
+
+concurrency:
+  group: copa-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify institutional accounts on the deployed API and web
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          command_timeout: 5m
+          script: |
+            set -eu
+            export PATH="$HOME/.nvm/versions/node/v20.20.0/bin:$PATH"
+            cd ${{ secrets.PROJECT_PATH }}
+            if [ '${{ inputs.activate_test_users }}' = 'true' ]; then
+              node apps/api/scripts/activate-institution-users.js --activate
+            else
+              node apps/api/scripts/activate-institution-users.js
+            fi

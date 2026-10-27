@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import type { CopaUser } from '@/hooks/useDashboardSession';
+import { isInstitutionUser } from '@/lib/access';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -22,7 +24,7 @@ export default function LoginPage() {
         body: JSON.stringify({ username: username.trim(), password }),
       });
 
-      let data: { token?: string; user?: unknown; message?: string } = {};
+      let data: { token?: string; user?: CopaUser; message?: string } = {};
       try {
         data = await response.json();
       } catch {
@@ -32,7 +34,7 @@ export default function LoginPage() {
       if (response.ok && data.token && data.user) {
         localStorage.setItem('copa_token', data.token);
         localStorage.setItem('copa_user', JSON.stringify(data.user));
-        router.push('/');
+        router.replace(isInstitutionUser(data.user) ? '/gasto' : '/');
       } else {
         setError(true);
         setPassword('');

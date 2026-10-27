@@ -35,7 +35,7 @@ Authorization: Bearer <token_jwt_aqui>
 
 ### Datos de Inicio (Home Dashboard)
 *   **Ruta**: `GET /api/dashboard/home`
-*   **Descripción**: Devuelve la información agregada para el panel principal y gráficos consolidados históricos. Este endpoint es público para permitir la renderización inicial del portal.
+*   **Descripción**: Devuelve la información agregada para el panel principal y gráficos consolidados históricos. Requiere JWT y acceso general; los perfiles institucionales reciben 403.
 *   **IPC cuando falta el oficial**: Calcula dinámicamente la variación interanual a partir de la última publicación REM cargada en `rem_precios_minoristas`. La respuesta identifica el origen mediante `ipc_source`, `ipc_projected` e `ipc_rem_published_at`; si no hay una cadena REM completa, devuelve `ipc_missing: true`.
 *   **Respuesta**:
     ```json
@@ -118,7 +118,7 @@ Authorization: Bearer <token_jwt_aqui>
 *   **Ruta**: `GET /api/ron/annual-monitor`
 *   **Descripción**: Actúa como un adaptador dinámico de compatibilidad.
 *   **Lógica**: 
-    - Carga los datos base desde el archivo estático [`_data_ipce_v1.json`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/public/data/_data_ipce_v1.json) para mantener inalterados los años cerrados e históricos del tablero (2022 a 2024).
+    - Carga los datos base desde el archivo privado [`_data_ipce_v1.json`](../apps/api/data/legacy/_data_ipce_v1.json) para mantener los años cerrados e históricos del tablero (2022 a 2024).
     - Para los años de transición y curso (2025 y 2026), calcula dinámicamente desde SQL la masa salarial real (`copa_gastos`), RON y ROP bruto, recalculando las coberturas, deltas nominales y variaciones antes de retornar el JSON unificado.
     - Para los años dinámicos, recalcula la inflación promedio interanual hasta el último mes del período con IPC oficial o, cuando sea necesario, con REM; la respuesta conserva la trazabilidad de la fuente de inflación.
 

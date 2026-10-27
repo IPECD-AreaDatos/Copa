@@ -18,7 +18,7 @@ router.get('/:filename', authMiddleware, async (req, res) => {
 
     // Sanitize filename to prevent directory traversal
     const safeName = path.basename(filename);
-    const dataPath = path.join(__dirname, '../../../data', safeName);
+    const dataPath = path.join(__dirname, '../data/legacy', safeName);
 
     if (!fs.existsSync(dataPath)) {
         return res.status(404).json({ message: 'Archivo de datos no encontrado' });

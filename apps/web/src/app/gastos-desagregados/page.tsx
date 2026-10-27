@@ -34,7 +34,7 @@ export default function GastosDesagregadosPage() {
     );
   }
 
-  if (!canAccessGastosDesagregados(user.username)) {
+  if (!canAccessGastosDesagregados(user)) {
     return (
       <main className="route-status-page">
         <section className="route-status-card">
@@ -54,9 +54,10 @@ export default function GastosDesagregadosPage() {
       displayName={displayName}
       username={user.username}
       name={user.name}
+      access={user.access}
       onLogout={logout}
     >
-      <GastosDesagregadosDashboard />
+      <GastosDesagregadosDashboard access={user.access} />
     </DashboardShell>
   );
 }
