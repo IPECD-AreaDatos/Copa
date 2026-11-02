@@ -13,6 +13,7 @@ export default function AnalisisAnualPage() {
 
   return (
     <DashboardShell
+      user={user}
       activePath="/analisis-anual"
       displayName={displayName}
       username={user.username}

@@ -12,6 +12,11 @@ export function isInstitutionUser(user?: Pick<CopaUser, "access"> | null): boole
   return user?.access?.scope === "institution";
 }
 
+export function isCopaAdmin(user?: CopaUser | null): boolean {
+  return user?.origen === "central-ensayo" ? user.role === "admin" : user?.username === "admin" && !isInstitutionUser(user);
+}
+
 export function canAccessGastosDesagregados(user?: CopaUser | null): boolean {
+  if (user?.origen === "central-ensayo") return user.role === "admin";
   return isInstitutionUser(user) || GASTOS_DESAGREGADOS_USERS.has(user?.username?.trim().toLowerCase() || "");
 }

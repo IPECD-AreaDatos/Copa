@@ -13,6 +13,7 @@ export default function HomePage() {
 
   return (
     <DashboardShell
+      user={user}
       activePath="/"
       displayName={displayName}
       username={user.username}

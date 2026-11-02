@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import DashboardShell from "../layout/DashboardShell";
 import { fetchWithAuth } from "@/lib/api";
 import { useDashboardSession } from "@/hooks/useDashboardSession";
+import { isCopaAdmin } from "@/lib/access";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -169,7 +170,7 @@ export default function AuditoriaDashboard() {
       }
     }
 
-    if (user?.username === "admin") void loadData();
+    if (isCopaAdmin(user)) void loadData();
   }, [user]);
 
   // Auxiliar para formatear fecha local a string YYYY-MM-DD
@@ -351,12 +352,13 @@ export default function AuditoriaDashboard() {
 
   if (!user) return null;
 
-  const accessError = user.username === "admin"
+  const accessError = isCopaAdmin(user)
     ? error
     : "Acceso denegado: solo para administradores.";
 
   return (
     <DashboardShell
+      user={user}
       activePath="/auditoria"
       displayName={user.name || user.username || ""}
       username={user.username || ""}

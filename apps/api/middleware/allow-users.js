@@ -6,7 +6,8 @@ function allowUsers(...usernames) {
   return (req, res, next) => {
     const username = String(req.user?.username || '').trim().toLowerCase();
 
-    if (allowed.has(username)) {
+    if ((req.user?.origen === 'central-ensayo' && req.user?.role === 'admin') ||
+        (req.user?.origen !== 'central-ensayo' && allowed.has(username))) {
       return next();
     }
 

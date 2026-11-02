@@ -18,7 +18,7 @@ const response = () => ({
     status(code) { this.statusCode = code; return this; },
     json(value) { this.body = value; return this; },
     setHeader(key, value) { this.headers[key] = value; },
-    vary(key) { this.headers.Vary = key; },
+    vary(key) { this.headers.Vary = this.headers.Vary ? `${this.headers.Vary}, ${key}` : key; },
 });
 const handler = (path) => router.stack.find((layer) => layer.route?.path === path).route.stack.at(-1).handle;
 const token = (claims = {}) => jwt.sign({ id: 900001, ...claims }, process.env.JWT_SECRET);
@@ -55,7 +55,7 @@ for (const code of [3, 4]) {
         assert.equal(req.user.username, 'test_institution');
         assert.deepEqual(req.user.access.jurisdictions.map((j) => j.code), [code]);
         assert.match(res.headers['Cache-Control'], /private.*no-store/);
-        assert.equal(res.headers.Vary, 'Authorization');
+        assert.equal(res.headers.Vary, 'Authorization, Cookie');
     });
 
     test(`jurisdicción ${code}: todas las consultas detalladas y los catálogos se limitan en SQL`, async (t) => {

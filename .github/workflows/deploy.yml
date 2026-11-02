@@ -37,7 +37,8 @@ jobs:
 
             cd ../web
             npm ci
-            npm run build
+            node --test tests/sesion-central.test.cjs
+            NEXT_PUBLIC_COPA_SSO_ENABLED=si npm run build
 
             cd ../..
             node apps/api/scripts/configure-auth.js

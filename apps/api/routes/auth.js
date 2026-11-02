@@ -6,8 +6,20 @@ const db = require('../db');
 const authMiddleware = require('../middleware/auth');
 const { publicUser } = require('../services/user-access');
 const { jwtSecret } = require('../services/auth-config');
+const {config,sessionCookie}=require('../middleware/sso-config');
 
 router.get('/me', authMiddleware, (req, res) => res.json({ user: req.user }));
+router.get('/session',(req,res,next)=>{try{if(!config())return res.sendStatus(404)}catch{return res.sendStatus(503)}res.set('Cache-Control','no-store');return next()},authMiddleware,(req,res)=>{
+ if(req.user.origen!=='central-ensayo')return res.sendStatus(401);
+ return res.json({user:{username:req.user.username,name:req.user.name,role:req.user.role,origen:req.user.origen,access:req.user.access}});
+});
+router.post('/logout-central',async(req,res)=>{
+ let sso;try{sso=config()}catch{return res.sendStatus(503)}if(!sso)return res.sendStatus(404);
+ if(req.get('origin')!==sso.external)return res.sendStatus(403);const cookie=sessionCookie(req,sso);if(!cookie)return res.sendStatus(401);
+ try{const response=await fetch(sso.internal+'/sso/logout',{method:'POST',headers:{cookie,origin:sso.identityOrigin},redirect:'error',signal:AbortSignal.timeout(2000)});if(!response.ok)return res.sendStatus(503);
+  res.set('Set-Cookie',sso.cookieName+'=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'+(sso.external.startsWith('https:')?'; Secure':''));return res.sendStatus(204);
+ }catch{return res.sendStatus(503)}
+});
 
 // Login endpoint
 router.post('/login', async (req, res) => {

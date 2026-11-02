@@ -1,4 +1,5 @@
 const db = require('../db');
+const {config,sessionCookie}=require('./sso-config');
 
 /**
  * Middleware to log activity to the database automatically.
@@ -9,6 +10,20 @@ const activityLogger = async (req, res, next) => {
   
   // Custom log function that we can trigger manually or wait for response
   req.logAction = async (section, action, details = {}) => {
+    if (req.user?.origen === 'central-ensayo') {
+      let sso;try{sso=config()}catch{return}
+      const cookie = sso&&sessionCookie(req,sso);
+      if (!cookie || !sso) return;
+      try {
+        const response = await fetch(sso.internal+'/sso/auditoria/copa', {
+          method: 'POST', headers: { cookie, origin: sso.identityOrigin, 'content-type': 'application/json' },
+          body: JSON.stringify({ seccion: String(section || 'API').slice(0, 80), accion: String(action || 'Acción').slice(0, 80) }),
+          signal: AbortSignal.timeout(2000), redirect: 'error',
+        });
+        if (!response.ok) console.error('No se pudo registrar la auditoría central de ensayo');
+      } catch { console.error('No se pudo registrar la auditoría central de ensayo'); }
+      return;
+    }
     const userId = req.user ? req.user.id : null;
     if (!userId) return;
 

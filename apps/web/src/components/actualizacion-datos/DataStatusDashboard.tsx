@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import DashboardShell from "@/components/layout/DashboardShell";
+import { isCopaAdmin } from "@/lib/access";
 import { useDashboardSession } from "@/hooks/useDashboardSession";
 import { fetchWithAuth } from "@/lib/api";
 import styles from "./DataStatusDashboard.module.css";
@@ -129,7 +130,7 @@ export default function DataStatusDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isAdmin = user?.username === "admin";
+  const isAdmin = isCopaAdmin(user);
 
   async function refreshData() {
     setLoading(true);
@@ -181,7 +182,7 @@ export default function DataStatusDashboard() {
     : inflation?.ipc_source === "rem_bcra" ? "REM · publicado por BCRA" : "Sin datos para el cálculo";
 
   return (
-    <DashboardShell activePath="/actualizacion-datos" displayName={displayName} username={user.username} onLogout={logout}>
+    <DashboardShell user={user} activePath="/actualizacion-datos" displayName={displayName} username={user.username} onLogout={logout}>
       <div className={styles.dashboard}>
         <header className={styles.header}>
           <div>

@@ -10,6 +10,7 @@ export type CopaUser = {
   username?: string;
   name?: string;
   role?: string;
+  origen?: "central-ensayo";
   access?: {
     scope: "global" | "institution";
     jurisdictions: { code: number; name: string }[];
@@ -45,24 +46,38 @@ export function useDashboardSession(options: { required?: boolean } = { required
       };
     }
 
-    if (!token) {
-      markReady();
-      if (options.required) {
-        router.replace("/login");
-      }
-      return () => {
-        cancelled = true;
-      };
-    }
-    
     const controller = new AbortController();
-    // Refresh permissions from the server; localStorage is only a display cache.
-    fetchWithAuth("/copa/copa-api/api/auth/me", { signal: controller.signal, cache: "no-store" })
-      .then(async (response) => {
+    const centralEnabled = process.env.NEXT_PUBLIC_COPA_SSO_LOCAL === "si" || process.env.NEXT_PUBLIC_COPA_SSO_STAGING === "si" || process.env.NEXT_PUBLIC_COPA_SSO_ENABLED === "si";
+
+    async function verifySession() {
+      // A portal session represents the identity the user just chose, even if
+      // a different, older Copa token remains in this browser.
+      if (centralEnabled) {
+        try {
+          const response = await fetch("/copa/copa-api/api/auth/session", { cache: "no-store", signal: controller.signal });
+          const data = response.ok ? await response.json() as { user?: CopaUser } : null;
+          if (cancelled) return;
+          if (data?.user?.origen === "central-ensayo") {
+            localStorage.removeItem("copa_token");
+            localStorage.removeItem("copa_user");
+            setUser(data.user);
+            setReady(true);
+            return;
+          }
+        } catch {
+          if (cancelled) return;
+          // The legacy login remains usable if the central service is unavailable.
+        }
+      }
+      if (!token) {
+        markReady();
+        if (options.required) router.replace("/login");
+        return;
+      }
+      try {
+        const response = await fetchWithAuth("/copa/copa-api/api/auth/me", { signal: controller.signal, cache: "no-store" });
         if (!response.ok) throw new Error("No se pudo verificar la sesión");
-        return response.json() as Promise<{ user: CopaUser }>;
-      })
-      .then(({ user: sessionUser }) => {
+        const { user: sessionUser } = await response.json() as { user: CopaUser };
         if (cancelled) return;
         localStorage.setItem("copa_user", JSON.stringify(sessionUser));
         const route = pathname.replace(/^\/copa(?=\/|$)/, "") || "/";
@@ -72,26 +87,29 @@ export function useDashboardSession(options: { required?: boolean } = { required
         }
         setUser(sessionUser);
         setReady(true);
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) return;
         markReady();
         if (options.required) router.replace("/login");
-      });
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
+      }
+    }
+    void verifySession();
+    return () => { cancelled = true; controller.abort(); };
   }, [router, pathname, options.required]);
 
   const logout = useCallback(() => {
     if (confirm("¿Está seguro que desea cerrar sesión?")) {
+      if (user?.origen === "central-ensayo") {
+        void fetch("/copa/copa-api/api/auth/logout-central", { method: "POST" })
+          .then(response => { if (response.ok) window.location.href = process.env.NEXT_PUBLIC_COPA_SSO_LOCAL === "si" ? "http://127.0.0.1:38966/" : "/"; else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
+          .catch(() => alert("No se pudo cerrar la sesión. Intentá nuevamente."));
+        return;
+      }
       localStorage.removeItem("copa_token");
       localStorage.removeItem("copa_user");
       router.push("/login");
     }
-  }, [router]);
+  }, [router, user]);
 
   const displayName = user?.username === "jpvaldes" 
     ? "Gob. JP. Valdés" 

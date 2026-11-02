@@ -28,7 +28,7 @@ export function useAnalytics() {
     logCache.set(cacheKey, now);
 
     const token = typeof window !== "undefined" ? localStorage.getItem("copa_token") : null;
-    if (!token) return;
+    if (!token && process.env.NEXT_PUBLIC_COPA_SSO_LOCAL !== "si" && process.env.NEXT_PUBLIC_COPA_SSO_STAGING !== "si" && process.env.NEXT_PUBLIC_COPA_SSO_ENABLED !== "si") return;
 
     try {
       // We use the analytics endpoint configured in the backend

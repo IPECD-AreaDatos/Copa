@@ -13,6 +13,7 @@ export default function MonitorMensualPage() {
 
   return (
     <DashboardShell
+      user={user}
       activePath="/monitor-mensual"
       displayName={displayName}
       username={user.username}

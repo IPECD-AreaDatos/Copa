@@ -13,6 +13,7 @@ export default function GastoPage() {
 
   return (
     <DashboardShell
+      user={user}
       activePath="/gasto"
       displayName={displayName}
       username={user.username}

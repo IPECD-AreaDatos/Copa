@@ -50,6 +50,7 @@ export default function GastosDesagregadosPage() {
 
   return (
     <DashboardShell
+      user={user}
       activePath="/gastos-desagregados"
       displayName={displayName}
       username={user.username}
