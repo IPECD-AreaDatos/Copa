@@ -79,3 +79,9 @@ Se dejan visibles dos criterios para revisión del equipo: el consolidado genera
 - Personal: el último mes del corte reemplaza Top 3 y máximo como indicador principal. Los otros rubros conservan los indicadores nuevos.
 - Posición económica: pestaña independiente de ingresos frente a gastos, reservada temporalmente a la cuenta `admin` con alcance global. Las demás cuentas, incluso otros administradores centrales, no ven la pestaña y reciben HTTP 403 en el endpoint.
 - El flujo de producción ejecuta las pruebas de gastos de la interfaz además de las de API y sesión central antes de compilar y reiniciar los servicios.
+
+## Fuentes del gasto dentro de Posición económica
+
+- La pestaña incorpora el selector «Fuentes del gasto» y el acceso directo «Sólo Tesoro · fuente 10», disponible también mientras carga la comparación.
+- El selector se comparte con «Alcance de la consulta»: admite una o varias fuentes y Todas. La apertura predeterminada conserva fuente 10; ambos controles siempre representan la misma selección.
+- Se reutiliza el filtro de fuente que ya aplicaba la consulta de gastos. Los ingresos conservan el alcance acordado de RON + ROP brutos provinciales, sin atribuirles una codificación presupuestaria que las tablas de ingresos no proporcionan.

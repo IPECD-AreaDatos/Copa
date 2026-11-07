@@ -288,6 +288,14 @@ export default function GastosDesagregadosDashboard({
       capitulos: values.length ? values : "todos",
     });
   };
+  const updateSources = (values: number[]) => {
+    if (values.join(",") === sources.join(",")) return;
+    markChange();
+    setSources(values);
+    logAction("Gastos desagregados", "Cambio fuente", {
+      fuentes: values.length ? values : "todas",
+    });
+  };
   if (!data)
     return (
       <section className="chart-container desagregado-page-state">
@@ -388,15 +396,7 @@ export default function GastosDesagregadosDashboard({
             options={data.meta.available.fuentes}
             selected={sources}
             allLabel="Todas las fuentes"
-            onChange={(values) => {
-              if (values.join(",") !== sources.join(",")) {
-                markChange();
-                setSources(values);
-                logAction("Gastos desagregados", "Cambio fuente", {
-                  fuentes: values.length ? values : "todas",
-                });
-              }
-            }}
+            onChange={updateSources}
           />
           <div className="sf-group">
             <label htmlFor="desagregado-state">Estado</label>
@@ -513,6 +513,7 @@ export default function GastosDesagregadosDashboard({
           <GastoPosicionEconomica
             key={JSON.stringify(data.meta.requested)}
             data={data}
+            onSourcesChange={updateSources}
           />
         )}
         <p className="source-text desagregado-source-line">

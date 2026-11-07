@@ -11,6 +11,7 @@ import {
 import { fetchWithAuth } from "@/lib/api";
 import { format1M } from "@/lib/gasto/logic";
 import { MONTHS } from "./GastoEvolucion";
+import GastoMultiSelect from "./GastoMultiSelect";
 import type { DesagregadoResponse } from "./GastosDesagregadosDashboard";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -34,8 +35,10 @@ type Position = {
 };
 export default function GastoPosicionEconomica({
   data,
+  onSourcesChange,
 }: {
   data: DesagregadoResponse;
+  onSourcesChange: (values: number[]) => void;
 }) {
   const [position, setPosition] = useState<Position | null>(null);
   const [error, setError] = useState("");
@@ -85,32 +88,61 @@ export default function GastoPosicionEconomica({
   }, [query, snapshot]);
   const money = (v: number | null) =>
     v === null ? "Sin datos completos" : format1M(v);
+  const sources = filters.fuentes ?? [];
+  const heading = (
+    <>
+      <h2 className="section-title">
+        Posición económica · gastos vs. ingresos
+      </h2>
+      <div className="section-filters">
+        <GastoMultiSelect
+          label="Fuentes del gasto"
+          options={data.meta.available.fuentes}
+          selected={sources}
+          onChange={onSourcesChange}
+          allLabel="Todas las fuentes"
+        />
+        <button
+          type="button"
+          className="gasto-toggle"
+          aria-pressed={sources.length === 1 && sources[0] === 10}
+          onClick={() => onSourcesChange([10])}
+        >
+          Sólo Tesoro · fuente 10
+        </button>
+      </div>
+    </>
+  );
   if (snapshot)
     return (
       <section className="chart-container">
-        <h2 className="section-title">Posición económica</h2>
+        {heading}
         <p>
           Seleccione Comprometido u Ordenado para comparar flujos de gastos e
           ingresos.
         </p>
       </section>
     );
-  if (error)
+  if (error || !position)
     return (
-      <p role="alert" className="desagregado-error">
-        {error}
-      </p>
+      <section className="chart-container">
+        {heading}
+        {error ? (
+          <p role="alert" className="desagregado-error">
+            {error}
+          </p>
+        ) : (
+          <p role="status">Cargando gastos e ingresos…</p>
+        )}
+      </section>
     );
-  if (!position) return <p role="status">Cargando gastos e ingresos…</p>;
   const incomplete = position.monthly.some(
     (r) => !r.ingresos_completos || r.gastos === null,
   );
   return (
     <div className="ministerial-analysis">
       <section className="chart-container">
-        <h2 className="section-title">
-          Posición económica · gastos vs. ingresos
-        </h2>
+        {heading}
         <p className="desagregado-scope-note">
           {position.income_scope} La diferencia es ingresos provinciales menos
           gasto seleccionado; con un gasto parcial no representa el resultado
