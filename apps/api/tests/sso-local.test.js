@@ -17,7 +17,10 @@ async function call(headers) {
 test('la convivencia conserva tokens heredados y confía en el rango central solo tras consultar el servicio', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
   const previousSecret = process.env.JWT_SECRET;
+  // El ensayo no debe heredar el modo de producción del servidor que ejecuta npm test.
+  delete process.env.COPA_SSO_MODE;
   process.env.JWT_SECRET = 'secreto-exclusivo-para-pruebas-locales';
   try {
     const token = jwt.sign({ id: 17, username: 'usuario', origen: 'central-ensayo', role: 'admin' }, process.env.JWT_SECRET);
@@ -47,6 +50,7 @@ test('la convivencia conserva tokens heredados y confía en el rango central sol
   } finally {
     global.fetch = previousFetch;
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
+    if (previousMode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = previousMode;
     if (previousSecret === undefined) delete process.env.JWT_SECRET; else process.env.JWT_SECRET = previousSecret;
   }
 });

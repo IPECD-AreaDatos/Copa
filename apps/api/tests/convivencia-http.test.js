@@ -33,6 +33,8 @@ const app = express();
 app.use(express.json());
 app.use('/api/auth', require('../routes/auth'));
 app.use('/api/admin', require('../routes/admin'));
+// Los módulos anteriores pueden cargar el .env de producción; este proceso usa el ensayo local.
+delete process.env.COPA_SSO_MODE;
 
 test('las rutas reales admiten login anterior y sesión central en paralelo', async () => {
   passwordHash = await bcrypt.hash('clave-ficticia', 4);

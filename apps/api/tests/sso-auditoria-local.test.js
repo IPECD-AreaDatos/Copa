@@ -4,6 +4,8 @@ const logger = require('../middleware/logger');
 
 test('la auditoría central usa la sesión y no envía datos de la solicitud ni IDs heredados', async () => {
   const original = global.fetch, flag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const mode = process.env.COPA_SSO_MODE;
+  delete process.env.COPA_SSO_MODE;
   process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
   let sent;
   global.fetch = async (url, options) => { sent = { url, options }; return { ok: true }; };
@@ -17,5 +19,6 @@ test('la auditoría central usa la sesión y no envía datos de la solicitud ni 
   } finally {
     global.fetch = original;
     if (flag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = flag;
+    if (mode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = mode;
   }
 });
