@@ -20,3 +20,8 @@ export function canAccessGastosDesagregados(user?: CopaUser | null): boolean {
   if (user?.origen === "central-ensayo") return user.role === "admin";
   return isInstitutionUser(user) || GASTOS_DESAGREGADOS_USERS.has(user?.username?.trim().toLowerCase() || "");
 }
+
+export function canAccessEconomicPosition(user?: CopaUser | null): boolean {
+  return user?.username?.trim().toLowerCase() === "admin"
+    && user.access?.scope === "global";
+}
