@@ -38,7 +38,9 @@ test('la convivencia conserva JWT locales cuando SSO está desactivado', async (
 test('con SSO activo requiere la sesión central y resuelve el rango desde el servicio', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
   const previousSecret = process.env.JWT_SECRET;
+  delete process.env.COPA_SSO_MODE;
   process.env.JWT_SECRET = 'secreto-exclusivo-para-pruebas-locales';
   process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
   try {
@@ -69,6 +71,8 @@ test('con SSO activo requiere la sesión central y resuelve el rango desde el se
 test('el rango lector habilita el tablero pero no gastos desagregados', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
+  delete process.env.COPA_SSO_MODE;
   process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
   try {
     global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'lector', tableros: [{ codigo: 'copa', rango: 'lector', alcances: [] }] }) });
@@ -84,12 +88,15 @@ test('el rango lector habilita el tablero pero no gastos desagregados', async ()
   } finally {
     global.fetch = previousFetch;
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
+    if (previousMode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = previousMode;
   }
 });
 
 test('analista y rangos institucionales conservan los permisos actuales', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
+  delete process.env.COPA_SSO_MODE;
   process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
   try {
     global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'analista', tableros: [{ codigo: 'copa', rango: 'analista-gastos', alcances: [] }] }) });
@@ -106,12 +113,15 @@ test('analista y rangos institucionales conservan los permisos actuales', async 
   } finally {
     global.fetch = previousFetch;
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
+    if (previousMode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = previousMode;
   }
 });
 
 test('rechaza rangos desconocidos, alcances no previstos y cuentas sin Copa', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
+  delete process.env.COPA_SSO_MODE;
   process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
   try {
     for (const tableros of [
@@ -127,5 +137,6 @@ test('rechaza rangos desconocidos, alcances no previstos y cuentas sin Copa', as
   } finally {
     global.fetch = previousFetch;
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
+    if (previousMode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = previousMode;
   }
 });
