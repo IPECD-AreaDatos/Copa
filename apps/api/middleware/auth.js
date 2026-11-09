@@ -3,11 +3,13 @@ const db = require('../db');
 const { publicUser } = require('../services/user-access');
 const { jwtSecret } = require('../services/auth-config');
 const { config, sessionCookie } = require('./sso-config');
+const { centralUser } = require('../services/central-access');
 
 const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
+  let sso; try { sso = config(); } catch { return res.status(503).json({ message: 'Configuración SSO no disponible' }); }
+  if (token && sso) return res.status(401).json({ message: 'La sesión anterior venció. Iniciá sesión nuevamente.' });
   if (!token) {
-    let sso; try { sso = config(); } catch { return res.status(503).json({ message: 'Configuración SSO no disponible' }); }
     if (!sso) return res.status(403).json({ message: 'Token requerido para autenticación' });
     const cookie = sessionCookie(req, sso);
     if (!cookie) return res.status(403).json({ message: 'Token requerido para autenticación' });
@@ -15,10 +17,8 @@ const verifyToken = async (req, res, next) => {
       const response = await fetch(sso.internal + '/sso/me', { headers: { cookie }, signal: AbortSignal.timeout(2000), redirect: 'error' });
       if (!response.ok) return res.status(401).json({ message: 'Sesión central inválida o sin acceso a Copa' });
       const identity = await response.json();
-      const board = Array.isArray(identity.tableros) && identity.tableros.find(t => t.codigo === 'copa');
-      // El piloto solo admite administradores; los alcances por institución aún no están centralizados.
-      if (!board || board.rango !== 'admin' || typeof identity.usuario !== 'string') return res.status(403).json({ message: 'Rango central no habilitado en este piloto' });
-      req.user = { username: identity.usuario, name: identity.usuario, role: 'admin', origen: 'central-ensayo', access: { scope: 'global', jurisdictions: [] } };
+      req.user = centralUser(identity, sso);
+      if (!req.user) return res.status(403).json({ message: 'El acceso asignado no está habilitado para Copa' });
     } catch { return res.status(401).json({ message: 'Sesión central inválida o sin acceso a Copa' }); }
   } else {
     try {

@@ -4,10 +4,11 @@ const authMiddleware = require('../middleware/auth');
 const db = require('../db');
 const { loadDataStatus } = require('../services/data-status');
 const {config,sessionCookie}=require('../middleware/sso-config');
+const {isCentralUser}=require('../services/central-access');
 
 // Middleware para verificar si es admin
 const isAdmin = (req, res, next) => {
-  if (req.user && (req.user.origen === 'central-ensayo' ? req.user.role === 'admin' : req.user.username === 'admin')) {
+  if (req.user && (isCentralUser(req.user) ? req.user.role === 'admin' : req.user.username === 'admin')) {
     return next();
   }
   return res.status(403).json({ message: 'Acceso denegado: Se requieren privilegios de administrador' });
@@ -33,7 +34,7 @@ router.get('/usage', authMiddleware, isAdmin, async (req, res) => {
     `);
 
     let rows = result.rows;
-    if (req.user?.origen === 'central-ensayo') {
+    if (isCentralUser(req.user)) {
       const sso=config();
       if (!sso) return res.status(503).json({ message: 'Auditoría central no disponible' });
       const cookie = sessionCookie(req,sso);

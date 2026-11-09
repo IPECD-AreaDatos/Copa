@@ -31,9 +31,14 @@ export default function LoginPage() {
         /* ignore */
       }
 
-      if (response.ok && data.token && data.user) {
-        localStorage.setItem('copa_token', data.token);
-        localStorage.setItem('copa_user', JSON.stringify(data.user));
+      if (response.ok && data.user && (data.token || data.user.origen === 'central' || data.user.origen === 'central-ensayo')) {
+        if (data.user.origen === 'central' || data.user.origen === 'central-ensayo') {
+          localStorage.removeItem('copa_token');
+          localStorage.removeItem('copa_user');
+        } else if (data.token) {
+          localStorage.setItem('copa_token', data.token);
+          localStorage.setItem('copa_user', JSON.stringify(data.user));
+        }
         router.replace(isInstitutionUser(data.user) ? '/gasto' : '/');
       } else {
         setError(true);
