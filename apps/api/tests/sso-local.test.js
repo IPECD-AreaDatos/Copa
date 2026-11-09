@@ -18,7 +18,10 @@ async function call(headers) {
 
 test('la convivencia conserva JWT locales cuando SSO está desactivado', async () => {
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
+  const previousMode = process.env.COPA_SSO_MODE;
   const previousSecret = process.env.JWT_SECRET;
+  // El ensayo no debe heredar el modo de producción del servidor que ejecuta npm test.
+  delete process.env.COPA_SSO_MODE;
   process.env.JWT_SECRET = 'secreto-exclusivo-para-pruebas-locales';
   try {
     delete process.env.COPA_SSO_ENSAYO_LOCAL;
@@ -58,6 +61,7 @@ test('con SSO activo requiere la sesión central y resuelve el rango desde el se
   } finally {
     global.fetch = previousFetch;
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
+    if (previousMode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = previousMode;
     if (previousSecret === undefined) delete process.env.JWT_SECRET; else process.env.JWT_SECRET = previousSecret;
   }
 });

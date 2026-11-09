@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:annual": "node --test tests/annual-view-model.test.mjs"
+    "test:annual": "node --test tests/annual-view-model.test.mjs",
+    "test:gasto": "node --test tests/gasto-view-model.test.mjs tests/gasto-scope-render.test.mjs"
   },
   "dependencies": {
     "chart.js": "^4.5.1",

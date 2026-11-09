@@ -53,6 +53,8 @@ app.use(express.json());
 app.use(require('../middleware/logger.js'));
 app.use('/api/auth', require('../routes/auth'));
 app.use('/api/admin', require('../routes/admin'));
+// Los módulos anteriores pueden cargar el .env de producción; este proceso usa el ensayo local.
+delete process.env.COPA_SSO_MODE;
 
 test('el login local de Copa crea una sesión central y conserva auditoría y permisos', async () => {
   passwordHash = await bcrypt.hash('clave-ficticia', 4);

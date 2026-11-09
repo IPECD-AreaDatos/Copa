@@ -2,6 +2,10 @@ const express = require('express');
 const { buildMinisterialAnalysis } = require('../services/gasto-ministerial');
 const router = express.Router();
 const db = require('../db'); // datos_tablero
+const { latestCompletePeriod } = require('../services/gasto-periodo');
+const { buildEconomicPosition } = require('../services/gasto-posicion');
+const { canAccessEconomicPosition } = require('../services/gasto-economic-access');
+const { ROP_MONTHLY_QUERY } = require('../services/rop-source');
 const authMiddleware = require('../middleware/auth');
 const allowUsers = require('../middleware/allow-users');
 const { institutionCodes, institutionWhere, scopeDetailedFilters, validateNamedInstitution } = require('../services/user-access');
@@ -153,6 +157,45 @@ router.get('/desagregados/excel/:id', authMiddleware, (req, res, next) => {
     res.json(sheet);
 });
 
+router.get('/desagregados/periodo-predeterminado', authMiddleware, canViewGastosDesagregados, async (req, res) => {
+    try {
+        const access = institutionWhere(req, { numeric: true });
+        const result = await db.query(`
+            SELECT anio, mes, tipo_de_g, COUNT(*)::int AS row_count
+            FROM copa_gastos_fte WHERE ${access.text}
+            AND tipo_de_g IN ('Comprometido', 'Ordenado', 'Cred Vig')
+            GROUP BY anio, mes, tipo_de_g
+        `, access.params);
+        const period = latestCompletePeriod(result.rows);
+        if (!period) return res.status(404).json({ message: 'No hay un mes completo de gastos disponible.' });
+        return res.json(period);
+    } catch (err) {
+        console.error('Error al resolver el corte de gastos:', err.message);
+        return res.status(500).json({ message: 'No se pudo determinar el último mes completo.' });
+    }
+});
+
+router.get('/desagregados/posicion-economica', authMiddleware, canViewGastosDesagregados, async (req, res) => {
+    if (!canAccessEconomicPosition(req.user)) return res.status(403).json({ message: 'Posición económica disponible únicamente para el usuario admin.' });
+    try {
+        const filters = buildFilters(req.query);
+        if (isSnapshotState(filters)) return res.status(400).json({ message: 'Seleccione Comprometido u Ordenado para comparar gastos e ingresos.' });
+        const where = buildWhere(filters);
+        const [expenses, ron, rop] = await Promise.all([
+            db.query(`SELECT mes, SUM(val)::numeric AS total FROM copa_gastos_fte WHERE ${where.text} GROUP BY mes ORDER BY mes`, where.params),
+            db.query(`SELECT EXTRACT(YEAR FROM fecha)::int AS anio, EXTRACT(MONTH FROM fecha)::int AS mes,
+                SUM(total_general)::numeric AS ron_bruto FROM copa_recursos_origen_nacional
+                WHERE EXTRACT(YEAR FROM fecha) BETWEEN $1 - 1 AND $1 GROUP BY 1, 2`, [filters.anio]),
+            db.query(`SELECT * FROM (${ROP_MONTHLY_QUERY}) AS rop WHERE anio BETWEEN $1 - 1 AND $1`, [filters.anio]),
+        ]);
+        return res.json(buildEconomicPosition(filters, expenses.rows, ron.rows, rop.rows));
+    } catch (err) {
+        if (err.statusCode === 400) return res.status(400).json({ message: err.message });
+        console.error('Error al consultar la posición económica:', err.message);
+        return res.status(500).json({ message: 'No se pudo cargar la comparación de gastos e ingresos.' });
+    }
+});
+
 router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (req, res) => {
     try {
         const filters = scopeDetailedFilters(req, buildFilters(req.query));
@@ -194,6 +237,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             monthlyRubrosResult,
             jurisdictionSubpartidasResult,
             budgetResult,
+            monthlyJurisdictionRubrosResult,
         ] = await Promise.all([
             db.query(`
                 SELECT partid,
@@ -295,6 +339,9 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
                 GROUP BY jurisdiccion
                 ORDER BY jurisdiccion
             `, budgetWhere.params),
+            db.query(`SELECT jurisdiccion, mes, ${RUBRO_CASE_SQL} AS rubro,
+                SUM(val)::numeric AS total, COUNT(*)::int AS row_count
+                ${from} GROUP BY 1, 2, 3 ORDER BY 1, 2, 3`, where.params),
         ]);
 
         const chapterRows = buildChapterRows(chaptersResult.rows);
@@ -360,6 +407,10 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             rubros: rubroRows,
             jurisdicciones_rubros: jurisdictionRubroRows,
             monthly_rubros: monthlyRubroRows,
+            monthly_jurisdicciones_rubros: monthlyJurisdictionRubrosResult.rows.map((r) => ({
+                ...mapJurisdiccion(r.jurisdiccion), mes: Number(r.mes),
+                rubro: { codigo: r.rubro }, total: numberValue(r.total),
+            })),
             jurisdiccion_subpartidas: jurisdictionSubpartidaRows,
             ministerial_analysis: buildMinisterialAnalysis(jurisdictionSubpartidaRows, institutionCodes(req)),
             modificaciones_presupuestarias: budgetResult.rows.map((r) => ({

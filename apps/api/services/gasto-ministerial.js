@@ -3,7 +3,13 @@ const { archive, jurisdictionCode } = require('./gasto-excel-analysis');
 const referenceJurisdictions = [...new Set(archive.books[2].sheets[4].cells
     .filter((c) => c.col === 1 && c.row >= 2 && c.row <= 26)
     .map((c) => jurisdictionCode(c.value)).filter(Boolean))];
-const labels = { personal: 'Personal', bienes_servicios: 'Bienes y servicios', transferencias: 'Transferencias (incluye 533)', coparticipacion: 'Coparticipación', deuda: 'Servicio de la deuda', bienes_uso: 'Bienes de uso', otros: 'Otros', figurativos: 'Gastos figurativos' };
+const labels = { personal: 'Personal', bienes_servicios: 'Bienes y servicios', transferencias: 'Transferencias', coparticipacion: 'Coparticipación', deuda: 'Servicio de la deuda', bienes_uso: 'Bienes de uso', otros: 'Otros', figurativos: 'Gastos figurativos' };
+const matrixLabels = { personal: 'Personal', bienes_servicios: 'Bienes y servicios', transferencias: 'Transferencias', coparticipacion: 'Coparticipación', bienes_uso: 'Bienes de uso', otros: 'Otros' };
+const matrixCategory = (row) => ['seguridad_social', 'deuda', 'figurativos'].includes(row.rubro.codigo) ? 'otros' : row.rubro.codigo;
+const accountKey = (row) => [421, 423].includes(row.subpartida.codigo) ? '421+423' : String(row.subpartida.codigo);
+const accountLabel = (row) => [421, 423].includes(row.subpartida.codigo)
+    ? '421 + 423 · Construcciones y redeterminaciones en bienes de dominio privado'
+    : `${row.subpartida.codigo} · ${row.subpartida.nombre}`;
 function sourceCategory(row) {
     return row.rubro.codigo === 'seguridad_social' ? 'transferencias' : row.rubro.codigo;
 }
@@ -55,7 +61,7 @@ function analysis(rows) {
     });
     const matrix = aggregate(rows, (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre).map((jur) => {
         const selected = rows.filter((r) => String(r.jurisdiccion.codigo) === jur.id);
-        const rubros = Object.fromEntries(aggregate(selected, sourceCategory, (r) => labels[sourceCategory(r)]).map((r) => [r.id, r.total]));
+        const rubros = Object.fromEntries(aggregate(selected, matrixCategory, (r) => matrixLabels[matrixCategory(r)]).map((r) => [r.id, r.total]));
         return { ...jur, rubros, withoutPersonal: jur.total - (rubros.personal || 0), withoutPersonalCop: jur.total - (rubros.personal || 0) - (rubros.coparticipacion || 0) };
     }).sort((a, b) => b.total - a.total);
     const personalRows = rows.filter((r) => r.partida.codigo === 100);
@@ -65,8 +71,8 @@ function analysis(rows) {
     };
     const accountRows = rows.filter((r) => r.partida.codigo !== 100);
     const accountsTotal = sum(accountRows);
-    const accounts = ranked(aggregate(accountRows, (r) => String(r.subpartida.codigo), (r) => `${r.subpartida.codigo} · ${r.subpartida.nombre}`)).map((account) => ({
-        ...account, rows: ranked(aggregate(accountRows.filter((r) => String(r.subpartida.codigo) === account.id), (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre)),
+    const accounts = ranked(aggregate(accountRows, accountKey, accountLabel)).map((account) => ({
+        ...account, rows: ranked(aggregate(accountRows.filter((r) => accountKey(r) === account.id), (r) => String(r.jurisdiccion.codigo), (r) => r.jurisdiccion.nombre)),
     }));
     const ministryRankings = [];
     for (const jur of matrix) {
@@ -75,11 +81,11 @@ function analysis(rows) {
             const groups = aggregate(selected, (r) => combined && [200, 300].includes(r.partida.codigo) ? '200+300' : String(r.partida.codigo), (r) => combined && [200, 300].includes(r.partida.codigo) ? 'Bienes y servicios · 200+300' : r.partida.nombre);
             for (const group of groups) {
                 const matches = selected.filter((r) => (combined && [200, 300].includes(r.partida.codigo) ? '200+300' : String(r.partida.codigo)) === group.id);
-                ministryRankings.push({ ...group, jurisdiction: jur.id, combined, rows: ranked(aggregate(matches, (r) => String(r.subpartida.codigo), (r) => `${r.subpartida.codigo} · ${r.subpartida.nombre}`)) });
+                ministryRankings.push({ ...group, jurisdiction: jur.id, combined, rows: ranked(aggregate(matches, accountKey, accountLabel)) });
             }
         }
     }
-    return { universes, top8, concentration, matrix, partida100, accountsTotal, accounts, ministryRankings, labels, total: sum(rows) };
+    return { universes, top8, concentration, matrix, partida100, accountsTotal, accounts, ministryRankings, labels: matrixLabels, total: sum(rows) };
 }
 function buildMinisterialAnalysis(rows, allowedJurisdictions = null) {
     const reference = allowedJurisdictions

@@ -58,7 +58,7 @@ export default function GastosDesagregadosPage() {
       access={user.access}
       onLogout={logout}
     >
-      <GastosDesagregadosDashboard access={user.access} />
+      <GastosDesagregadosDashboard user={user} />
     </DashboardShell>
   );
 }

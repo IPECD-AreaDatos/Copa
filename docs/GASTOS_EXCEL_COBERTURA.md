@@ -2,6 +2,8 @@
 
 Revisión: 23 de septiembre de 2026. Estado: cambios locales para revisión.
 
+Actualización del 6 de noviembre: [necesidades de la reunión e implementación](GASTOS_MEJORAS_20261106.md). Reorganiza las vistas, agrupa columnas y cuentas e incorpora Posición económica sin modificar el inventario original descrito aquí.
+
 ## Resultado y fuente
 
 Se inventariaron las **29 hojas, 9.899 celdas con contenido, 2.524 fórmulas y 6 gráficos**. El archivo `apps/api/data/gasto_excel_sheets.json` conserva valores guardados, fórmulas, comentarios, rangos, columnas/filas ocultas y referencias de series. El 23 de septiembre se verificó que los SHA-256 de los cuatro XLSX originales coinciden con ese inventario. Los originales no se modifican ni se ejecutan macros o instrucciones contenidas en ellos.
