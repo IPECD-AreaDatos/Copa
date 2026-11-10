@@ -18,16 +18,16 @@ function loadSource(base) {
   const filename = ['', '.ts', '.tsx'].map((ext) => base + ext).find((name) => fs.existsSync(name));
   if (!filename) throw new Error(`No se encontró ${base}`);
   if (cache.has(filename)) return cache.get(filename);
-  const module = { exports: {} };
-  cache.set(filename, module.exports);
+  const loadedModule = { exports: {} };
+  cache.set(filename, loadedModule.exports);
   const code = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
   const localRequire = (name) => name.startsWith('@/') ? loadSource(path.join(sourceRoot, name.slice(2)))
     : name.startsWith('.') ? loadSource(path.resolve(path.dirname(filename), name)) : require(name);
-  vm.runInNewContext(code, { module, exports: module.exports, require: localRequire, Intl, Date }, { filename });
-  cache.set(filename, module.exports);
-  return module.exports;
+  vm.runInNewContext(code, { module: loadedModule, exports: loadedModule.exports, require: localRequire, Intl, Date }, { filename });
+  cache.set(filename, loadedModule.exports);
+  return loadedModule.exports;
 }
 
 const Dashboard = loadSource(path.join(sourceRoot, 'components/gasto/GastoAnalisisMinisterial')).default;

@@ -1,10 +1,12 @@
 import type { CopaUser } from "@/hooks/useDashboardSession";
+const isCentralUser = (user?: CopaUser | null) => user?.origen === "central" || user?.origen === "central-ensayo";
 
 const GASTOS_DESAGREGADOS_USERS = new Set([
   "gcorrales",
   "hgrachot",
   "dinsaurralde",
   "fgonzalez",
+  "jgazzo",
   "admin",
 ]);
 
@@ -13,16 +15,16 @@ export function isInstitutionUser(user?: Pick<CopaUser, "access"> | null): boole
 }
 
 export function isCopaAdmin(user?: CopaUser | null): boolean {
-  return user?.origen === "central-ensayo" ? user.role === "admin" : user?.username === "admin" && !isInstitutionUser(user);
+  return isCentralUser(user) ? user?.role === "admin" : user?.username === "admin" && !isInstitutionUser(user);
 }
 
 export function canAccessGastosDesagregados(user?: CopaUser | null): boolean {
-  if (user?.origen === "central-ensayo") return user.role === "admin" || user.role === "editor";
+  if (isCentralUser(user)) return user?.role === "admin" || user?.role === "editor" || user?.capabilities?.includes("gastos-desagregados") === true || isInstitutionUser(user);
   return isInstitutionUser(user) || GASTOS_DESAGREGADOS_USERS.has(user?.username?.trim().toLowerCase() || "");
 }
 
 export function canAccessEconomicPosition(user?: CopaUser | null): boolean {
-  if (user?.origen === "central-ensayo") return user.role === "admin";
+  if (isCentralUser(user)) return user?.role === "admin" && !isInstitutionUser(user);
   return user?.username?.trim().toLowerCase() === "admin"
     && user.access?.scope === "global";
 }

@@ -10,7 +10,9 @@ export type CopaUser = {
   username?: string;
   name?: string;
   role?: string;
-  origen?: "central-ensayo";
+  origen?: "central" | "central-ensayo";
+  rango?: string;
+  capabilities?: string[];
   access?: {
     scope: "global" | "institution";
     jurisdictions: { code: number; name: string }[];
@@ -57,16 +59,27 @@ export function useDashboardSession(options: { required?: boolean } = { required
           const response = await fetch("/copa/copa-api/api/auth/session", { cache: "no-store", signal: controller.signal });
           const data = response.ok ? await response.json() as { user?: CopaUser } : null;
           if (cancelled) return;
-          if (data?.user?.origen === "central-ensayo") {
+          if (data?.user?.origen === "central" || data?.user?.origen === "central-ensayo") {
             localStorage.removeItem("copa_token");
             localStorage.removeItem("copa_user");
             setUser(data.user);
             setReady(true);
             return;
           }
+          if (response.status !== 404) {
+            localStorage.removeItem("copa_token");
+            localStorage.removeItem("copa_user");
+            markReady();
+            if (options.required) router.replace("/login");
+            return;
+          }
         } catch {
           if (cancelled) return;
-          // The legacy login remains usable if the central service is unavailable.
+          localStorage.removeItem("copa_token");
+          localStorage.removeItem("copa_user");
+          markReady();
+          if (options.required) router.replace("/login");
+          return;
         }
       }
       if (!token) {
@@ -81,7 +94,9 @@ export function useDashboardSession(options: { required?: boolean } = { required
         if (cancelled) return;
         localStorage.setItem("copa_user", JSON.stringify(sessionUser));
         const route = pathname.replace(/^\/copa(?=\/|$)/, "") || "/";
-        if (isInstitutionUser(sessionUser) && !["/gasto", "/gastos-desagregados"].includes(route)) {
+        const institutionRoutes = ["/gasto", "/gastos-desagregados"];
+        const hasMinistryHome = sessionUser.rango === "ministerio" && route === "/";
+        if (isInstitutionUser(sessionUser) && !institutionRoutes.includes(route) && !hasMinistryHome) {
           router.replace("/gasto");
           return;
         }
@@ -99,7 +114,7 @@ export function useDashboardSession(options: { required?: boolean } = { required
 
   const logout = useCallback(() => {
     if (confirm("¿Está seguro que desea cerrar sesión?")) {
-      if (user?.origen === "central-ensayo") {
+      if (user?.origen === "central" || user?.origen === "central-ensayo") {
         void fetch("/copa/copa-api/api/auth/logout-central", { method: "POST" })
           .then(response => { if (response.ok) window.location.href = process.env.NEXT_PUBLIC_COPA_SSO_LOCAL === "si" ? "http://127.0.0.1:38966/" : "/"; else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
           .catch(() => alert("No se pudo cerrar la sesión. Intentá nuevamente."));

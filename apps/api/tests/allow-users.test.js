@@ -7,6 +7,7 @@ const authorize = allowUsers(
   'hgrachot',
   'dinsaurralde',
   'fgonzalez',
+  'jgazzo',
   'admin',
 );
 
@@ -42,7 +43,7 @@ test('permite al usuario admin', () => {
   assert.equal(run('admin').nextCalled, true);
 });
 
-for (const username of ['hgrachot', 'dinsaurralde', 'fgonzalez']) {
+for (const username of ['hgrachot', 'dinsaurralde', 'fgonzalez', 'jgazzo']) {
   test(`permite al usuario ${username}`, () => {
     assert.equal(run(username).nextCalled, true);
   });

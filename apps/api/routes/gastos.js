@@ -41,6 +41,7 @@ const canViewGastosExcel = allowUsers(
     'hgrachot',
     'dinsaurralde',
     'fgonzalez',
+    'jgazzo',
     'admin',
 );
 const canViewGastosDesagregados = (req, res, next) => institutionCodes(req)

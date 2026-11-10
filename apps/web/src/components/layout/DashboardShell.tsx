@@ -30,6 +30,7 @@ export default function DashboardShell({
 }: Props) {
   const effectiveAccess = user?.access || access;
   const institutionOnly = isInstitutionUser({ access: effectiveAccess });
+  const canViewHome = !institutionOnly || user?.rango === "ministerio";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -75,7 +76,7 @@ export default function DashboardShell({
             padding: "0.5rem 0",
           }}
         >
-          <Link href={institutionOnly ? "/gasto" : "/"} style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
+          <Link href={canViewHome ? "/" : "/gasto"} style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setSidebarOpen(false)}>
             <Image
               src="/copa/assets/logo-modernizacion.png"
               alt="Modernización"
@@ -87,7 +88,7 @@ export default function DashboardShell({
         </div>
 
         <nav className="nav-vertical">
-          {!institutionOnly && <Link href="/" className={navClass("/")} onClick={() => setSidebarOpen(false)}>
+          {canViewHome && <Link href="/" className={navClass("/")} onClick={() => setSidebarOpen(false)}>
             Inicio
           </Link>}
           {displayName !== "Invitado" && (
@@ -160,7 +161,9 @@ export default function DashboardShell({
         <main>
           {institutionOnly && <aside className="institution-access-banner" aria-label="Institución autorizada">
             <strong>{effectiveAccess?.jurisdictions.map((j) => j.name).join(" · ")}</strong>
-            <span>Acceso de consulta · Los datos y totales corresponden únicamente a su institución.</span>
+            <span>{user?.rango === "ministerio"
+              ? "Inicio muestra indicadores provinciales agregados; Gasto y Gastos desagregados se limitan a su jurisdicción."
+              : "Acceso de consulta · Los datos y totales corresponden únicamente a su institución."}</span>
           </aside>}
           {children}
         </main>

@@ -4,6 +4,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../../.env'), quiet
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const { jwtSecret } = require('../services/auth-config');
+const { config: ssoConfig } = require('../middleware/sso-config');
 
 // Run on the deployment host, after both updated services are healthy.
 // Passwords stay on the machine that provisioned the accounts.
@@ -29,6 +30,10 @@ async function main() {
     const health = await request(api, '/api/health', null, 200);
     assert.equal((await health.json()).institution_access, true);
     await request(web, '/copa/login', null, 200);
+    if (ssoConfig()) {
+        console.log('SSO central activo: las cuentas y alcances se validan contra Identidad; se omite la prueba con JWT locales heredados.');
+        return;
+    }
     const verified = [];
     const client = await db.pool.connect();
     try {
