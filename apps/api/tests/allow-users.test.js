@@ -65,6 +65,21 @@ test('rechaza solicitudes sin usuario autenticado', () => {
   assert.equal(result.statusCode, 403);
 });
 
+test('permite a rangos centrales admin y editor, pero no lector, en módulos restringidos', () => {
+  for (const role of ['admin', 'editor']) {
+    let nextCalled = false;
+    authorize({ user: { username: 'cuenta-central', role, origen: 'central-ensayo' } }, {}, () => { nextCalled = true; });
+    assert.equal(nextCalled, true);
+  }
+
+  let statusCode;
+  authorize({ user: { username: 'cuenta-central', role: 'lector', origen: 'central-ensayo' } }, {
+    status(code) { statusCode = code; return this; },
+    json() {},
+  }, () => { throw Error('El rango lector no debe acceder a módulos restringidos'); });
+  assert.equal(statusCode, 403);
+});
+
 test('protege el desglose y las hojas Excel con autenticación y deniega usuarios sin permiso', () => {
   const router = require('../routes/gastos');
   const authentication = require('../middleware/auth');

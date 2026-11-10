@@ -75,9 +75,11 @@ test('posición económica queda reservada a la cuenta admin con alcance global'
     const global = { scope: 'global', jurisdictions: [] };
     assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'user', access: global }), true);
     assert.equal(canAccessEconomicPosition({ username: ' ADMIN ', access: global }), true);
+    assert.equal(canAccessEconomicPosition({ username: 'mzalazar', role: 'admin', origen: 'central-ensayo', access: global }), true);
     for (const user of [null, {}, { username: 'admin' },
         { username: 'gcorrales', access: global },
-        { username: 'irodriguez', role: 'admin', origen: 'central-ensayo', access: global },
+        { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access: global },
+        { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access: global },
         { username: 'admin', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
         assert.equal(canAccessEconomicPosition(user), false);
     }

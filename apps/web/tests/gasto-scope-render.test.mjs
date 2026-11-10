@@ -33,7 +33,7 @@ function loadSource(base) {
 const Dashboard = loadSource(path.join(sourceRoot, 'components/gasto/GastoAnalisisMinisterial')).default;
 const Explorer = loadSource(path.join(sourceRoot, 'components/gasto/GastoExplorador')).default;
 const { GastoProyeccion } = loadSource(path.join(sourceRoot, 'components/gasto/GastoEvolucion'));
-const { canAccessEconomicPosition } = loadSource(path.join(sourceRoot, 'lib/access'));
+const { canAccessEconomicPosition, canAccessGastosDesagregados } = loadSource(path.join(sourceRoot, 'lib/access'));
 const { buildMinisterialAnalysis, referenceJurisdictions } = require('../../api/services/gasto-ministerial');
 const { buildJurisdictionRows, buildJurisdictionRubroRows, buildJurisdictionSubpartidaRows, buildRubroRows, mapJurisdiccion, mapPartida } = require('../../api/services/gasto-desagregado');
 
@@ -124,13 +124,22 @@ test('los demás rubros conservan promedio Top 3 y máximo', () => {
   assert.doesNotMatch(html, /Mes anterior:/);
 });
 
-test('la pestaña económica exige la cuenta admin; el rol central admin no habilita otras cuentas', () => {
+test('la pestaña económica exige admin, incluyendo el rango central admin', () => {
   const access = { scope: 'global', jurisdictions: [] };
   assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'user', access }), true);
   assert.equal(canAccessEconomicPosition({ username: ' ADMIN ', access }), true);
+  assert.equal(canAccessEconomicPosition({ username: 'mzalazar', role: 'admin', origen: 'central-ensayo', access }), true);
   for (const user of [null, {}, { username: 'admin' }, { username: 'gcorrales', access },
-    { username: 'irodriguez', role: 'admin', origen: 'central-ensayo', access },
+    { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access },
+    { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access },
     { username: 'admin', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
     assert.equal(canAccessEconomicPosition(user), false);
   }
+});
+
+test('los rangos centrales controlan el acceso a gastos desagregados', () => {
+  const central = (role) => ({ username: 'cuenta-central', role, origen: 'central-ensayo' });
+  assert.equal(canAccessGastosDesagregados(central('admin')), true);
+  assert.equal(canAccessGastosDesagregados(central('editor')), true);
+  assert.equal(canAccessGastosDesagregados(central('lector')), false);
 });

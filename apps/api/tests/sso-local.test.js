@@ -40,9 +40,24 @@ test('la convivencia conserva tokens heredados y confía en el rango central sol
     let allowed = false;
     allowUsers('admin')({ user: central.user }, {}, () => { allowed = true; });
     assert.equal(allowed, true);
+    global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'ivan', tableros: [{ codigo: 'copa', rango: 'editor' }] }) });
+    const editor = await call({ cookie: 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' });
+    assert.equal(editor.next, true);
+    assert.equal(editor.user.role, 'editor');
+    let editorAllowed = false;
+    allowUsers('admin')({ user: editor.user }, {}, () => { editorAllowed = true; });
+    assert.equal(editorAllowed, true);
     global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'ivan', tableros: [{ codigo: 'copa', rango: 'lector' }] }) });
     const reader = await call({ cookie: 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' });
-    assert.equal(reader.status, 403);
+    assert.equal(reader.next, true);
+    let readerAllowed = false;
+    allowUsers('admin')({ user: reader.user }, {
+      status(code) { this.code = code; return this; },
+      json() {},
+    }, () => { readerAllowed = true; });
+    assert.equal(readerAllowed, false);
+    global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'ivan', tableros: [{ codigo: 'copa', rango: 'desconocido' }] }) });
+    assert.equal((await call({ cookie: 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' })).status, 403);
     global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'ivan', tableros: [] }) });
     assert.equal((await call({ cookie: 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' })).status, 403);
     global.fetch = async () => { throw Error('servicio no disponible'); };

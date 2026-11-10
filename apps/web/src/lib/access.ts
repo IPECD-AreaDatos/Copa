@@ -17,11 +17,12 @@ export function isCopaAdmin(user?: CopaUser | null): boolean {
 }
 
 export function canAccessGastosDesagregados(user?: CopaUser | null): boolean {
-  if (user?.origen === "central-ensayo") return user.role === "admin";
+  if (user?.origen === "central-ensayo") return user.role === "admin" || user.role === "editor";
   return isInstitutionUser(user) || GASTOS_DESAGREGADOS_USERS.has(user?.username?.trim().toLowerCase() || "");
 }
 
 export function canAccessEconomicPosition(user?: CopaUser | null): boolean {
+  if (user?.origen === "central-ensayo") return user.role === "admin";
   return user?.username?.trim().toLowerCase() === "admin"
     && user.access?.scope === "global";
 }

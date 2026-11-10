@@ -84,7 +84,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       { id: user.id_usuario, username: user.username },
       jwtSecret(),
-      { expiresIn: '8h' }
+      { expiresIn: '12h' }
     );
 
     // 4. Log accidental (opcional aquí si usamos el logger middleware después del login)

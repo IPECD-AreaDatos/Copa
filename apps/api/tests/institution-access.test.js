@@ -183,6 +183,8 @@ test('el login entrega la institución del usuario y no acepta el propio hash co
     assert.equal(accepted.body.user.access.scope, 'institution');
     assert.deepEqual(accepted.body.user.access.jurisdictions.map((j) => j.code), [4]);
     assert.equal(jwt.verify(accepted.body.token, process.env.JWT_SECRET).id, 900001);
+    const claims = jwt.decode(accepted.body.token);
+    assert.equal(claims.exp - claims.iat, 12 * 60 * 60);
     const rejected = response();
     await login({ body: { username: 'test_institution', password: hash } }, rejected);
     assert.equal(rejected.statusCode, 401);

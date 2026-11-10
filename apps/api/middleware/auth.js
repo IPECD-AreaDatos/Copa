@@ -16,9 +16,16 @@ const verifyToken = async (req, res, next) => {
       if (!response.ok) return res.status(401).json({ message: 'Sesión central inválida o sin acceso a Copa' });
       const identity = await response.json();
       const board = Array.isArray(identity.tableros) && identity.tableros.find(t => t.codigo === 'copa');
-      // El piloto solo admite administradores; los alcances por institución aún no están centralizados.
-      if (!board || board.rango !== 'admin' || typeof identity.usuario !== 'string') return res.status(403).json({ message: 'Rango central no habilitado en este piloto' });
-      req.user = { username: identity.usuario, name: identity.usuario, role: 'admin', origen: 'central-ensayo', access: { scope: 'global', jurisdictions: [] } };
+      if (!board || !['admin', 'editor', 'lector'].includes(board.rango) || typeof identity.usuario !== 'string') {
+        return res.status(403).json({ message: 'La cuenta no tiene un rango central habilitado en Copa' });
+      }
+      req.user = {
+        username: identity.usuario,
+        name: identity.usuario,
+        role: board.rango,
+        origen: 'central-ensayo',
+        access: { scope: 'global', jurisdictions: [] },
+      };
     } catch { return res.status(401).json({ message: 'Sesión central inválida o sin acceso a Copa' }); }
   } else {
     try {
