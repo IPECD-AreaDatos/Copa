@@ -116,7 +116,7 @@ export function useDashboardSession(options: { required?: boolean } = { required
     if (confirm("¿Está seguro que desea cerrar sesión?")) {
       if (user?.origen === "central" || user?.origen === "central-ensayo") {
         void fetch("/copa/copa-api/api/auth/logout-central", { method: "POST" })
-          .then(response => { if (response.ok) window.location.href = process.env.NEXT_PUBLIC_COPA_SSO_LOCAL === "si" ? "http://127.0.0.1:38966/" : "/"; else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
+          .then(response => { if (response.ok) window.location.href = "/copa/login"; else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
           .catch(() => alert("No se pudo cerrar la sesión. Intentá nuevamente."));
         return;
       }
