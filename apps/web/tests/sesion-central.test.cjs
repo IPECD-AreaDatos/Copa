@@ -6,17 +6,32 @@ const ts = require('typescript');
 const vm = require('node:vm');
 const source = fs.readFileSync('src/hooks/useDashboardSession.ts', 'utf8');
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-async function scenario(central, legacyToken, centralStatus = null, networkFailure = false) {
+async function scenario(central, legacyToken, centralStatus = null, networkFailure = false, initialCentral = null) {
   const storage = new Map(legacyToken ? [['copa_token', legacyToken], ['copa_user', 'antiguo']] : []);
   const state = []; let effect, oldCalls = 0, redirect = null;
-  const react = { useState(value) { const i = state.length; state.push(value); return [value, v => { state[i] = v; }]; }, useEffect(fn) { effect = fn; }, useCallback(fn) { return fn; } };
+  const react = { useState(value) { const initial = typeof value === 'function' ? value() : value; const i = state.length; state.push(initial); return [initial, v => { state[i] = v; }]; }, useEffect(fn) { effect = fn; }, useCallback(fn) { return fn; } };
   const modules = { react, 'next/navigation': { usePathname: () => '/', useRouter: () => ({ replace(v) { redirect = v; } }) }, '@/lib/access': { isInstitutionUser: user => user.access?.scope === 'institution' }, '@/lib/api': { async fetchWithAuth() { oldCalls++; return { ok: true, json: async () => ({ user: { username: 'anterior', access: { scope: 'global' } } }) }; } } };
   const exports = {};
   vm.runInNewContext(compiled, { exports, require: n => modules[n], process: { env: { NEXT_PUBLIC_COPA_SSO_ENABLED: 'si' } }, localStorage: { getItem: k => storage.get(k) || null, setItem: (k,v) => storage.set(k,v), removeItem: k => storage.delete(k) }, fetch: async () => { if (networkFailure) throw Error('central unavailable'); return { ok: !!central, status: centralStatus ?? (central ? 200 : 404), json: async () => ({ user: central }) }; }, queueMicrotask, AbortController });
-  exports.useDashboardSession(); effect();
+  if (initialCentral) exports.rememberDashboardUser(initialCentral);
+  exports.useDashboardSession();
+  const initialState = [...state];
+  effect();
   await new Promise(r => setTimeout(r, 10));
-  return { state, storage, oldCalls, redirect };
+  return { state, initialState, storage, oldCalls, redirect };
 }
+test('la navegación interna conserva la sesión verificada mientras vuelve a comprobarla', async () => {
+  const user = { username: 'central', origen: 'central-ensayo' };
+  const s = await scenario(user, null, null, false, user);
+  assert.equal(s.initialState[0].username, 'central');
+  assert.equal(s.initialState[1], true);
+  assert.equal(s.state[0].username, 'central');
+});
+test('si la sesión venció, descarta el usuario conservado y vuelve al login', async () => {
+  const s = await scenario(null, null, 401, false, { username: 'central', origen: 'central-ensayo' });
+  assert.equal(s.state[0], null);
+  assert.equal(s.redirect, '/login');
+});
 test('la sesión central reemplaza el token antiguo del mismo navegador', async () => {
   const s = await scenario({ username: 'central', origen: 'central-ensayo' }, 'token-anterior');
   assert.equal(s.state[0].username, 'central'); assert.equal(s.storage.has('copa_token'), false); assert.equal(s.oldCalls, 0);

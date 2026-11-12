@@ -19,11 +19,18 @@ export type CopaUser = {
   };
 };
 
+// Conserva la sesión ya verificada durante la navegación interna. Cada ruta
+// vuelve a consultar al servidor y descarta el dato si la sesión dejó de valer.
+let currentCentralUser: CopaUser | null = null;
+export function rememberDashboardUser(user: CopaUser | null) {
+  currentCentralUser = user?.origen === "central" || user?.origen === "central-ensayo" ? user : null;
+}
+
 export function useDashboardSession(options: { required?: boolean } = { required: true }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<CopaUser | null>(null);
-  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<CopaUser | null>(() => currentCentralUser);
+  const [ready, setReady] = useState(() => Boolean(currentCentralUser));
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +46,8 @@ export function useDashboardSession(options: { required?: boolean } = { required
       token = localStorage.getItem("copa_token");
     } catch {
       // Safari puede bloquear el acceso al almacenamiento en ciertos modos.
+      rememberDashboardUser(null);
+      setUser(null);
       markReady();
       if (options.required) {
         router.replace("/login");
@@ -62,11 +71,14 @@ export function useDashboardSession(options: { required?: boolean } = { required
           if (data?.user?.origen === "central" || data?.user?.origen === "central-ensayo") {
             localStorage.removeItem("copa_token");
             localStorage.removeItem("copa_user");
+            rememberDashboardUser(data.user);
             setUser(data.user);
             setReady(true);
             return;
           }
           if (response.status !== 404) {
+            rememberDashboardUser(null);
+            setUser(null);
             localStorage.removeItem("copa_token");
             localStorage.removeItem("copa_user");
             markReady();
@@ -75,6 +87,8 @@ export function useDashboardSession(options: { required?: boolean } = { required
           }
         } catch {
           if (cancelled) return;
+          rememberDashboardUser(null);
+          setUser(null);
           localStorage.removeItem("copa_token");
           localStorage.removeItem("copa_user");
           markReady();
@@ -83,6 +97,8 @@ export function useDashboardSession(options: { required?: boolean } = { required
         }
       }
       if (!token) {
+        rememberDashboardUser(null);
+        setUser(null);
         markReady();
         if (options.required) router.replace("/login");
         return;
@@ -104,6 +120,8 @@ export function useDashboardSession(options: { required?: boolean } = { required
         setReady(true);
       } catch {
         if (cancelled) return;
+        rememberDashboardUser(null);
+        setUser(null);
         markReady();
         if (options.required) router.replace("/login");
       }
@@ -116,10 +134,11 @@ export function useDashboardSession(options: { required?: boolean } = { required
     if (confirm("¿Está seguro que desea cerrar sesión?")) {
       if (user?.origen === "central" || user?.origen === "central-ensayo") {
         void fetch("/copa/copa-api/api/auth/logout-central", { method: "POST" })
-          .then(response => { if (response.ok) window.location.href = "/copa/login"; else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
+          .then(response => { if (response.ok) { rememberDashboardUser(null); window.location.href = "/copa/login"; } else alert("No se pudo cerrar la sesión. Intentá nuevamente."); })
           .catch(() => alert("No se pudo cerrar la sesión. Intentá nuevamente."));
         return;
       }
+      rememberDashboardUser(null);
       localStorage.removeItem("copa_token");
       localStorage.removeItem("copa_user");
       router.push("/login");

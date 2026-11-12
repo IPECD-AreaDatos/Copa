@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import type { CopaUser } from '@/hooks/useDashboardSession';
+import { rememberDashboardUser, type CopaUser } from '@/hooks/useDashboardSession';
 import { isInstitutionUser } from '@/lib/access';
 
 export default function LoginPage() {
@@ -33,9 +33,11 @@ export default function LoginPage() {
 
       if (response.ok && data.user && (data.token || data.user.origen === 'central' || data.user.origen === 'central-ensayo')) {
         if (data.user.origen === 'central' || data.user.origen === 'central-ensayo') {
+          rememberDashboardUser(data.user);
           localStorage.removeItem('copa_token');
           localStorage.removeItem('copa_user');
         } else if (data.token) {
+          rememberDashboardUser(null);
           localStorage.setItem('copa_token', data.token);
           localStorage.setItem('copa_user', JSON.stringify(data.user));
         }

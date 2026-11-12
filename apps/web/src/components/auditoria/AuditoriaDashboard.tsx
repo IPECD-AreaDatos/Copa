@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import DashboardShell from "../layout/DashboardShell";
+import SessionPending from "../layout/SessionPending";
 import { fetchWithAuth } from "@/lib/api";
 import { useDashboardSession } from "@/hooks/useDashboardSession";
 import { isCopaAdmin } from "@/lib/access";
@@ -350,7 +351,7 @@ export default function AuditoriaDashboard() {
     };
   }, [filteredData, selectedUser]);
 
-  if (!user) return null;
+  if (!user) return <SessionPending />;
 
   const accessError = isCopaAdmin(user)
     ? error

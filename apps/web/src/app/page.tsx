@@ -2,13 +2,14 @@
 
 import HomeDashboard from "@/components/home/HomeDashboard";
 import DashboardShell from "@/components/layout/DashboardShell";
+import SessionPending from "@/components/layout/SessionPending";
 import { useDashboardSession } from "@/hooks/useDashboardSession";
 
 export default function HomePage() {
   const { user, displayName, logout, ready } = useDashboardSession();
 
   if (!ready || !user) {
-    return null;
+    return <SessionPending />;
   }
 
   return (

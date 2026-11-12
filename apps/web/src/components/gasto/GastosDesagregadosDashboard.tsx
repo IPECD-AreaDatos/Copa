@@ -478,7 +478,12 @@ export default function GastosDesagregadosDashboard({
           {error} No se muestran resultados del corte anterior.
         </p>
       )}
-      <div hidden={Boolean(error) || loading}>
+      {loading && !error && (
+        <p className="desagregado-scope-note" role="status">
+          Actualizando resultados. Mientras tanto se muestra el corte anterior.
+        </p>
+      )}
+      <div hidden={Boolean(error)}>
         <nav
           className="desagregado-tabs"
           aria-label="Vistas de gastos desagregados"
