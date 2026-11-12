@@ -79,7 +79,7 @@ test('el login local de Copa crea una sesión central y conserva auditoría y pe
 
     const usage = await fetch(base + '/api/admin/usage', { headers: { cookie: testCookie } });
     assert.equal(usage.status, 200);
-    assert.equal((await usage.json()).data[0].id_registro, 'central-1');
+    assert.deepEqual((await usage.json()).data, []);
 
     centralRank = 'lector';
     const readerUsage = await fetch(base + '/api/admin/usage', { headers: { cookie: testCookie } });

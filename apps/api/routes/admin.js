@@ -3,7 +3,6 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const db = require('../db');
 const { loadDataStatus } = require('../services/data-status');
-const {config,sessionCookie}=require('../middleware/sso-config');
 const {isCentralUser}=require('../services/central-access');
 
 // Middleware para verificar si es admin
@@ -33,21 +32,7 @@ router.get('/usage', authMiddleware, isAdmin, async (req, res) => {
       LIMIT 500
     `);
 
-    let rows = result.rows;
-    if (isCentralUser(req.user)) {
-      const sso=config();
-      if (!sso) return res.status(503).json({ message: 'Auditoría central no disponible' });
-      const cookie = sessionCookie(req,sso);
-      if (!cookie) return res.status(401).json({ message: 'Sesión central inválida' });
-      const central = await fetch(sso.internal+'/sso/auditoria/copa', {
-        headers: { cookie }, redirect: 'error', signal: AbortSignal.timeout(2000),
-      });
-      if (!central.ok) return res.status(503).json({ message: 'Auditoría central no disponible' });
-      const payload = await central.json();
-      if (!Array.isArray(payload.data)) return res.status(503).json({ message: 'Auditoría central no disponible' });
-      rows = [...rows, ...payload.data].sort((a,b) => new Date(b.fecha_hora) - new Date(a.fecha_hora)).slice(0,500);
-    }
-    res.json({ status: 'success', data: rows });
+    res.json({ status: 'success', data: result.rows });
   } catch (err) {
     console.error('[ADMIN ROUTE ERROR]', err);
     res.status(500).json({ status: 'error', message: 'Error obteniendo datos de auditoría' });
