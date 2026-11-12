@@ -11,7 +11,7 @@ El sistema está estructurado como una aplicación **SPA (Single Page Applicatio
 ```mermaid
 graph TD
     Client[Navegador del Usuario] <-->|HTTP/HTTPS - Puerto 3000/3006| NextJS[Frontend Next.js]
-    Client <-->|API REST / JWT - Puerto 4000| ExpressAPI[Backend Express API]
+    Client <-->|API REST / sesión central - Puerto 4000| ExpressAPI[Backend Express API]
     ExpressAPI <-->|Consultas SQL / pg.Pool| PostgreSQL[(PostgreSQL Server)]
     NextJS -.->|Rewrites en next.config.ts| ExpressAPI
 ```
@@ -21,7 +21,7 @@ graph TD
    - Se comunica dinámicamente con la API REST para renderizar los datos frescos sin necesidad de compilaciones periódicas estáticas.
 2. **Backend (Express API)**: 
    - Servidor Node.js ligero que expone las rutas RESTful en el puerto 4000.
-   - Gestiona la seguridad (autenticación JWT), la auditoría de accesos automática, y realiza consultas directas y agregaciones analíticas sobre la base de datos PostgreSQL.
+   - Valida la sesión central, registra la telemetría de uso y realiza consultas analíticas sobre PostgreSQL.
 
 ---
 

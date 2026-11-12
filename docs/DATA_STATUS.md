@@ -1,7 +1,7 @@
 # Actualización de datos
 
-La hoja `/copa/actualizacion-datos` está disponible sólo para el usuario `admin`.
-El endpoint `GET /api/admin/data-status` exige JWT y el mismo permiso de administrador
+La hoja `/copa/actualizacion-datos` está disponible para el rango administrador de Copa.
+El endpoint `GET /api/admin/data-status` exige sesión central y el mismo permiso de administrador
 que la auditoría. Las respuestas no se almacenan en caché. Se consulta al entrar y
 al pulsar **Actualizar ahora**, sin sondeo automático.
 

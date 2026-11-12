@@ -20,12 +20,20 @@ telemetría de uso de Copa se guarda en `datos_tablero.public.coparticipacion_re
   instancia de prueba `/copa-test` usa la misma base y debe detenerse antes de
   aplicar `apps/api/migrations/20261112-retirar-usuarios-locales.sql`.
 
-## Retiro de la tabla local
+## Retiro de la tabla local, 12/11/2026
 
-Publicar primero la API que valida exclusivamente la sesión central y lee
-`coparticipacion_registros.usuario`. Verificar el ingreso local y desde el
-portal, el rango de un usuario ministerial y la auditoría. Detener la instancia
-de prueba retirada, respaldar `usuarios_tableros` y `coparticipacion_registros`,
-y aplicar la migración de retiro. Los IDs locales históricos permanecen en
-`coparticipacion_registros.id_usuario` como dato de procedencia; el nombre de
-usuario queda en la misma fila y ya no necesita una clave foránea.
+La API publicada valida exclusivamente la sesión central y lee
+`coparticipacion_registros.usuario`. La cuenta administradora abrió Inicio y
+la auditoría con la API nueva antes del retiro. La instancia de prueba
+`/copa-test` quedó detenida y su URL redirige a `/copa`.
+
+El respaldo de `usuarios_tableros` y `coparticipacion_registros` está en
+`/var/backups/imi-identidad/copa-usuarios-retiro-20261112T154002Z.dump`
+(modo `0600`, verificado con `pg_restore --list`). La configuración anterior
+de Nginx está en
+`/etc/nginx/sites-available/ipecd.pre-copa-retire-20261112T154024Z`.
+La migración `20261112-retirar-usuarios-locales.sql` se simuló con `ROLLBACK`
+y luego se aplicó. La comprobación inmediata contó 3.935 registros de uso,
+ninguno sin usuario y 42 eventos trasladados de identidad central. Los IDs
+locales históricos permanecen en `coparticipacion_registros.id_usuario` solo
+como dato de procedencia.

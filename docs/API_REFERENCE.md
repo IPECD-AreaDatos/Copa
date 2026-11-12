@@ -7,14 +7,16 @@ El servidor backend del proyecto es una API REST construida con **Node.js** y **
 ## 1. Seguridad y Autenticación
 
 ### Middleware: `authMiddleware`
-La mayoría de los endpoints analíticos de la API requieren un token JWT válido enviado en la cabecera HTTP de la petición:
+La mayoría de los endpoints analíticos requieren la cookie de sesión central
+de IMI. La API verifica el acceso a Copa en cada petición mediante el servicio
+de identidad.
 
 ```http
-Authorization: Bearer <token_jwt_aqui>
+Cookie: imi_sso=<sesión>
 ```
 
-- Si el token falta, retorna un estado `403 Forbidden` (`{"message": "Token requerido para autenticación"}`).
-- Si el token ha expirado o tiene firma inválida, retorna un estado `401 Unauthorized` (`{"message": "Token inválido o expirado"}`).
+- Si falta la sesión, retorna `403 Forbidden`.
+- Si la sesión venció o no tiene acceso a Copa, retorna `401` o `403` según el caso.
 
 ---
 
@@ -35,7 +37,7 @@ Authorization: Bearer <token_jwt_aqui>
 
 ### Datos de Inicio (Home Dashboard)
 *   **Ruta**: `GET /api/dashboard/home`
-*   **Descripción**: Devuelve la información agregada para el panel principal y gráficos consolidados históricos. Requiere JWT y acceso general; los perfiles institucionales reciben 403.
+*   **Descripción**: Devuelve información agregada y gráficos consolidados históricos. Requiere sesión central; los perfiles ministeriales pueden ver los indicadores provinciales agregados de Inicio.
 *   **IPC cuando falta el oficial**: Calcula dinámicamente la variación interanual a partir de la última publicación REM cargada en `rem_precios_minoristas`. La respuesta identifica el origen mediante `ipc_source`, `ipc_projected` e `ipc_rem_published_at`; si no hay una cadena REM completa, devuelve `ipc_missing: true`.
 *   **Respuesta**:
     ```json

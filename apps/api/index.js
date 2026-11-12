@@ -49,7 +49,7 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log('==============================================');
   console.log(`🚀 SERVIDOR COPA listo en puerto ${PORT}`);
-  console.log(`🔒 SEGURIDAD: JWT Activo`);
+  console.log('🔒 SEGURIDAD: Sesión central activa');
   console.log(`📊 AUDITORÍA: Registro automático activado`);
   console.log('==============================================');
 });
