@@ -47,7 +47,7 @@ test('con SSO activo requiere la sesión central y resuelve el rango desde el se
     const token = jwt.sign({ id: 17, username: 'usuario' }, process.env.JWT_SECRET);
     assert.equal((await call({ authorization: 'Bearer ' + token })).status, 401);
     global.fetch = async (url, options) => {
-      assert.equal(url, 'http://127.0.0.1:38966/sso/me');
+      assert.equal(url, 'http://127.0.0.1:38966/sso/me?audiencia=tablero');
       assert.equal(options.headers.cookie, 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
       return { ok: true, json: async () => ({ usuario: 'ivan', nombres: 'Iván', apellidos: 'Rodríguez', tableros: [{ codigo: 'copa', rango: 'admin', alcances: [] }] }) };
     };

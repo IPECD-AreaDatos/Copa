@@ -1,5 +1,4 @@
 const db = require('../db');
-const {config,sessionCookie}=require('./sso-config');
 const {isCentralUser}=require('../services/central-access');
 
 /**
@@ -12,17 +11,16 @@ const activityLogger = async (req, res, next) => {
   // Custom log function that we can trigger manually or wait for response
   req.logAction = async (section, action, details = {}) => {
     if (isCentralUser(req.user)) {
-      let sso;try{sso=config()}catch{return}
-      const cookie = sso&&sessionCookie(req,sso);
-      if (!cookie || !sso) return;
       try {
-        const response = await fetch(sso.internal+'/sso/auditoria/copa', {
-          method: 'POST', headers: { cookie, origin: sso.identityOrigin, 'content-type': 'application/json' },
-          body: JSON.stringify({ seccion: String(section || 'API').slice(0, 80), accion: String(action || 'Acción').slice(0, 80) }),
-          signal: AbortSignal.timeout(2000), redirect: 'error',
-        });
-        if (!response.ok) console.error('No se pudo registrar la auditoría central de ensayo');
-      } catch { console.error('No se pudo registrar la auditoría central de ensayo'); }
+        await db.query(
+          `INSERT INTO public.coparticipacion_registros
+           (id_usuario,usuario,seccion_tablero,accion,detalle_interaccion,ip_cliente)
+           VALUES (NULL,$1,$2,$3,$4,$5)`,
+          [req.user.username, String(section || 'API').slice(0, 80),
+            String(action || 'Acción').slice(0, 80), JSON.stringify(details),
+            req.ip || req.connection.remoteAddress]
+        );
+      } catch (err) { console.error('Telemetría de Copa fallida:', err.code || 'query_failed'); }
       return;
     }
     const userId = req.user ? req.user.id : null;

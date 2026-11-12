@@ -32,9 +32,10 @@ global.fetch = async (url, options = {}) => {
     const body = JSON.parse(options.body);
     assert.equal(body.usuario, 'ivan_ficticio');
     assert.equal(body.password, 'clave-ficticia');
+    assert.equal(body.audiencia, 'tablero');
     return response(true, 200, {}, ['imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200']);
   }
-  if (target === 'http://127.0.0.1:38966/sso/me') {
+  if (target === 'http://127.0.0.1:38966/sso/me?audiencia=tablero') {
     if (centralDown) throw Error('servicio central desconectado');
     if (options.headers?.cookie !== testCookie) return response(false, 401);
     return response(true, 200, centralIdentity());

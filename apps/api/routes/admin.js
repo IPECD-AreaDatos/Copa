@@ -25,10 +25,10 @@ router.get('/usage', authMiddleware, isAdmin, async (req, res) => {
         r.accion,
         r.detalle_interaccion,
         r.ip_cliente,
-        u.username
+        COALESCE(r.usuario,u.username) AS username
       FROM public.coparticipacion_registros r
       LEFT JOIN public.usuarios_tableros u ON r.id_usuario = u.id_usuario
-      WHERE u.username != 'admin' OR u.username IS NULL
+      WHERE COALESCE(r.usuario,u.username) != 'admin' OR COALESCE(r.usuario,u.username) IS NULL
       ORDER BY r.fecha_hora DESC
       LIMIT 500
     `);

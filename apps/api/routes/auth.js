@@ -28,7 +28,7 @@ async function centralLogin(req, res, sso, username, password) {
     const response = await fetch(sso.internal + '/sso/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: sso.identityOrigin },
-      body: JSON.stringify({ usuario: username, password }),
+      body: JSON.stringify({ usuario: username, password, audiencia: 'tablero' }),
       signal: AbortSignal.timeout(5000),
       redirect: 'error',
     });
@@ -47,7 +47,7 @@ async function centralLogin(req, res, sso, username, password) {
       return res.status(503).json({ message: 'No se pudo iniciar la sesión central.' });
     }
 
-    const identityResponse = await fetch(sso.internal + '/sso/me', {
+    const identityResponse = await fetch(sso.internal + '/sso/me?audiencia=tablero', {
       headers: { cookie }, signal: AbortSignal.timeout(3000), redirect: 'error',
     });
     if (!identityResponse.ok) return res.status(503).json({ message: 'No se pudo verificar el acceso a Copa.' });
@@ -61,13 +61,12 @@ async function centralLogin(req, res, sso, username, password) {
     }
 
     res.setHeader('Set-Cookie', issued);
-    await fetch(sso.internal + '/sso/auditoria/copa', {
-      method: 'POST',
-      headers: { cookie, origin: sso.identityOrigin, 'content-type': 'application/json' },
-      body: JSON.stringify({ seccion: 'Acceso', accion: 'Inicio de sesión en Copa' }),
-      signal: AbortSignal.timeout(2000),
-      redirect: 'error',
-    }).catch(() => null);
+    try {
+      await db.query(`INSERT INTO public.coparticipacion_registros
+        (id_usuario,usuario,seccion_tablero,accion,detalle_interaccion,ip_cliente)
+        VALUES (NULL,$1,'Acceso','Inicio de sesión en Copa',$2,$3)`,
+      [user.username, JSON.stringify({ method: 'SSO' }), req.ip]);
+    } catch (err) { console.error('Telemetría de ingreso a Copa fallida:', err.code || 'query_failed'); }
     return res.json({ user });
   } catch {
     return res.status(503).json({ message: 'El servicio central de identidad no está disponible.' });

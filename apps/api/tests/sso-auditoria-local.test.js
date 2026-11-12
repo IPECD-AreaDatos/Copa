@@ -1,24 +1,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const db = require('../db');
 const logger = require('../middleware/logger');
 
-test('la auditoría central usa la sesión y no envía datos de la solicitud ni IDs heredados', async () => {
-  const original = global.fetch, flag = process.env.COPA_SSO_ENSAYO_LOCAL;
-  const mode = process.env.COPA_SSO_MODE;
-  delete process.env.COPA_SSO_MODE;
-  process.env.COPA_SSO_ENSAYO_LOCAL = 'si';
-  let sent;
-  global.fetch = async (url, options) => { sent = { url, options }; return { ok: true }; };
-  try {
-    const req = { user: { origen: 'central-ensayo', username: 'ivan' }, headers: { cookie: 'otra=descartar; imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }, body: { privado: 'no enviar' } };
-    await logger(req, {}, () => {});
-    await req.logAction('Inicio', 'Consulta', { privado: 'no enviar' });
-    assert.equal(sent.url, 'http://127.0.0.1:38966/sso/auditoria/copa');
-    assert.equal(sent.options.headers.cookie, 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-    assert.deepEqual(JSON.parse(sent.options.body), { seccion: 'Inicio', accion: 'Consulta' });
-  } finally {
-    global.fetch = original;
-    if (flag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = flag;
-    if (mode === undefined) delete process.env.COPA_SSO_MODE; else process.env.COPA_SSO_MODE = mode;
-  }
+test('la telemetría de una sesión central se guarda en Copa con el usuario', async (t) => {
+  let inserted;
+  t.mock.method(db, 'query', async (sql, values) => { inserted = { sql, values }; });
+  const req = { user: { origen: 'central-ensayo', username: 'ivan' },
+    ip: '127.0.0.1', body: { privado: 'no enviar' } };
+  await logger(req, {}, () => {});
+  await req.logAction('Inicio', 'Consulta', { pagina: 'inicio' });
+  assert.match(inserted.sql, /INSERT INTO public\.coparticipacion_registros/);
+  assert.match(inserted.sql, /id_usuario,usuario/);
+  assert.deepEqual(inserted.values, ['ivan', 'Inicio', 'Consulta',
+    JSON.stringify({ pagina: 'inicio' }), '127.0.0.1']);
 });

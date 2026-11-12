@@ -14,7 +14,7 @@ const verifyToken = async (req, res, next) => {
     const cookie = sessionCookie(req, sso);
     if (!cookie) return res.status(403).json({ message: 'Token requerido para autenticación' });
     try {
-      const response = await fetch(sso.internal + '/sso/me', { headers: { cookie }, signal: AbortSignal.timeout(2000), redirect: 'error' });
+      const response = await fetch(sso.internal + '/sso/me?audiencia=tablero', { headers: { cookie }, signal: AbortSignal.timeout(2000), redirect: 'error' });
       if (!response.ok) return res.status(401).json({ message: 'Sesión central inválida o sin acceso a Copa' });
       const identity = await response.json();
       req.user = centralUser(identity, sso);
