@@ -35,28 +35,20 @@ Para simplificar la configuración del lado del cliente y evitar problemas de CO
 - **Efecto**: El navegador realiza peticiones al mismo dominio y puerto del frontend, y Next.js actúa como proxy reverso transparente hacia el backend.
 
 ### B. Consumo de API Seguro (`fetchWithAuth`)
-El frontend realiza peticiones HTTP asíncronas utilizando la función auxiliar [`fetchWithAuth`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/web/src/lib/api.ts):
-1. Recupera el token del usuario desde el `localStorage` (`copa_token`).
-2. Agrega automáticamente la cabecera `Authorization: Bearer <token>` a cada solicitud.
-3. Intercepta las respuestas con código de estado **401 Unauthorized**: si el token ha expirado o es inválido, limpia el `localStorage` y redirige inmediatamente al usuario a la página de login (`/login`).
+El frontend realiza peticiones HTTP asíncronas con [`fetchWithAuth`](../apps/web/src/lib/api.ts).
+La sesión central se envía mediante cookie segura. Ante un **401 Unauthorized**,
+el cliente limpia cualquier token heredado del navegador y redirige al login.
 
 ---
 
 ## 3. Autenticación y Autorización
 
-El acceso a las secciones ejecutivas del tablero está protegido mediante un esquema de **JSON Web Tokens (JWT)**:
-
-1. **Autenticación (Login)**:
-   - El usuario envía sus credenciales al endpoint `/api/auth/login`.
-   - El backend busca el usuario en la tabla `public.usuarios_tableros` verificando que esté activo (`activo = true`) y tenga el permiso correspondiente (`tablero_acceso = 'coparticipacion'`).
-2. **Seguridad y Cifrado de Contraseñas**:
-   - Las contraseñas se almacenan y validan utilizando **Bcrypt**.
-   - **Lógica de Migración Gradual**: Si la base de datos contiene una contraseña en formato de texto plano y el login coincide, la API valida el acceso y, de forma transparente, genera un Hash de Bcrypt seguro, actualizando el registro en la base de datos (`UPDATE public.usuarios_tableros SET password_hash = $1 WHERE id_usuario = $2`).
-3. **Generación de Token**:
-   - Tras el login exitoso, se genera un JWT firmado con la clave privada (`JWT_SECRET`) y con un tiempo de expiración preestablecido de **8 horas**.
-   - El token almacena el `id_usuario`, `username` y `role`.
-4. **Middleware de Protección**:
-   - Las rutas privadas del backend se protegen mediante el middleware [`auth.js`](file:///c:/Users/USER/Desktop/Codigos/Trabajo_IPECD/Copa/apps/api/middleware/auth.js), que decodifica y valida la firma del JWT e inyecta la información del usuario en el objeto de petición (`req.user`).
+El acceso se valida en `imi_identidad`. El login propio de Copa y el ingreso
+desde el portal comparten la misma sesión central. El middleware
+[`auth.js`](../apps/api/middleware/auth.js) consulta `/sso/me?audiencia=tablero`
+en cada petición, obtiene el rango y los alcances de Copa y deniega sesiones
+heredadas por JWT. `datos_tablero` conserva los datos y la telemetría de Copa,
+sin almacenar contraseñas ni permisos de sus usuarios.
 
 ---
 

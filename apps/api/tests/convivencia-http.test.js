@@ -4,12 +4,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
-const bcrypt = require('bcrypt');
 const dbPath = require.resolve('../db');
-let passwordHash;
 require.cache[dbPath] = { id: dbPath, filename: dbPath, loaded: true, exports: {
   async query(sql) {
-    if (typeof sql === 'string' && sql.includes('FROM public.usuarios_tableros')) return { rows: [{ id_usuario: 17, username: 'admin', password_hash: passwordHash, tablero_acceso: 'coparticipacion', activo: true, gastos_jurisdicciones: null }] };
     if (typeof sql === 'string' && sql.includes('INSERT INTO public.coparticipacion_registros')) return { rows: [], rowCount: 1 };
     if (typeof sql === 'string' && sql.includes('FROM public.coparticipacion_registros')) return { rows: [] };
     throw Error('Consulta no permitida en el ensayo');
@@ -58,7 +55,6 @@ app.use('/api/admin', require('../routes/admin'));
 delete process.env.COPA_SSO_MODE;
 
 test('el login local de Copa crea una sesión central y conserva auditoría y permisos', async () => {
-  passwordHash = await bcrypt.hash('clave-ficticia', 4);
   const server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
@@ -99,8 +95,7 @@ test('el login local de Copa crea una sesión central y conserva auditoría y pe
   }
 });
 
-test('el login heredado sigue disponible mientras SSO está apagado', async () => {
-  passwordHash = await bcrypt.hash('clave-ficticia', 4);
+test('sin identidad central configurada el login local falla cerrado', async () => {
   const previous = process.env.COPA_SSO_ENSAYO_LOCAL;
   delete process.env.COPA_SSO_ENSAYO_LOCAL;
   const server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
@@ -110,9 +105,8 @@ test('el login heredado sigue disponible mientras SSO está apagado', async () =
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ username: 'admin', password: 'clave-ficticia' }),
     });
-    assert.equal(login.status, 200);
-    const token = (await login.json()).token;
-    assert.ok(token);
+    assert.equal(login.status, 503);
+    assert.equal((await fetch(base + '/api/auth/session')).status, 503);
   } finally {
     if (previous === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previous;
     await new Promise(resolve => server.close(resolve));

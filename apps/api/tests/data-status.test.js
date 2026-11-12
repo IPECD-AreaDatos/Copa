@@ -94,20 +94,26 @@ test('el mes de referencia respeta la fecha argentina al cruzar medianoche UTC',
     assert.equal(status.default_period_id, '2026-10');
 });
 
-test('la ruta exige JWT y el mismo permiso exclusivo de admin que la auditoría', () => {
+test('la ruta exige sesión central y el mismo permiso de admin que la auditoría', () => {
     const router = require('../routes/admin');
     const auth = require('../middleware/auth');
     const route = router.stack.find((layer) => layer.route?.path === '/data-status').route;
     const usageRoute = router.stack.find((layer) => layer.route?.path === '/usage').route;
     assert.equal(route.stack[0].handle, auth);
     assert.equal(route.stack[1].handle, usageRoute.stack[1].handle);
-    for (const username of ['admin', 'gcorrales', 'jpvaldes', undefined]) {
+    for (const user of [
+        { username: 'admin', origen: 'central-ensayo', role: 'admin' },
+        { username: 'gcorrales', origen: 'central-ensayo', role: 'analyst' },
+        { username: 'jpvaldes', origen: 'central-ensayo', role: 'user' },
+        { username: 'admin' },
+        undefined,
+    ]) {
         let allowed = false;
         let status;
-        route.stack[1].handle({ user: { username } }, {
+        route.stack[1].handle({ user }, {
             status(code) { status = code; return this; }, json() {},
         }, () => { allowed = true; });
-        assert.equal(allowed, username === 'admin');
+        assert.equal(allowed, user?.origen === 'central-ensayo' && user.role === 'admin');
         if (!allowed) assert.equal(status, 403);
     }
 });

@@ -7,7 +7,7 @@ const {isCentralUser}=require('../services/central-access');
 
 // Middleware para verificar si es admin
 const isAdmin = (req, res, next) => {
-  if (req.user && (isCentralUser(req.user) ? req.user.role === 'admin' : req.user.username === 'admin')) {
+  if (isCentralUser(req.user) && req.user.role === 'admin') {
     return next();
   }
   return res.status(403).json({ message: 'Acceso denegado: Se requieren privilegios de administrador' });
@@ -24,10 +24,9 @@ router.get('/usage', authMiddleware, isAdmin, async (req, res) => {
         r.accion,
         r.detalle_interaccion,
         r.ip_cliente,
-        COALESCE(r.usuario,u.username) AS username
+        r.usuario AS username
       FROM public.coparticipacion_registros r
-      LEFT JOIN public.usuarios_tableros u ON r.id_usuario = u.id_usuario
-      WHERE COALESCE(r.usuario,u.username) != 'admin' OR COALESCE(r.usuario,u.username) IS NULL
+      WHERE r.usuario != 'admin'
       ORDER BY r.fecha_hora DESC
       LIMIT 500
     `);

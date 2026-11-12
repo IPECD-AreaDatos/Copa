@@ -73,11 +73,11 @@ Authorization: Bearer <token_jwt_aqui>
 
 ---
 
-## 3. Endpoints Privados (Requieren JWT)
+## 3. Endpoints Privados (Requieren sesión central)
 
 ### A. Autenticación de Usuarios
 *   **Ruta**: `POST /api/auth/login`
-*   **Descripción**: Recibe las credenciales y, en caso de ser válidas, emite un token JWT.
+*   **Descripción**: Valida las credenciales en identidad central y establece la cookie de sesión compartida.
 *   **Cuerpo (JSON)**:
     ```json
     {
@@ -86,17 +86,17 @@ Authorization: Bearer <token_jwt_aqui>
     }
     ```
 *   **Lógica Destacada**:
-    - Si la contraseña se encuentra almacenada en texto plano, la API valida el login y automáticamente la encripta en un hash Bcrypt actualizando la tabla `public.usuarios_tableros` de forma transparente.
-    - Inserta de forma manual un registro de auditoría de ingreso exitoso en la tabla `public.coparticipacion_registros`.
+    - Verifica que la cuenta tenga acceso activo a Copa y obtiene su rango y alcances vigentes.
+    - Registra el ingreso en `public.coparticipacion_registros`.
 *   **Respuesta**:
     ```json
     {
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       "user": {
-        "id": 1,
-        "username": "admin",
-        "name": "Administrador",
-        "role": "user"
+        "username": "usuario",
+        "name": "Nombre Apellido",
+        "role": "admin",
+        "rango": "admin",
+        "origen": "central"
       }
     }
     ```

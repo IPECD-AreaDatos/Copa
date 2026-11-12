@@ -16,4 +16,16 @@ telemetría de uso de Copa se guarda en `datos_tablero.public.coparticipacion_re
 - Respaldo antes del traslado: `/var/backups/imi-identidad/copa-telemetria-pretraslado-20261112T151032Z.dump` (modo `0600`, verificado con `pg_restore --list`).
 - `ops/identidad/trasladar-telemetria-copa.py` copió 42 eventos anteriores de la auditoría central. Se conserva el origen y el ID en `auditoria_central_id`, para repetir el traslado sin duplicados.
 - La administración de Copa lee únicamente `coparticipacion_registros`; los eventos nuevos de sesiones centrales se escriben allí. Los eventos anteriores del servicio central no incluyen IP ni detalle de interacción; esos campos quedan vacíos.
-- `usuarios_tableros` y su clave foránea siguen presentes. Antes de retirarlos hay que verificar la pantalla de auditoría y reemplazar las consultas de autenticación heredada que todavía dependen de esa tabla.
+- `usuarios_tableros` y su clave foránea siguen presentes en este corte. La
+  instancia de prueba `/copa-test` usa la misma base y debe detenerse antes de
+  aplicar `apps/api/migrations/20261112-retirar-usuarios-locales.sql`.
+
+## Retiro de la tabla local
+
+Publicar primero la API que valida exclusivamente la sesión central y lee
+`coparticipacion_registros.usuario`. Verificar el ingreso local y desde el
+portal, el rango de un usuario ministerial y la auditoría. Detener la instancia
+de prueba retirada, respaldar `usuarios_tableros` y `coparticipacion_registros`,
+y aplicar la migración de retiro. Los IDs locales históricos permanecen en
+`coparticipacion_registros.id_usuario` como dato de procedencia; el nombre de
+usuario queda en la misma fila y ya no necesita una clave foránea.

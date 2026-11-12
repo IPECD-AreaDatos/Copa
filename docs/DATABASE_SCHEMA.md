@@ -121,17 +121,11 @@ Vista precalculada en la base de datos para facilitar el análisis del módulo *
 
 ---
 
-### E. Tabla: `public.usuarios_tableros` (Usuarios)
-Contiene las credenciales y permisos de los usuarios del tablero.
+### E. Usuarios y permisos
 
-| Campo | Tipo | Descripción |
-| :--- | :--- | :--- |
-| `id_usuario` | `SERIAL` (PK) | Identificador único del usuario. |
-| `username` | `VARCHAR` | Nombre de usuario único (ej. `admin`, `jpvaldes`, `invitado`). |
-| `password_hash` | `VARCHAR` | Contraseña cifrada con Bcrypt o texto plano (migrado automáticamente al hacer login). |
-| `tablero_acceso` | `VARCHAR` | Tipo de acceso permitido (ej. `coparticipacion` para acceder a la aplicación). |
-| `activo` | `BOOLEAN` | Estado de habilitación de la cuenta. |
-| `gastos_jurisdicciones` | `INTEGER[]` | `NULL` conserva el alcance general; una lista de códigos limita la cuenta a los gastos de esas instituciones. Ver [Acceso por institución](INSTITUTION_ACCESS.md). |
+Se administran en `imi_identidad`, junto con los accesos y alcances de Copa.
+`datos_tablero` ya no contiene la tabla local de credenciales.
+Ver [Acceso por institución](INSTITUTION_ACCESS.md).
 
 ---
 
@@ -142,7 +136,9 @@ Registra la telemetría automática de peticiones a la API y el log manual de cl
 | :--- | :--- | :--- |
 | `id_registro` | `SERIAL` (PK) | Identificador único del registro. |
 | `fecha_hora` | `TIMESTAMP` | Fecha y hora del evento (por defecto `CURRENT_TIMESTAMP`). |
-| `id_usuario` | `INTEGER` (FK) | Relación al usuario que realizó la acción (`public.usuarios_tableros.id_usuario`). |
+| `id_usuario` | `INTEGER` (nullable) | ID local histórico, conservado solo como dato de procedencia. |
+| `usuario` | `TEXT` | Nombre de usuario central o copia del nombre histórico. |
+| `auditoria_central_id` | `BIGINT` (nullable) | ID del evento trasladado desde identidad central; impide duplicados. |
 | `seccion_tablero` | `VARCHAR` | Módulo o sección visitada (ej. `Inicio`, `Monitor Mensual`, `Gasto`). |
 | `accion` | `VARCHAR` | Acción ejecutada (ej. `GET /api/ron/annual-monitor`, `Export Excel`). |
 | `detalle_interaccion` | `JSON` / `TEXT` | Metadatos de la petición (parámetros de consulta, consultas sql, IP, user-agent). |
@@ -209,14 +205,10 @@ Contiene las proyecciones inflacionarias informadas por el Relevamiento de Expec
 Las bases de datos se comunican lógicamente del siguiente modo:
 
 ```
-[datos_tablero]
+[imi_identidad]                      [datos_tablero]
 +---------------------------+       +-------------------------------+
-|     usuarios_tableros     |       |    coparticipacion_registros  |
-|---------------------------|       |-------------------------------|
-| PK  id_usuario            |<------+ FK  id_usuario                |
-|     username              |       |     fecha_hora                |
-|     password_hash         |       |     seccion_tablero           |
-|     activo                |       |     accion                    |
+| usuarios, accesos, rangos |       | coparticipacion_registros     |
+| y alcances de Copa        |       | usuario, fecha_hora, acción  |
 +---------------------------+       +-------------------------------+
 
 +---------------------------+       +-------------------------------+

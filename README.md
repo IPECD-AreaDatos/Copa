@@ -38,7 +38,7 @@ Para un nivel más asiduo de detalles arquitectónicos, consulte la [Documentaci
 ## 🛠 Instalación y Desarrollo Local
 
 ### 1. Variables de Entorno
-Cree un archivo `.env` en la raíz del proyecto basándose en `.env.example` (o modifique el `.env` existente) completando las credenciales de PostgreSQL y la clave para JWT:
+Cree un archivo `.env` en la raíz del proyecto basándose en `.env.example` (o modifique el `.env` existente) completando la conexión de datos y la configuración del servicio central de identidad:
 
 ```ini
 PG_HOST=149.50.145.182
@@ -46,9 +46,12 @@ PG_PORT=5432
 PG_USER=mi_usuario
 PG_PASSWORD=mi_password
 PG_DATABASE=datos_tablero
-JWT_SECRET=clave_secreta_jwt
 PORT=4000
 ```
+
+El login de Copa requiere `COPA_SSO_MODE`, `COPA_SSO_INTERNAL_ORIGIN`,
+`COPA_SSO_PUBLIC_ORIGIN` y, en producción, `COPA_SSO_PRODUCTION_ENABLED=si`.
+No se usan JWT locales ni una tabla de contraseñas en `datos_tablero`.
 
 ### 2. Levantar el Entorno Local
 Para iniciar tanto la API como el frontend Next.js simultáneamente en terminales independientes, ejecute el script de PowerShell provisto:

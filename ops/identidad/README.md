@@ -37,9 +37,10 @@ python ops/identidad/migrar-usuarios-copa.py --apply
 ```
 
 El comando vuelve a simular, genera y valida un respaldo restringido del esquema
-`identidad`, y recién entonces confirma la importación. No modifica ni elimina
-`datos_tablero.public.usuarios_tableros`; esa tabla conserva las cuentas y
-contraseñas anteriores para la convivencia o una vuelta atrás controlada.
+`identidad`, y recién entonces confirma la importación. La tabla local
+`datos_tablero.public.usuarios_tableros` se conservó durante la convivencia y
+se respaldó antes de su retiro. Este script documenta la migración histórica;
+no debe repetirse después de retirar la tabla local.
 
 La migración inicial de las 11 cuentas se aplicó el 10 de noviembre de 2026 y se
 verificó con una segunda simulación sin cambios pendientes. El código debe
@@ -54,8 +55,8 @@ La configuración actual requiere `COPA_SSO_MODE=production`,
 `COPA_SSO_PRODUCTION_ENABLED=si`, el origen interno `http://127.0.0.1:39001` y
 el origen público `https://appimi.corrientes.gob.ar`.
 
-Para volver al login local, quitar la configuración `COPA_SSO_*` del proceso de
-la API y reiniciarlo. La tabla local se conserva y permite validar el ingreso
-anterior. No restaurar el respaldo completo del esquema si la base central ya
-recibió otros cambios; desactivar los accesos de Copa importados desde la
-administración central y conservar el respaldo para recuperación puntual.
+La versión actual requiere identidad central; quitar `COPA_SSO_*` hace que el
+login falle cerrado. Para una vuelta atrás controlada hay que restaurar el
+respaldo puntual de la tabla local y desplegar la versión anterior de la API.
+No restaurar el esquema completo de identidad central: puede contener cambios
+posteriores de otros tableros.

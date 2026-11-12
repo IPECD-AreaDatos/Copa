@@ -16,7 +16,7 @@ async function call(headers, route = {}) {
   return { ...result, user: req.user };
 }
 
-test('la convivencia conserva JWT locales cuando SSO está desactivado', async () => {
+test('sin SSO configurado no acepta sesiones heredadas', async () => {
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
   const previousMode = process.env.COPA_SSO_MODE;
   const previousSecret = process.env.JWT_SECRET;
@@ -27,8 +27,8 @@ test('la convivencia conserva JWT locales cuando SSO está desactivado', async (
     delete process.env.COPA_SSO_ENSAYO_LOCAL;
     const token = jwt.sign({ id: 17, username: 'usuario' }, process.env.JWT_SECRET);
     const legacy = await call({ authorization: 'Bearer ' + token });
-    assert.equal(legacy.next, true);
-    assert.equal(legacy.user.username, 'usuario');
+    assert.equal(legacy.next, false);
+    assert.equal(legacy.status, 503);
   } finally {
     if (previousFlag === undefined) delete process.env.COPA_SSO_ENSAYO_LOCAL; else process.env.COPA_SSO_ENSAYO_LOCAL = previousFlag;
     if (previousSecret === undefined) delete process.env.JWT_SECRET; else process.env.JWT_SECRET = previousSecret;

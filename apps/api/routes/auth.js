@@ -2,18 +2,14 @@
 
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const db = require('../db');
 const authMiddleware = require('../middleware/auth');
-const { publicUser } = require('../services/user-access');
-const { jwtSecret } = require('../services/auth-config');
 const { config, sessionCookie } = require('../middleware/sso-config');
 const { centralUser, isCentralUser } = require('../services/central-access');
 
 router.get('/me', authMiddleware, (req, res) => res.json({ user: req.user }));
 router.get('/session', (req, res, next) => {
-  try { if (!config()) return res.sendStatus(404); }
+  try { if (!config()) return res.sendStatus(503); }
   catch { return res.sendStatus(503); }
   res.set('Cache-Control', 'no-store');
   return next();
@@ -73,45 +69,6 @@ async function centralLogin(req, res, sso, username, password) {
   }
 }
 
-async function legacyLogin(req, res, username, password) {
-  console.log(`[AUTH] Intento de login para usuario: ${username}`);
-  try {
-    const result = await db.query(
-      `SELECT id_usuario, username, password_hash, tablero_acceso, activo, gastos_jurisdicciones
-       FROM public.usuarios_tableros
-       WHERE username = $1 AND activo = true`,
-      [username]
-    );
-    const user = result.rows[0];
-    if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
-    if (user.tablero_acceso !== 'coparticipacion') return res.status(401).json({ message: 'No tiene permisos para este tablero' });
-
-    let validPassword = false;
-    try { validPassword = await bcrypt.compare(password, user.password_hash); }
-    catch { console.log('[AUTH] No se pudo comprobar el hash bcrypt heredado.'); }
-    const isPlainMatch = !/^\$2[aby]\$/.test(user.password_hash) && password === user.password_hash;
-    if (!validPassword && !isPlainMatch) return res.status(401).json({ message: 'Credenciales inválidas' });
-
-    if (isPlainMatch && !validPassword) {
-      const newHash = await bcrypt.hash(password, 10);
-      await db.query('UPDATE public.usuarios_tableros SET password_hash = $1 WHERE id_usuario = $2', [newHash, user.id_usuario]);
-    }
-
-    const sessionUser = publicUser(user);
-    const token = jwt.sign({ id: user.id_usuario, username: user.username }, jwtSecret(), { expiresIn: '12h' });
-    await db.query(
-      `INSERT INTO public.coparticipacion_registros
-       (id_usuario, seccion_tablero, accion, detalle_interaccion, ip_cliente)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [user.id_usuario, 'Acceso', 'Login Exitoso', JSON.stringify({ method: 'API' }), req.ip]
-    );
-    return res.json({ token, user: sessionUser });
-  } catch (err) {
-    console.error('[AUTH] Error al iniciar sesión:', err.code || 'request_failed');
-    return res.status(500).json({ message: 'Error en el servidor' });
-  }
-}
-
 router.post('/login', async (req, res) => {
   const { username, password } = req.body || {};
   res.setHeader('Cache-Control', 'private, no-store');
@@ -122,8 +79,8 @@ router.post('/login', async (req, res) => {
   let sso;
   try { sso = config(); }
   catch { return res.status(503).json({ message: 'Configuración SSO no disponible' }); }
-  if (sso) return centralLogin(req, res, sso, username.trim(), password);
-  return legacyLogin(req, res, username.trim(), password);
+  if (!sso) return res.status(503).json({ message: 'Identidad central no configurada' });
+  return centralLogin(req, res, sso, username.trim(), password);
 });
 
 router.post('/logout-central', async (req, res) => {
