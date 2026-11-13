@@ -17,7 +17,7 @@ export default function PosicionEconomicaPage() {
       <main className="route-status-page">
         <section className="route-status-card">
           <h1>Acceso restringido</h1>
-          <p>Posición económica está disponible únicamente para la cuenta admin.</p>
+          <p>Posición económica está disponible para administradores de Copa.</p>
           <Link href={user.access?.scope === "institution" ? "/gasto" : "/"} className="route-status-link">
             Volver al tablero
           </Link>

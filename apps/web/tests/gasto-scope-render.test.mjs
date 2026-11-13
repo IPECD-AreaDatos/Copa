@@ -124,14 +124,14 @@ test('los demás rubros conservan promedio Top 3 y máximo', () => {
   assert.doesNotMatch(html, /Mes anterior:/);
 });
 
-test('la sección económica exige la cuenta admin con rol administrador y alcance general', () => {
+test('la sección económica exige rol administrador con alcance general', () => {
   const access = { scope: 'global', jurisdictions: [] };
   for (const origen of ['central', 'central-ensayo']) {
     assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'admin', origen, access }), true);
+    assert.equal(canAccessEconomicPosition({ username: 'otro-admin', role: 'admin', origen, access }), true);
   }
   for (const user of [null, {}, { username: 'admin' }, { username: 'gcorrales', access },
     { username: 'admin', role: 'user', access },
-    { username: 'otro-admin', role: 'admin', origen: 'central', access },
     { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access },
     { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access },
     { username: 'admin', role: 'admin', origen: 'central-ensayo', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {

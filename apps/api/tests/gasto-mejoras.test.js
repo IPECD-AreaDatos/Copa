@@ -63,14 +63,14 @@ test('ingresos ausentes, parciales y meses en curso no se convierten en cero ni 
     assert.equal(result.monthly[1].diferencia, null);
     assert.deepEqual(result.totals, { ingresos: null, gastos: 20, diferencia: null });
 });
-test('posición económica queda reservada a la cuenta admin con rol administrador y alcance global', () => {
+test('posición económica queda reservada al rol administrador con alcance global', () => {
     const global = { scope: 'global', jurisdictions: [] };
     for (const origen of ['central', 'central-ensayo']) {
         assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'admin', origen, access: global }), true);
+        assert.equal(canAccessEconomicPosition({ username: 'otro-admin', role: 'admin', origen, access: global }), true);
     }
     for (const user of [null, {}, { username: 'admin' }, { username: 'admin', role: 'user', access: global },
         { username: 'gcorrales', access: global },
-        { username: 'otro-admin', role: 'admin', origen: 'central', access: global },
         { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access: global },
         { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access: global },
         { username: 'admin', role: 'admin', origen: 'central-ensayo', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
@@ -85,7 +85,7 @@ test('la comparación y su catálogo aplican el mismo permiso antes de consultar
     for (const path of ['/desagregados/posicion-economica', '/desagregados/posicion-economica/filtros']) {
         const guard = router.stack.find((layer) => layer.route?.path === path).route.stack.at(-2).handle;
         for (const user of [
-            { username: 'otro-admin', role: 'admin', origen: 'central', access: global },
+            { username: 'admin', role: 'user', origen: 'central', access: global },
             { username: 'analista-central', role: 'analyst', origen: 'central', access: global },
             { username: 'salud', role: 'user', origen: 'central', access: institution },
         ]) {
@@ -96,7 +96,7 @@ test('la comparación y su catálogo aplican el mismo permiso antes de consultar
             assert.equal(status, 403);
         }
         let authorized = false;
-        guard({ user: { username: 'admin', role: 'admin', origen: 'central', access: global } }, {}, () => { authorized = true; });
+        guard({ user: { username: 'otro-admin', role: 'admin', origen: 'central', access: global } }, {}, () => { authorized = true; });
         assert.ok(authorized);
     }
 });
