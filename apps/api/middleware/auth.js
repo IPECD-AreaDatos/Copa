@@ -24,7 +24,7 @@ const verifyToken = async (req, res, next) => {
       && req.path === '/home';
     const allowed = req.baseUrl === '/api/gastos'
       || ministryHome
-      || (req.baseUrl === '/api/auth' && req.path === '/me')
+      || (req.baseUrl === '/api/auth' && ['/me', '/session'].includes(req.path))
       || (req.baseUrl === '/api/analytics' && req.path === '/log');
     if (!allowed) return res.status(403).json({ message: 'Acceso limitado a los gastos de su institución' });
   }

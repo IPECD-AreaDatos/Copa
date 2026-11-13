@@ -10,16 +10,19 @@ test('nuevos cortes del tablero concilian con datos vivos', { skip: !enabled }, 
     const { ROP_AMOUNT_SQL } = require('../services/rop-source');
     const invoke = (path, query = {}, access = { scope: 'global', jurisdictions: [] }) => new Promise((resolve, reject) => {
         const handler = router.stack.find((layer) => layer.route?.path === path).route.stack.at(-1).handle;
-        handler({ query, user: { username: 'admin', access } }, { json: resolve, status: (status) => ({ json: (payload) => reject(new Error(`${status}: ${JSON.stringify(payload)}`)) }) });
+        handler({ query, user: { username: 'admin', role: 'admin', access } }, { json: resolve, status: (status) => ({ json: (payload) => reject(new Error(`${status}: ${JSON.stringify(payload)}`)) }) });
     });
     try {
         const period = await invoke('/desagregados/periodo-predeterminado');
         assert.equal(period.mesDesde, 1);
         assert.ok(period.periodo < currentPeriod());
+        const economicFilters = await invoke('/desagregados/posicion-economica/filtros');
+        assert.deepEqual(economicFilters.period, period);
         const query = { anio: period.anio, mesDesde: 1, mesHasta: period.mesHasta, estado: 'Comprometido', jurisdiccion: '4' };
         let combined;
         await t.test('fuentes múltiples y desglose mensual por organismo suman exactamente el mismo universo', async () => {
             combined = await invoke('/desagregados', { ...query, fuente: '10,11' });
+            assert.deepEqual(economicFilters.available, combined.meta.available);
             const singles = await Promise.all([10, 11].map((fuente) => invoke('/desagregados', { ...query, fuente })));
             assert.ok(Math.abs(combined.total - singles.reduce((sum, r) => sum + r.total, 0)) < 0.01);
             assert.ok(Math.abs(combined.total - combined.monthly_jurisdicciones_rubros.reduce((sum, r) => sum + r.total, 0)) < 0.01);

@@ -124,15 +124,17 @@ test('los demás rubros conservan promedio Top 3 y máximo', () => {
   assert.doesNotMatch(html, /Mes anterior:/);
 });
 
-test('la pestaña económica exige admin, incluyendo el rango central admin', () => {
+test('la sección económica exige la cuenta admin con rol administrador y alcance general', () => {
   const access = { scope: 'global', jurisdictions: [] };
-  assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'user', access }), true);
-  assert.equal(canAccessEconomicPosition({ username: ' ADMIN ', access }), true);
-  assert.equal(canAccessEconomicPosition({ username: 'mzalazar', role: 'admin', origen: 'central-ensayo', access }), true);
+  for (const origen of ['central', 'central-ensayo']) {
+    assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'admin', origen, access }), true);
+  }
   for (const user of [null, {}, { username: 'admin' }, { username: 'gcorrales', access },
+    { username: 'admin', role: 'user', access },
+    { username: 'otro-admin', role: 'admin', origen: 'central', access },
     { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access },
     { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access },
-    { username: 'admin', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
+    { username: 'admin', role: 'admin', origen: 'central-ensayo', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
     assert.equal(canAccessEconomicPosition(user), false);
   }
 });

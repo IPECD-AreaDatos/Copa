@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { canAccessGastosDesagregados, isInstitutionUser, isCopaAdmin } from "@/lib/access";
+import { canAccessEconomicPosition, canAccessGastosDesagregados, isInstitutionUser, isCopaAdmin } from "@/lib/access";
 import type { CopaUser } from "@/hooks/useDashboardSession";
 
 type Props = {
@@ -93,6 +93,16 @@ export default function DashboardShell({
           </Link>}
           {displayName !== "Invitado" && (
             <>
+              {canAccessEconomicPosition(user) && (
+                <Link
+                  href="/posicion-economica"
+                  className={navClass("/posicion-economica")}
+                  aria-current={activePath === "/posicion-economica" ? "page" : undefined}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Posición económica
+                </Link>
+              )}
               {!institutionOnly && <><Link href="/monitor-mensual" className={navClass("/monitor-mensual")} onClick={() => setSidebarOpen(false)}>
                 Análisis Mensual RON
               </Link>

@@ -47,6 +47,47 @@ const canViewGastosExcel = allowUsers(
 const canViewGastosDesagregados = (req, res, next) => institutionCodes(req)
     ? next() : canViewGastosExcel(req, res, next);
 
+function requireEconomicPosition(req, res, next) {
+    if (canAccessEconomicPosition(req.user)) return next();
+    return res.status(403).json({ message: 'Posición económica disponible únicamente para la cuenta admin.' });
+}
+
+async function detailedPeriod(access) {
+    const result = await db.query(`
+        SELECT anio, mes, tipo_de_g, COUNT(*)::int AS row_count
+        FROM copa_gastos_fte WHERE ${access.text}
+        AND tipo_de_g IN ('Comprometido', 'Ordenado', 'Cred Vig')
+        GROUP BY anio, mes, tipo_de_g
+    `, access.params);
+    return latestCompletePeriod(result.rows);
+}
+
+async function detailedOptions(access) {
+    const result = await db.query(`
+        SELECT
+            ARRAY_AGG(DISTINCT anio ORDER BY anio) AS years,
+            ARRAY_AGG(DISTINCT codigo_fuente ORDER BY codigo_fuente) AS sources,
+            ARRAY_AGG(DISTINCT tipo_de_g ORDER BY tipo_de_g) AS states,
+            ARRAY_AGG(DISTINCT jurisdiccion ORDER BY jurisdiccion) AS jurisdictions,
+            ARRAY_AGG(DISTINCT partid ORDER BY partid) AS partidas
+        FROM copa_gastos_fte WHERE ${access.text}
+    `, access.params);
+    const row = result.rows[0] || {};
+    return {
+        years: row.years || [],
+        fuentes: (row.sources || []).map((codigo) => ({
+            codigo: Number(codigo),
+            nombre: FUENTE_LABELS[Number(codigo)] || `Fuente ${codigo}`,
+        })),
+        estados: (row.states || []).map((estado) => ({
+            codigo: estado,
+            nombre: ESTADO_LABELS[estado] || estado,
+        })),
+        jurisdicciones: (row.jurisdictions || []).map(mapJurisdiccion),
+        partidas: (row.partidas || []).map(mapPartida),
+    };
+}
+
 const JURISDICCION_ALIASES = {
     'ADMINIST. DE OBRAS SANITARIAS DE': 'ADMINISTRACIÓN DE OBRAS SANITARIAS DE CORRIENTES',
     'AGENCIA CORRENTINA DE BIENES DEL': 'AGENCIA CORRENTINA DE BIENES DEL ESTADO',
@@ -160,14 +201,7 @@ router.get('/desagregados/excel/:id', authMiddleware, (req, res, next) => {
 
 router.get('/desagregados/periodo-predeterminado', authMiddleware, canViewGastosDesagregados, async (req, res) => {
     try {
-        const access = institutionWhere(req, { numeric: true });
-        const result = await db.query(`
-            SELECT anio, mes, tipo_de_g, COUNT(*)::int AS row_count
-            FROM copa_gastos_fte WHERE ${access.text}
-            AND tipo_de_g IN ('Comprometido', 'Ordenado', 'Cred Vig')
-            GROUP BY anio, mes, tipo_de_g
-        `, access.params);
-        const period = latestCompletePeriod(result.rows);
+        const period = await detailedPeriod(institutionWhere(req, { numeric: true }));
         if (!period) return res.status(404).json({ message: 'No hay un mes completo de gastos disponible.' });
         return res.json(period);
     } catch (err) {
@@ -176,8 +210,19 @@ router.get('/desagregados/periodo-predeterminado', authMiddleware, canViewGastos
     }
 });
 
-router.get('/desagregados/posicion-economica', authMiddleware, canViewGastosDesagregados, async (req, res) => {
-    if (!canAccessEconomicPosition(req.user)) return res.status(403).json({ message: 'Posición económica disponible únicamente para el usuario admin.' });
+router.get('/desagregados/posicion-economica/filtros', authMiddleware, requireEconomicPosition, async (req, res) => {
+    try {
+        const access = institutionWhere(req, { numeric: true });
+        const [period, available] = await Promise.all([detailedPeriod(access), detailedOptions(access)]);
+        if (!period) return res.status(404).json({ message: 'No hay un mes completo de gastos disponible.' });
+        return res.json({ period, available });
+    } catch (err) {
+        console.error('Error al consultar los filtros de posición económica:', err.message);
+        return res.status(500).json({ message: 'No se pudieron cargar los filtros de posición económica.' });
+    }
+});
+
+router.get('/desagregados/posicion-economica', authMiddleware, requireEconomicPosition, async (req, res) => {
     try {
         const filters = buildFilters(req.query);
         if (isSnapshotState(filters)) return res.status(400).json({ message: 'Seleccione Comprometido u Ordenado para comparar gastos e ingresos.' });
@@ -232,7 +277,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
             jurisdictionsResult,
             monthlyResult,
             coverageResult,
-            optionsResult,
+            available,
             rubrosResult,
             jurisdictionRubrosResult,
             monthlyRubrosResult,
@@ -281,15 +326,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
                        COALESCE(SUM(val), 0)::numeric AS total
                 ${from}
             `, where.params),
-            db.query(`
-                SELECT
-                    ARRAY_AGG(DISTINCT anio ORDER BY anio) AS years,
-                    ARRAY_AGG(DISTINCT codigo_fuente ORDER BY codigo_fuente) AS sources,
-                    ARRAY_AGG(DISTINCT tipo_de_g ORDER BY tipo_de_g) AS states,
-                    ARRAY_AGG(DISTINCT jurisdiccion ORDER BY jurisdiccion) AS jurisdictions,
-                    ARRAY_AGG(DISTINCT partid ORDER BY partid) AS partidas
-                FROM copa_gastos_fte WHERE ${accessWhere.text}
-            `, accessWhere.params),
+            detailedOptions(accessWhere),
             db.query(`
                 SELECT ${RUBRO_CASE_SQL} AS rubro,
                        SUM(val)::numeric AS total,
@@ -353,10 +390,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
         const monthlyRubroRows = buildMonthlyRubroRows(monthlyRubrosResult.rows);
         const jurisdictionSubpartidaRows = buildJurisdictionSubpartidaRows(jurisdictionSubpartidasResult.rows);
         const coverage = coverageResult.rows[0] || { raw_rows: 0, total: 0 };
-        const optionRow = optionsResult.rows[0] || {};
-        const availableJurisdictions = (optionRow.jurisdictions || []).map(mapJurisdiccion);
-        const availablePartidas = (optionRow.partidas || []).map(mapPartida);
-        const unmappedJurisdictions = availableJurisdictions
+        const unmappedJurisdictions = available.jurisdicciones
             .filter((jurisdiccion) => !jurisdiccion.mapeada)
             .map((jurisdiccion) => jurisdiccion.codigo);
         const selectedTotal = numberValue(coverage.total);
@@ -374,19 +408,7 @@ router.get('/desagregados', authMiddleware, canViewGastosDesagregados, async (re
                 selected: effectiveFilters,
                 is_snapshot: isSnapshotState(filters),
                 snapshot_month: snapshotMonth === null ? null : Number(snapshotMonth),
-                available: {
-                    years: optionRow.years || [],
-                    fuentes: (optionRow.sources || []).map((codigo) => ({
-                        codigo: Number(codigo),
-                        nombre: FUENTE_LABELS[Number(codigo)] || `Fuente ${codigo}`,
-                    })),
-                    estados: (optionRow.states || []).map((estado) => ({
-                        codigo: estado,
-                        nombre: ESTADO_LABELS[estado] || estado,
-                    })),
-                    jurisdicciones: availableJurisdictions,
-                    partidas: availablePartidas,
-                },
+                available,
                 unmapped_jurisdictions: unmappedJurisdictions,
                 raw_rows: Number(coverage.raw_rows || 0),
                 grouped_rows: subpartidaRows.length,

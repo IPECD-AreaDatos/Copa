@@ -63,43 +63,40 @@ test('ingresos ausentes, parciales y meses en curso no se convierten en cero ni 
     assert.equal(result.monthly[1].diferencia, null);
     assert.deepEqual(result.totals, { ingresos: null, gastos: 20, diferencia: null });
 });
-test('la comparación provincial rechaza a Salud antes de consultar ingresos', async () => {
-    const router = require('../routes/gastos');
-    const handler = router.stack.find((layer) => layer.route?.path === '/desagregados/posicion-economica').route.stack.at(-1).handle;
-    let status;
-    await handler({ user: { access: { scope: 'institution', jurisdictions: [{ code: 4 }] } } }, { status(code) { status = code; return this; }, json() {} });
-    assert.equal(status, 403);
-});
-
-test('posición económica queda reservada a la cuenta admin con alcance global', () => {
+test('posición económica queda reservada a la cuenta admin con rol administrador y alcance global', () => {
     const global = { scope: 'global', jurisdictions: [] };
-    assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'user', access: global }), true);
-    assert.equal(canAccessEconomicPosition({ username: ' ADMIN ', access: global }), true);
-    assert.equal(canAccessEconomicPosition({ username: 'mzalazar', role: 'admin', origen: 'central-ensayo', access: global }), true);
-    for (const user of [null, {}, { username: 'admin' },
+    for (const origen of ['central', 'central-ensayo']) {
+        assert.equal(canAccessEconomicPosition({ username: 'admin', role: 'admin', origen, access: global }), true);
+    }
+    for (const user of [null, {}, { username: 'admin' }, { username: 'admin', role: 'user', access: global },
         { username: 'gcorrales', access: global },
+        { username: 'otro-admin', role: 'admin', origen: 'central', access: global },
         { username: 'irodriguez', role: 'editor', origen: 'central-ensayo', access: global },
         { username: 'irodriguez', role: 'lector', origen: 'central-ensayo', access: global },
-        { username: 'admin', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
+        { username: 'admin', role: 'admin', origen: 'central-ensayo', access: { scope: 'institution', jurisdictions: [{ code: 4 }] } }]) {
         assert.equal(canAccessEconomicPosition(user), false);
     }
 });
 
-test('otros accesos generales reciben 403 aunque intenten acceder directamente a ingresos', async () => {
-    const db = require('../db');
+test('la comparación y su catálogo aplican el mismo permiso antes de consultar datos', () => {
     const router = require('../routes/gastos');
-    const handler = router.stack.find((layer) => layer.route?.path === '/desagregados/posicion-economica').route.stack.at(-1).handle;
-    const originalQuery = db.query;
-    let queries = 0;
-    db.query = async () => { queries += 1; return { rows: [] }; };
-    try {
-        for (const username of ['gcorrales', 'hgrachot', 'dinsaurralde', 'fgonzalez', 'irodriguez']) {
+    const global = { scope: 'global', jurisdictions: [] };
+    const institution = { scope: 'institution', jurisdictions: [{ code: 4 }] };
+    for (const path of ['/desagregados/posicion-economica', '/desagregados/posicion-economica/filtros']) {
+        const guard = router.stack.find((layer) => layer.route?.path === path).route.stack.at(-2).handle;
+        for (const user of [
+            { username: 'otro-admin', role: 'admin', origen: 'central', access: global },
+            { username: 'analista-central', role: 'analyst', origen: 'central', access: global },
+            { username: 'salud', role: 'user', origen: 'central', access: institution },
+        ]) {
             let status;
-            await handler({ query: { username: 'admin' }, user: { username, role: 'admin', access: { scope: 'global', jurisdictions: [] } } }, {
+            guard({ user }, {
                 status(code) { status = code; return this; }, json() {},
-            });
-            assert.equal(status, 403, username);
+            }, () => assert.fail(`Acceso inesperado a ${path}`));
+            assert.equal(status, 403);
         }
-        assert.equal(queries, 0);
-    } finally { db.query = originalQuery; }
+        let authorized = false;
+        guard({ user: { username: 'admin', role: 'admin', origen: 'central', access: global } }, {}, () => { authorized = true; });
+        assert.ok(authorized);
+    }
 });

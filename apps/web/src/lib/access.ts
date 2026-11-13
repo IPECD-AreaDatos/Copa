@@ -24,7 +24,7 @@ export function canAccessGastosDesagregados(user?: CopaUser | null): boolean {
 }
 
 export function canAccessEconomicPosition(user?: CopaUser | null): boolean {
-  if (isCentralUser(user)) return user?.role === "admin" && !isInstitutionUser(user);
-  return user?.username?.trim().toLowerCase() === "admin"
-    && user.access?.scope === "global";
+  return user?.role === "admin"
+    && user.access?.scope === "global"
+    && user.username?.trim().toLowerCase() === "admin";
 }

@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
 import type { CopaUser } from "@/hooks/useDashboardSession";
-import { canAccessEconomicPosition } from "@/lib/access";
 import GastoAnalisisMinisterial, {
   type MinisterialAnalysis,
 } from "./GastoAnalisisMinisterial";
 import GastoExplorador from "./GastoExplorador";
 import GastoMultiSelect from "./GastoMultiSelect";
-import GastoPosicionEconomica from "./GastoPosicionEconomica";
 import { MONTHS } from "./GastoEvolucion";
 
 type NumericOption = {
@@ -182,11 +180,10 @@ export default function GastosDesagregadosDashboard({
   user: CopaUser;
 }) {
   const access = user.access;
-  const economicAllowed = canAccessEconomicPosition(user);
   const institutionOnly = access?.scope === "institution";
   const singleInstitution =
     institutionOnly && access.jurisdictions.length === 1;
-  const [view, setView] = useState<"ministerial" | "summary" | "economic">(
+  const [view, setView] = useState<"ministerial" | "summary">(
     "ministerial",
   );
   const [year, setYear] = useState("");
@@ -502,25 +499,9 @@ export default function GastosDesagregadosDashboard({
           >
             Explorador general
           </button>
-          {economicAllowed && (
-            <button
-              type="button"
-              aria-pressed={view === "economic"}
-              onClick={() => setView("economic")}
-            >
-              Posición económica
-            </button>
-          )}
         </nav>
         {view === "ministerial" && <GastoAnalisisMinisterial data={data} />}
         {view === "summary" && <GastoExplorador data={data} />}
-        {view === "economic" && economicAllowed && (
-          <GastoPosicionEconomica
-            key={JSON.stringify(data.meta.requested)}
-            data={data}
-            onSourcesChange={updateSources}
-          />
-        )}
         <p className="source-text desagregado-source-line">
           Fuente del gasto: {data.meta.source_table}. Montos en pesos
           corrientes, expresados en millones.

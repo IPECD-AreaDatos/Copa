@@ -8,12 +8,31 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchWithAuth } from "@/lib/api";
 import { format1M } from "@/lib/gasto/logic";
 import { MONTHS } from "./GastoEvolucion";
 import GastoMultiSelect from "./GastoMultiSelect";
 import type { DesagregadoResponse } from "./GastosDesagregadosDashboard";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+
+const API_URL = "/copa/copa-api/api/gastos/desagregados/posicion-economica";
+
+type Period = {
+  anio: number;
+  mesDesde: number;
+  mesHasta: number;
+};
+
+type FilterOptions = DesagregadoResponse["meta"]["available"];
+type FilterCatalog = { period: Period; available: FilterOptions };
+
+type Filters = Period & {
+  fuentes: number[];
+  estado: string;
+  jurisdiccion: string;
+  partidas: number[];
+};
 
 type Position = {
   monthly: {
@@ -33,38 +52,208 @@ type Position = {
   income_scope: string;
   sources: string[];
 };
-export default function GastoPosicionEconomica({
-  data,
-  onSourcesChange,
-}: {
-  data: DesagregadoResponse;
-  onSourcesChange: (values: number[]) => void;
-}) {
-  const [position, setPosition] = useState<Position | null>(null);
+
+export default function GastoPosicionEconomica() {
+  const [selection, setSelection] = useState<{
+    available: FilterOptions;
+    filters: Filters;
+  } | null>(null);
   const [error, setError] = useState("");
-  const filters = data.meta.requested;
+  const { logAction } = useAnalytics();
+
+  useEffect(() => {
+    void logAction("Posición económica", "Acceso a apartado");
+  }, [logAction]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchWithAuth(`${API_URL}/filtros`, { signal: controller.signal })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.message ?? "No se pudieron cargar los filtros.");
+        }
+        return payload as FilterCatalog;
+      })
+      .then(({ period, available }) => {
+        if (controller.signal.aborted) return;
+        setSelection({
+          available,
+          filters: {
+            anio: period.anio,
+            mesDesde: period.mesDesde,
+            mesHasta: period.mesHasta,
+            fuentes: [10],
+            estado: "Comprometido",
+            jurisdiccion: "",
+            partidas: [],
+          },
+        });
+      })
+      .catch((reason: unknown) => {
+        if (!controller.signal.aborted) {
+          setError(
+            reason instanceof Error ? reason.message : "Error al cargar los filtros.",
+          );
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  const heading = (
+    <header className="desagregado-heading">
+      <h1 className="dashboard-title">Posición económica</h1>
+    </header>
+  );
+  if (!selection) {
+    return (
+      <div className="desagregado-page">
+        {heading}
+        <section className="chart-container">
+          {error ? (
+            <p role="alert" className="desagregado-error">{error}</p>
+          ) : (
+            <p role="status">Cargando el último corte completo…</p>
+          )}
+        </section>
+      </div>
+    );
+  }
+
+  const { available, filters } = selection;
+  const states = available.estados.filter(
+    ({ codigo }) => codigo === "Comprometido" || codigo === "Ordenado",
+  );
+  const update = (changes: Partial<Filters>) => {
+    setSelection({ available, filters: { ...filters, ...changes } });
+  };
   const params = new URLSearchParams({
     anio: String(filters.anio),
     mesDesde: String(filters.mesDesde),
     mesHasta: String(filters.mesHasta),
-    estado: filters.estados?.[0] ?? "Comprometido",
+    estado: filters.estado,
   });
-  if (filters.fuentes?.length) params.set("fuente", filters.fuentes.join(","));
-  if (filters.jurisdicciones?.length)
-    params.set("jurisdiccion", filters.jurisdicciones.join(","));
-  if (filters.partidas?.length)
-    params.set("partid", filters.partidas.join(","));
-  if (filters.subPartidas?.length)
-    params.set("subPartid", filters.subPartidas.join(","));
+  if (filters.fuentes.length) params.set("fuente", filters.fuentes.join(","));
+  if (filters.jurisdiccion) params.set("jurisdiccion", filters.jurisdiccion);
+  if (filters.partidas.length) params.set("partid", filters.partidas.join(","));
   const query = params.toString();
-  const snapshot = data.meta.is_snapshot;
+
+  return (
+    <div className="desagregado-page">
+      {heading}
+      <section className="chart-container desagregado-controls">
+        <h2 className="section-title">Alcance de la consulta</h2>
+        <div className="section-filters gasto-filters">
+          <div className="sf-group">
+            <label htmlFor="posicion-year">Año</label>
+            <select
+              id="posicion-year"
+              value={filters.anio}
+              onChange={(event) => update({ anio: Number(event.target.value) })}
+            >
+              {[...available.years].sort((a, b) => b - a).map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sf-group">
+            <label htmlFor="posicion-from">Desde</label>
+            <select
+              id="posicion-from"
+              value={filters.mesDesde}
+              onChange={(event) => {
+                const month = Number(event.target.value);
+                update({ mesDesde: month, mesHasta: Math.max(month, filters.mesHasta) });
+              }}
+            >
+              {MONTHS.map((month, i) => <option key={month} value={i + 1}>{month}</option>)}
+            </select>
+          </div>
+          <div className="sf-group">
+            <label htmlFor="posicion-to">Hasta</label>
+            <select
+              id="posicion-to"
+              value={filters.mesHasta}
+              onChange={(event) => {
+                const month = Number(event.target.value);
+                update({ mesDesde: Math.min(month, filters.mesDesde), mesHasta: month });
+              }}
+            >
+              {MONTHS.map((month, i) => <option key={month} value={i + 1}>{month}</option>)}
+            </select>
+          </div>
+          <div className="sf-group">
+            <label htmlFor="posicion-state">Estado del gasto</label>
+            <select
+              id="posicion-state"
+              value={filters.estado}
+              onChange={(event) => update({ estado: event.target.value })}
+            >
+              {states.map(({ codigo, nombre }) => (
+                <option key={codigo} value={codigo}>{nombre}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sf-group">
+            <label htmlFor="posicion-jurisdiccion">Jurisdicción</label>
+            <select
+              id="posicion-jurisdiccion"
+              value={filters.jurisdiccion}
+              onChange={(event) => update({ jurisdiccion: event.target.value })}
+            >
+              <option value="">Todas</option>
+              {available.jurisdicciones.map(({ codigo, nombre }) => (
+                <option key={codigo} value={codigo}>{nombre}</option>
+              ))}
+            </select>
+          </div>
+          <GastoMultiSelect
+            label="Partidas"
+            options={available.partidas}
+            selected={filters.partidas}
+            onChange={(partidas) => update({ partidas })}
+            allLabel="Todas las partidas"
+          />
+          <button
+            type="button"
+            className="gasto-toggle"
+            aria-pressed={
+              filters.partidas.length === 2 &&
+              filters.partidas.includes(200) &&
+              filters.partidas.includes(300)
+            }
+            onClick={() => update({ partidas: [200, 300] })}
+          >
+            200 + 300 · Bienes y servicios
+          </button>
+          <GastoMultiSelect
+            label="Fuentes del gasto"
+            options={available.fuentes}
+            selected={filters.fuentes}
+            onChange={(fuentes) => update({ fuentes })}
+            allLabel="Todas las fuentes"
+          />
+          <button
+            type="button"
+            className="gasto-toggle"
+            aria-pressed={filters.fuentes.length === 1 && filters.fuentes[0] === 10}
+            onClick={() => update({ fuentes: [10] })}
+          >
+            Sólo Tesoro · fuente 10
+          </button>
+        </div>
+      </section>
+      <ComparacionEconomica key={query} query={query} filters={filters} />
+    </div>
+  );
+}
+
+function ComparacionEconomica({ query, filters }: { query: string; filters: Filters }) {
+  const [position, setPosition] = useState<Position | null>(null);
+  const [error, setError] = useState("");
   useEffect(() => {
-    if (snapshot) return;
     const controller = new AbortController();
-    fetchWithAuth(
-      `/copa/copa-api/api/gastos/desagregados/posicion-economica?${query}`,
-      { signal: controller.signal },
-    )
+    fetchWithAuth(`${API_URL}?${query}`, { signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok)
@@ -85,48 +274,12 @@ export default function GastoPosicionEconomica({
           );
       });
     return () => controller.abort();
-  }, [query, snapshot]);
+  }, [query]);
   const money = (v: number | null) =>
     v === null ? "Sin datos completos" : format1M(v);
-  const sources = filters.fuentes ?? [];
-  const heading = (
-    <>
-      <h2 className="section-title">
-        Posición económica · gastos vs. ingresos
-      </h2>
-      <div className="section-filters">
-        <GastoMultiSelect
-          label="Fuentes del gasto"
-          options={data.meta.available.fuentes}
-          selected={sources}
-          onChange={onSourcesChange}
-          allLabel="Todas las fuentes"
-        />
-        <button
-          type="button"
-          className="gasto-toggle"
-          aria-pressed={sources.length === 1 && sources[0] === 10}
-          onClick={() => onSourcesChange([10])}
-        >
-          Sólo Tesoro · fuente 10
-        </button>
-      </div>
-    </>
-  );
-  if (snapshot)
-    return (
-      <section className="chart-container">
-        {heading}
-        <p>
-          Seleccione Comprometido u Ordenado para comparar flujos de gastos e
-          ingresos.
-        </p>
-      </section>
-    );
   if (error || !position)
     return (
       <section className="chart-container">
-        {heading}
         {error ? (
           <p role="alert" className="desagregado-error">
             {error}
@@ -142,7 +295,7 @@ export default function GastoPosicionEconomica({
   return (
     <div className="ministerial-analysis">
       <section className="chart-container">
-        {heading}
+        <h2 className="section-title">Gastos e ingresos</h2>
         <p className="desagregado-scope-note">
           {position.income_scope} La diferencia es ingresos provinciales menos
           gasto seleccionado; con un gasto parcial no representa el resultado
@@ -151,7 +304,7 @@ export default function GastoPosicionEconomica({
         <p className="source-text">
           Mismo período: {MONTHS[filters.mesDesde - 1]}–
           {MONTHS[filters.mesHasta - 1]} {filters.anio}. Gasto en estado{" "}
-          {filters.estados?.[0]}.
+          {filters.estado}.
         </p>
         <div className="desagregado-kpi-grid gasto-economic-kpis">
           <article className="kpi-card">

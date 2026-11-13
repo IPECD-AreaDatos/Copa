@@ -121,7 +121,7 @@ test('analistas y ministerios reciben su rango y alcance central', async () => {
   }
 });
 
-test('el rango ministerio puede abrir Inicio y sigue sin acceso al monitor mensual', async () => {
+test('el rango ministerio puede verificar su sesión y abrir Inicio', async () => {
   const previousFetch = global.fetch;
   const previousFlag = process.env.COPA_SSO_ENSAYO_LOCAL;
   const previousMode = process.env.COPA_SSO_MODE;
@@ -130,6 +130,9 @@ test('el rango ministerio puede abrir Inicio y sigue sin acceso al monitor mensu
   try {
     global.fetch = async () => ({ ok: true, json: async () => ({ usuario: 'ministerio', tableros: [{ codigo: 'copa', rango: 'ministerio', alcances: [{ tipo: 'jurisdiccion', valor: '3' }] }] }) });
     const cookie = { cookie: 'imi_sso_ensayo=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' };
+    const session = await call(cookie, { baseUrl: '/api/auth', path: '/session' });
+    assert.equal(session.next, true);
+    assert.equal(session.user.access.scope, 'institution');
     const home = await call(cookie, { baseUrl: '/api/dashboard', path: '/home' });
     assert.equal(home.next, true);
     const monthly = await call(cookie, { baseUrl: '/api/dashboard', path: '/monthly' });
