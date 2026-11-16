@@ -1,5 +1,12 @@
 function canAccessEconomicPosition(user) {
-    return user?.role === 'admin' && user.access?.scope === 'global';
+    if (user?.access?.scope !== 'global') return false;
+
+    const isAdministrator = user.role === 'admin';
+    const isExpenseAnalyst = user.role === 'analyst'
+        && user.rango === 'analista-gastos'
+        && user.capabilities?.includes('gastos-desagregados') === true;
+
+    return isAdministrator || isExpenseAnalyst;
 }
 
 module.exports = { canAccessEconomicPosition };

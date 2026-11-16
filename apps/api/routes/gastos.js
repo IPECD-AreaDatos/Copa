@@ -49,7 +49,7 @@ const canViewGastosDesagregados = (req, res, next) => institutionCodes(req)
 
 function requireEconomicPosition(req, res, next) {
     if (canAccessEconomicPosition(req.user)) return next();
-    return res.status(403).json({ message: 'Posición económica disponible para administradores de Copa.' });
+    return res.status(403).json({ message: 'Posición económica disponible para administradores globales, administradores de Copa y analistas de gastos.' });
 }
 
 async function detailedPeriod(access) {
