@@ -85,7 +85,12 @@ for (const code of [1, 3, 4, 6, 27]) {
 test('nivel general conserva los mismos indicadores y permite comparar organismos', () => {
   const html = renderToStaticMarkup(createElement(Dashboard, { data: fixture([1, 3], 'global', false) }));
   assert.match(html, /class="kpi-value">\$450 M<\/strong>/);
-  assert.match(html, /Evolución mensual por rubro/);
+  const headings = [...html.matchAll(/<h2 class="section-title">([^<]+)<\/h2>/g)].map(([, title]) => title);
+  assert.deepEqual(headings.slice(1, 4), [
+    'Evolución mensual por rubro',
+    'Matriz y subtotales por jurisdicción',
+    'Promedio mensual y proyección simple',
+  ]);
   assert.match(html, /Promedio 3 más altos/);
   assert.match(html, /Punto máximo/);
   assert.match(html, /Concentración Top 8/);

@@ -230,12 +230,12 @@ export default function GastoAnalisisMinisterial({
         </div>
       </section>
       <GastoEvolucion data={scopedData} />
-      <GastoProyeccion data={scopedData} />
       <GastoMatriz
         rows={analysis.matrix}
         labels={analysis.labels}
         consolidated
       />
+      <GastoProyeccion data={scopedData} />
       {!single && (
         <>
           <GastoConcentracion data={scopedData} />
